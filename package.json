@@ -1,0 +1,42 @@
+{
+  "name": "@zamafhe/web-sdk",
+  "version": "0.0.1",
+  "description": "Web SDK for blockchain using TFHE",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/",
+    "watch": "webpack --mode=development --watch --config config/webpack.config.js",
+    "build": "webpack --mode=production --config config/webpack.config.js",
+    "test": "jest --colors --passWithNoTests --coverage",
+    "test:watch": "jest --colors --passWithNoTests --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zama-ai/web-sdk.git"
+  },
+  "author": "",
+  "license": "BSD-3-Clause-Clear",
+  "bugs": {
+    "url": "https://github.com/zama-ai/web-sdk/issues"
+  },
+  "homepage": "https://github.com/zama-ai/web-sdk#readme",
+  "dependencies": {
+    "node-tfhe": "^0.2.4",
+    "tfhe": "^0.2.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "jest": "^29.5.0",
+    "jest-raw-loader": "^1.0.1",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "to-array-buffer": "^3.2.0",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^9.4.2",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.82.1",
+    "webpack-cli": "^5.1.1"
+  }
+}
