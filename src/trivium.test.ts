@@ -1,22 +1,25 @@
-import { encrypt, stringToHex } from './trivium';
+import { encrypt } from './trivium';
 
 describe('Trivium', () => {
+  const te = new TextEncoder();
+  const td = new TextDecoder();
   it('encrypt and decrypt one character', () => {
     const key = '80000000000000000000';
     const iv = '00000000000000000000';
     const message = 'a';
-    const encrypted = encrypt(key, iv, message);
-    expect(encrypted).toBe('Y');
+    const uint8 = te.encode(message);
+    const encrypted = encrypt(key, iv, uint8);
+    expect(td.decode(encrypted)).toBe('Y');
     const decrypted = encrypt(key, iv, encrypted);
-    expect(decrypted).toBe('a');
+    expect(td.decode(decrypted)).toBe('a');
   });
   it('encrypt and decrypt multiple word', () => {
     const key = '80000000000000000000';
     const iv = '00000000000000000000';
     const message = 'Trivium';
-    const encrypted = encrypt(key, iv, message);
-    expect(stringToHex(encrypted)).toBe('6c99ef891a7817');
+    const uint8 = te.encode(message);
+    const encrypted = encrypt(key, iv, uint8);
     const decrypted = encrypt(key, iv, encrypted);
-    expect(decrypted).toBe('Trivium');
+    expect(td.decode(decrypted)).toBe('Trivium');
   });
 });

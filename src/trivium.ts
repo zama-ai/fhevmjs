@@ -50,44 +50,28 @@ class Trivium {
   }
 }
 
-export function encrypt(keyString: string, ivString: string, str: string, format = 'number') {
-  let hexStr = stringToHex(str);
-
+export function encrypt(keyString: string, ivString: string, ab: Uint8Array) {
   const T = new Trivium(keyString, ivString);
-  const results = [];
-  for (let i = 0; i < str.length * 2; i += 2) {
+  return ab.map((v) => {
     let ks = T.keystream().reverse();
-    let hexKS = bitsToHex(ks);
-    let hex = hexStr[i] + hexStr[i + 1];
-
-    const value = parseInt(hex, 16) ^ parseInt(hexKS, 16);
-
-    results.push(value);
-  }
-
-  return results.map((v) => String.fromCharCode(v)).join('');
+    let ksNumber = bitsToNumber(ks);
+    return v ^ ksNumber;
+  });
 }
 
-export function stringToHex(str: string): string {
-  return new Array(str.length)
-    .fill(0)
-    .map((_, i) => str.charCodeAt(i).toString(16))
-    .join('');
-}
-
-function bitsToHex(bits: number[]) {
+const bitsToNumber = (bits: number[]): number => {
   let str = '';
   for (let i = 0; i < bits.length; i += 8) {
     const chunk = bits.slice(i, i + 8).join('');
-    str += parseInt(chunk, 2).toString(16);
+    str += parseInt(chunk, 2);
   }
-  return str;
-}
+  return parseInt(str, 10);
+};
 
-function hexToBits(hexString: string, pad = 0): number[] {
+const hexToBits = (hexString: string, pad = 0): number[] => {
   const str = parseInt(hexString, 16).toString(2).padStart(pad, '0');
   return str.split('').map((v) => +v);
-}
+};
 
 const changeEndianness = (string: string) => {
   const result = [];
