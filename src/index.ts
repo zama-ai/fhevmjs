@@ -1,4 +1,5 @@
-import { encrypt as rawEncrypt } from './encrypt';
 import { withInitialization } from './init';
 
-export const encrypt = withInitialization(rawEncrypt);
+export { prepareInput } from './input';
+
+export { encrypt } from './trivium';

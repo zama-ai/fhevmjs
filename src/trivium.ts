@@ -1,6 +1,8 @@
-class Trivium {
+export class Trivium {
   state: number[] = [];
   constructor(keyHex: string, ivHex: string) {
+    if (ivHex.length !== 20) throw new Error('Invalid iv length');
+    if (keyHex.length !== 20) throw new Error('Invalid key length');
     const key = hexToBits(changeEndianness(keyHex), 80);
     const iv = hexToBits(changeEndianness(ivHex), 80);
 
@@ -50,7 +52,7 @@ class Trivium {
   }
 }
 
-export function encrypt(keyString: string, ivString: string, ab: Uint8Array) {
+export function encrypt(keyString: string, ivString: string, ab: Uint8Array): Uint8Array {
   const T = new Trivium(keyString, ivString);
   return ab.map((v) => {
     let ks = T.keystream().reverse();

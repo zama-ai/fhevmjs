@@ -1,7 +1,11 @@
-export type Seed = bigint;
-export const generateEncryptedSeed = (): Seed => {
-  const seed = crypto.subtle.generateKey({ name: 'AES-CTR', length: 128 }, true, ['encrypt', 'decrypt']);
-  return BigInt(94839292);
+export type Seed = string;
+
+export const generateEncryptedSeed = async (): Promise<Seed> => {
+  const key = await crypto.subtle.generateKey({ name: 'AES-CTR', length: 128 }, true, ['encrypt', 'decrypt']);
+  const seed = await crypto.subtle.exportKey('raw', key);
+  return bufferToHex(seed).substring(0, 20); // get only 80 bits;
 };
 
-export const encryptWithSeed = (seed: Seed, data: bigint): bigint => data;
+function bufferToHex(buffer: ArrayBuffer) {
+  return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
