@@ -1,5 +1,3 @@
-import { Seed } from './seed';
-
-export const decryptWithSeed = (seed: Seed, ciphertext: bigint): bigint => {
+export const decryptWithSeed = (ciphertext: bigint): bigint => {
   return BigInt(ciphertext);
 };

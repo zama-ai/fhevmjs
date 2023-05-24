@@ -14,7 +14,11 @@ const common = {
     // the build folder to output bundles and assets in.
     path: PATHS.build,
     // the filename template for entry chunks
-    filename: '[name].js',
+    filename: 'index.js',
+    globalObject: 'this',
+    library: {
+      type: 'commonjs2',
+    },
   },
   module: {
     rules: [

@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "rootDir": "src",
-    "target": "es2020",
-    "lib": ["es2020", "DOM"],
+    "outDir": "build",
+    "declaration": true,
+    "target": "ES5",
+    "lib": ["es5", "DOM"],
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
