@@ -6,7 +6,7 @@ describe('Output', () => {
       verifyingContract: '0xccc',
     });
     console.log(response);
-    const jsonToken: EIP712 = JSON.parse(response.message);
+    const jsonToken: EIP712 = response.eip712;
     expect(jsonToken.domain.chainId).toBe(9000);
     expect(jsonToken.domain.name).toBe('Authorization for 0xccc');
     expect(jsonToken.domain.version).toBe('1');
