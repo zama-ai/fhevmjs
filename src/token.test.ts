@@ -1,6 +1,6 @@
-import { EIP712, generateToken } from './output';
+import { EIP712, generateToken } from './token';
 
-describe('Output', () => {
+describe('token', () => {
   it('creates a valid EIP712 object', async () => {
     const response = await generateToken({
       verifyingContract: '0xccc',

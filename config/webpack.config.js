@@ -25,7 +25,7 @@ const common = {
       // Check for TypeScript files
       {
         test: /\.tsx?$/,
-        exclude: [/node_modules/, /test/],
+        exclude: [/node_modules/],
         use: ['ts-loader'],
       },
       {
