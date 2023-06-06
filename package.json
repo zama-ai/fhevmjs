@@ -5,8 +5,8 @@
   "main": "build/index.js",
   "scripts": {
     "lint": "eslint src/",
-    "watch": "tsc",
-    "build": "tsc --watch",
+    "watch": "tsc --watch",
+    "build": "tsc",
     "watch:web": "webpack --mode=development --watch --config config/webpack.config.js",
     "build:web": "webpack --mode=production --config config/webpack.config.js",
     "test": "jest --colors --passWithNoTests --coverage",
