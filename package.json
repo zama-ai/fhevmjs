@@ -1,6 +1,6 @@
 {
   "name": "zama-web3",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Zama web3 SDK for blockchain using TFHE",
   "main": "build/index.js",
   "scripts": {
