@@ -5,8 +5,10 @@
   "main": "build/index.js",
   "scripts": {
     "lint": "eslint src/",
-    "watch": "webpack --mode=development --watch --config config/webpack.config.js",
-    "build": "webpack --mode=production --config config/webpack.config.js",
+    "watch": "tsc",
+    "build": "tsc --watch",
+    "watch:web": "webpack --mode=development --watch --config config/webpack.config.js",
+    "build:web": "webpack --mode=production --config config/webpack.config.js",
     "test": "jest --colors --passWithNoTests --coverage",
     "test:watch": "jest --colors --passWithNoTests --watch"
   },
@@ -21,6 +23,7 @@
   },
   "homepage": "https://github.com/zama-ai/web-sdk#readme",
   "dependencies": {
+    "crypto-js": "^4.1.1",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
     "node-tfhe": "^0.2.4",
