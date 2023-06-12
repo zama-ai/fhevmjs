@@ -21,8 +21,5 @@ module.exports = {
   testRegex: '\\.test\\.tsx?$',
   coverageReporters: ['lcov', 'text-summary', 'json'],
   transformIgnorePatterns: ['/node_modules/'],
-  moduleNameMapper: {
-    tfhe: 'node-tfhe',
-  },
   coveragePathIgnorePatterns: [],
 };

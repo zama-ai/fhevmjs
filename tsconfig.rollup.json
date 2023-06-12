@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
-    "noEmit": false,
     "rootDir": "src",
-    "outDir": "bundle",
-    "declaration": false,
+    "outDir": "lib/",
+    "declaration": true,
     "target": "ES5",
     "lib": ["es5", "DOM"],
-    "module": "commonjs",
+    "module": "esnext",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowJs": true,
     "strict": true,
     "baseUrl": ".",
-    "resolveJsonModule": true,
+    "resolveJsonModule": false,
     "paths": {
       "*": ["*"]
     }

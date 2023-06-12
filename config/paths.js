@@ -3,8 +3,8 @@
 const path = require('path');
 
 const PATHS = {
-  src: path.resolve(__dirname, '../src'),
-  build: path.resolve(__dirname, '../build'),
+  web: path.resolve(__dirname, '../src/web.js'),
+  build: path.resolve(__dirname, '../bundle'),
 };
 
 module.exports = PATHS;
