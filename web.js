@@ -1,1 +1,1 @@
-module.exports = { default: require('./bundle/web') };
+module.exports = { default: require('./lib/web') };

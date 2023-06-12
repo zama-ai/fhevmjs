@@ -18,7 +18,7 @@ export type EIP712 = {
   };
 };
 
-type GenerateTokenParams = {
+export type GenerateTokenParams = {
   name?: string;
   version?: string;
   chainId?: number;

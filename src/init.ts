@@ -9,13 +9,3 @@ export const initZamaWeb3 = async () => {
   }
   return true;
 };
-
-// export const withInitialization =
-//   <T extends Array<any>, U>(fn: (...args: T) => U) =>
-//   async (...args: T): Promise<U> => {
-//     if (!initialized) {
-//       await initSDK(wasm);
-//       initialized = true;
-//     }
-//     return fn(...args);
-//   };
