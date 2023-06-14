@@ -1,15 +1,14 @@
 # Table of contents
 
-- [What is Zama Web3?](README.md)
+- [What is Zama blockchain ecosystem?](README.md)
 
 ## Web3 SDK
 
 - [Getting started](sdk/getting_started.md)
-- [API](sdk/api.md)
+- [Usage](sdk/api.md)
 
-  - [Instance](sdk/api.md#instance)
   - [Encryption](sdk/api.md#encryption)
-  - [EIP712 Token](sdk/api.md#token)
+  - [EIP-712 Token](sdk/api.md#eip-712-token)
 
 - [Examples](sdk/examples.md)
 
