@@ -1,8 +1,8 @@
 # What is Zama blockchain ecosystem?
 
-## Zama Web3
+## Web3 SDK
 
-The Zama Web3 library is a tool that enables developers to interact with blockchains using Zama's cutting-edge technology based on TFHE (Fully Homomorphic Encryption over the Torus). This library provides a seamless integration of TFHE encryption capabilities into web3 applications, allowing for secure and private interactions with smart contracts.
+The Web3 SDK is a library that enables developers to interact with blockchains using Zama's cutting-edge technology based on TFHE (Fully Homomorphic Encryption over the Torus). This library provides a seamless integration of TFHE encryption capabilities into web3 applications, allowing for secure and private interactions with smart contracts.
 
 ## Solidity library
 
