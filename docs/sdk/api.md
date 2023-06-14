@@ -21,6 +21,8 @@ console.log(instance.chainId); // 9000
 
 ### Encryption
 
+The library provides a set of functions to encrypt integers of various sizes (8, 16, and 32 bits) using the blockchain's public key. These encrypted integers can then be securely used as parameters for smart contract methods within the blockchain ecosystem.
+
 `instance.encrypt8(value: number): CompactFheUint8List`
 
 Parameters
@@ -72,7 +74,11 @@ const instance = createInstance({ chainId: 9000, publicKey });
 const encryptedParam = instance.encrypt32(94839304);
 ```
 
-### Token for reencryption
+### EIP-712 Token
+
+The library provides a convenient function that generates a JSON object based on the EIP-712 standard. This JSON object includes a public key and is specifically designed to facilitate data reencryption in a smart contract environment.
+
+By utilizing this JSON object and having it signed by the user, a secure process of reencrypting data becomes possible within a smart contract. The signed JSON includes the necessary information, including the public key, which allows for seamless reencryption of the data.
 
 `instance.generateToken(options: { name?: string; version?: string; verifyingContract: string; }): ZamaWeb3Tokem`
 

@@ -7,10 +7,9 @@
 - [Getting started](sdk/getting_started.md)
 - [API](sdk/api.md)
 
-  - [Instance](sdk/api.md#Instance)
-
-    - [Encryption](sdk/api.md#Encryption)
-    - [Token for reencryption](sdk/api.md#Token)
+  - [Instance](sdk/api.md#instance)
+  - [Encryption](sdk/api.md#encryption)
+  - [EIP712 Token](sdk/api.md#token)
 
 - [Examples](sdk/examples.md)
 
