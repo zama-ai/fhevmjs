@@ -25,6 +25,14 @@ export type GenerateTokenParams = {
   verifyingContract: string;
 };
 
+export type ZamaWeb3Token = {
+  keypair: {
+    publicKey: string;
+    privateKey: string;
+  };
+  eip712: EIP712;
+};
+
 export const generateToken = async (params: GenerateTokenParams) => {
   await sodium.ready;
   const keypair = sodium.crypto_box_keypair('hex');
