@@ -4,7 +4,7 @@
 
 ## Web3 SDK
 
-- [Getting started](sdk/getting_started.md)
+- [Getting Started](sdk/getting_started.md)
 - [Usage](sdk/api.md)
 
   - [Encryption](sdk/api.md#encryption)
@@ -15,7 +15,7 @@
 
 ## Solidity library
 
-- [Installation](solidity/installation.md)
+- [Getting Started](solidity/getting_started.md)
 - [TFHE Library](solidity/library.md)
 - [Examples](solidity/examples.md)
   - [ERC20](solidity/examples.md#ERC20)
