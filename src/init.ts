@@ -1,11 +1,12 @@
-import initSDK from 'tfhe';
+import initSDK, { InitOutput } from 'tfhe';
 
-let initialized = false;
+let initialized: InitOutput;
 
-export const initZamaWeb3 = async () => {
+type InitZamaWeb3 = typeof initSDK;
+
+export const initZamaWeb3: InitZamaWeb3 = async (params) => {
   if (!initialized) {
-    await initSDK();
-    initialized = true;
+    initialized = await initSDK(params);
   }
-  return true;
+  return initialized;
 };
