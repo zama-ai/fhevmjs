@@ -11,6 +11,7 @@
   - [EIP-712 Token](sdk/api.md#eip-712-token)
 
 - [Examples](sdk/examples.md)
+  - [Transfer ERC-20 tokens](sdk/api.md#transfer-ERC-20-tokens)
 
 ## Solidity library
 
