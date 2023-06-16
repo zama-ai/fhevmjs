@@ -11,7 +11,7 @@ import abi from './abi.json';
 const CONTRACT_ADDRESS = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-const getInstance = () => {
+const getInstance = async () => {
   await initZamaWeb3();
   // Get blockchain public key
   const publicKey = await getPublicKey();
@@ -26,7 +26,7 @@ const transfer = async (to, amount) => {
   new ethers.Contract(CONTRACT_ADDRESS, abi, provider.getSigner());
 
   // Get instance to encrypt amount parameter
-  const instance = getInstance();
+  const instance = await getInstance();
   const encryptedAmount = instance.encrypt32(amount);
 
   const transaction = contract.transfer(address, encryptedAmount);
