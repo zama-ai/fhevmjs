@@ -2,7 +2,7 @@
 
 - [What is Zama blockchain ecosystem?](README.md)
 
-## Web3 SDK
+## fhevmjs
 
 - [Getting Started](sdk/getting_started.md)
 - [Usage](sdk/api.md)
