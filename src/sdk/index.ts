@@ -5,7 +5,7 @@ import { EIP712, GenerateTokenParams, generateToken } from './token';
 import { decrypt } from './decrypt';
 import { fromHexString, isAddress, toHexString } from '../utils';
 
-export type ZamaWeb3Instance = {
+export type FhevmInstance = {
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
@@ -24,13 +24,13 @@ export type ContractKeypairs = {
   [key: string]: KeyPair;
 };
 
-export type ZamaWeb3InstanceParams = {
+export type FhevmInstanceParams = {
   chainId: number;
   publicKey: TfheCompactPublicKey;
   keypairs?: ExportedContractKeypairs;
 };
 
-export const createInstance = (params: ZamaWeb3InstanceParams): ZamaWeb3Instance => {
+export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
   const { chainId, publicKey, keypairs } = params;
 
   let contractKeypairs: ContractKeypairs = {};

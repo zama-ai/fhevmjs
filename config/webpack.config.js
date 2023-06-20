@@ -5,7 +5,7 @@ const PATHS = require('./paths.js');
 
 const web = {
   entry: {
-    'fhevmweb3.min': PATHS.web,
+    'fhevm.min': PATHS.web,
   },
   output: {
     path: PATHS.build,
@@ -13,7 +13,7 @@ const web = {
     chunkFilename: '[name].js',
     globalObject: 'this',
     library: {
-      name: 'fhevmWeb3',
+      name: 'fhevm',
       type: 'umd2',
     },
   },

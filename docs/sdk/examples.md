@@ -4,7 +4,7 @@
 
 ```javascript
 import ethers from 'ethers';
-import { initZamaWeb3, createInstance, decrypt } from 'fhevm-web3';
+import { initFhevm, createInstance, decrypt } from 'fhevmjs';
 import { getPublicKey } from './publicKey';
 import abi from './abi.json';
 
@@ -12,14 +12,14 @@ const CONTRACT_ADDRESS = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 const getInstance = async () => {
-  await initZamaWeb3();
+  await initFhevm();
   // Get blockchain public key
   const publicKey = await getPublicKey();
   const chainId = 9000;
 
   // Create instance with the library
   return createInstance({ chainId, publicKey });
-}
+};
 
 const transfer = async (to, amount) => {
   // Initialize contract with ethers
@@ -38,7 +38,7 @@ const transfer = async (to, amount) => {
 
 ```javascript
 import ethers from 'ethers';
-import { initZamaWeb3, createInstance } from 'fhevm-web3';
+import { initFhevm, createInstance } from 'fhevmjs';
 import { getPublicKey } from './publicKey';
 import abi from './abi.json';
 
@@ -46,7 +46,7 @@ const CONTRACT_ADDRESS = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 const getInstance = () => {
-  await initZamaWeb3();
+  await initFhevm();
   // Get blockchain public key
   const publicKey = await getPublicKey();
   const chainId = 9000;
