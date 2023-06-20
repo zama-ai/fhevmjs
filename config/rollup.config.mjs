@@ -27,7 +27,7 @@ export default [
     input: 'src/web.ts',
     output: {
       dir: 'lib',
-      name: 'fhevmWeb3',
+      name: 'fhevm',
       format: 'cjs',
     },
     plugins: [...plugins],
@@ -36,7 +36,7 @@ export default [
     input: 'src/node.ts',
     output: {
       dir: 'lib',
-      name: 'fhevmWeb3',
+      name: 'fhevm',
       format: 'cjs',
     },
     plugins: [

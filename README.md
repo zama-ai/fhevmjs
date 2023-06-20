@@ -1,3 +1,3 @@
-# fhEVM Web3 SDK
+# fhEVM SDK
 
-This is a library to intereact with a blockchain using Zama FHE EVM.
+This is a library to interact with a blockchain using fhEVM.

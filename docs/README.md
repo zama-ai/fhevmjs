@@ -1,8 +1,8 @@
-# What is Zama blockchain ecosystem?
+# What is fhEVM ecosystem?
 
-## Web3 SDK
+## fhevmjs
 
-The Web3 SDK is a library that enables developers to interact with blockchains using Zama's cutting-edge technology based on TFHE (Fully Homomorphic Encryption over the Torus). This library provides a seamless integration of TFHE encryption capabilities into web3 applications, allowing for secure and private interactions with smart contracts.
+fhevmjs is a javscript library that enables developers to interact with blockchains using Zama's cutting-edge technology based on TFHE (Fully Homomorphic Encryption over the Torus). This library provides a seamless integration of TFHE encryption capabilities into web3 applications, allowing for secure and private interactions with smart contracts.
 
 ## Solidity library
 

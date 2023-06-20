@@ -6,14 +6,14 @@ Welcome to the documentation for fhEVM Solidity Library! This comprehensive guid
 
 ## Installation
 
-To get started with fhEVM Web3, you need to install it as a dependency in your JavaScript project. You can do this using npm (Node Package Manager) or Yarn. Open your terminal and navigate to your project's directory, then run one of the following commands:
+To get started with fhEVM Solidity Library, you need to install it as a dependency in your JavaScript project. You can do this using npm (Node Package Manager) or Yarn. Open your terminal and navigate to your project's directory, then run one of the following commands:
 
 ```bash
 # Using npm
-npm install fhevm-solidity
+npm install fh-solidity
 
 # Using Yarn
-yarn add fhevm-solidity
+yarn add fh-solidity
 ```
 
 This will download and install the fhEVM Solidity Library and its dependencies into your project.

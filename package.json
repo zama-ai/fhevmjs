@@ -1,7 +1,7 @@
 {
-  "name": "fhevm-web3",
+  "name": "fhevmjs",
   "version": "0.0.2",
-  "description": "fhEVM Web3 SDK for blockchain using TFHE",
+  "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.js",
   "browser": "lib/web.js",
   "scripts": {
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zama-ai/fhevm-web3.git"
+    "url": "git+https://github.com/zama-ai/fhevmjs.git"
   },
   "author": "",
   "license": "BSD-3-Clause-Clear",
   "bugs": {
-    "url": "https://github.com/zama-ai/fhevm-web3/issues"
+    "url": "https://github.com/zama-ai/fhevmjs/issues"
   },
-  "homepage": "https://github.com/zama-ai/fhevm-web3#readme",
+  "homepage": "https://github.com/zama-ai/fhevmjs#readme",
   "dependencies": {
     "crypto-js": "^4.1.1",
     "libsodium": "^0.7.11",
