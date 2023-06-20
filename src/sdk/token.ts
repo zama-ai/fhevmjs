@@ -1,4 +1,5 @@
-import sodium from 'libsodium-wrappers';
+import sodium, { KeyPair } from 'libsodium-wrappers';
+import { toHexString } from '../utils';
 
 export type EIP712Type = { name: string; type: string };
 
@@ -23,19 +24,17 @@ export type GenerateTokenParams = {
   version?: string;
   chainId?: number;
   verifyingContract: string;
+  keypair?: KeyPair;
 };
 
 export type ZamaWeb3Token = {
-  keypair: {
-    publicKey: string;
-    privateKey: string;
-  };
-  eip712: EIP712;
+  keypair: KeyPair;
+  token: EIP712;
 };
 
-export const generateToken = async (params: GenerateTokenParams) => {
+export const generateToken = async (params: GenerateTokenParams): Promise<ZamaWeb3Token> => {
   await sodium.ready;
-  const keypair = sodium.crypto_box_keypair('hex');
+  const keypair = sodium.crypto_box_keypair();
   const msgParams: EIP712 = {
     types: {
       // This refers to the domain the contract is hosted on.
@@ -64,15 +63,12 @@ export const generateToken = async (params: GenerateTokenParams) => {
       verifyingContract: params.verifyingContract,
     },
     message: {
-      publicKey: `0x${keypair.publicKey}`,
+      publicKey: `0x${toHexString(keypair.publicKey)}`,
     },
   };
 
   return {
-    keypair: {
-      publicKey: `0x${keypair.publicKey}`,
-      privateKey: `0x${keypair.privateKey}`,
-    },
-    eip712: msgParams,
+    keypair,
+    token: msgParams,
   };
 };
