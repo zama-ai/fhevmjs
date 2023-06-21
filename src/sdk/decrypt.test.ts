@@ -16,7 +16,7 @@ describe('decrypt', () => {
     expect(cleartext).toBe(value);
   });
 
-  it('decrypts a UInt8array value', async () => {
+  it('decrypts a Uint8Array value', async () => {
     const keypair = sodium.crypto_box_keypair();
 
     const value = 28482;

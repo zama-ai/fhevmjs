@@ -1,84 +1,52 @@
-# API
-
-## Instance
-
-### createInstance
-
-#### Parameters
-
-- `params` (required):
-
-  - `chainId` (required): Id of the chain
-  - `publicKey` (required): Public key of the blockchain
-  - `keypairs` (optional): A list of keypairs associated with contract
-
-#### Returns
-
-- `FhevmInstance`
-
-#### Example
-
-```javascript
-const keypairs = {
-  '0x1c786b8ca49D932AFaDCEc00827352B503edf16c': {
-    keyType: 'x25519',
-    publicKey: '7b2352b10cb4e379fc89094c445acb8b2161ec23a3694c309e01e797ab2bae22',
-    privateKey: '764d194c6c686164fa5eb3c53ef3f7f5b90985723f19e865baf0961dd28991eb',
-  },
-};
-const instance = await createInstance({ chainId: 9000, publicKey, keypairs });
-console.log(instance.chainId); // 9000
-```
-
-## Encryption
+# Parameters
 
 The library provides a set of functions to encrypt integers of various sizes (8, 16, and 32 bits) using the blockchain's public key. These encrypted integers can then be securely used as parameters for smart contract methods within the blockchain ecosystem.
 
-### FhevmInstance.encrypt8
+## FhevmInstance.encrypt8
 
-#### Parameters
+### Parameters
 
 - `value` (required): A number between 0 and 255.
 
-#### Returns
+### Returns
 
-- `UInt8Array`
+- `Uint8Array`
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });
 const encryptedParam = instance.encrypt8(14);
 ```
 
-### FhevmInstance.encrypt16
+## FhevmInstance.encrypt16
 
-#### Parameters
+### Parameters
 
 - `value` (required): A number between 0 and 65535.
 
-#### Returns
+### Returns
 
-- `UInt8Array`
+- `Uint8Array`
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });
 const encryptedParam = instance.encrypt16(1234);
 ```
 
-### FhevmInstance.encrypt32
+## FhevmInstance.encrypt32
 
-#### Parameters
+### Parameters
 
 - `value` (required): A number between 0 and 4294967295.
 
-#### Returns
+### Returns
 
-- `UInt8Array`
+- `Uint8Array`
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });
@@ -91,20 +59,20 @@ The library provides a convenient function that generates a JSON object based on
 
 By utilizing this JSON object and having it signed by the user, a secure process of reencrypting data becomes possible within a smart contract. The signed JSON includes the necessary information, including the public key, which allows for seamless reencryption of the data.
 
-### FhevmInstance.generateToken
+## FhevmInstance.generateToken
 
-#### Parameters
+### Parameters
 
 - `options` (required):
   - `verifyingContract` (required): The address of the contract
   - `name` (optional): The name used in the EIP712
   - `version` (optional): The version used in the EIP712
 
-#### Returns
+### Returns
 
 - `EIP712`
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });
@@ -114,18 +82,18 @@ const encryptedParam = instance.generateToken({
 });
 ```
 
-### FhevmInstance.decrypt
+## FhevmInstance.decrypt
 
-#### Parameters
+### Parameters
 
 - `contractAddress` (required): address of the contract
 - `ciphertext` (required): ciphertext to decrypt
 
-#### Returns
+### Returns
 
 - `string`
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });
@@ -139,11 +107,11 @@ instance.decrypt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c', response)
 
 ```
 
-### FhevmInstance.getContractKeypairs
+## FhevmInstance.getContractKeypairs
 
-#### Parameters
+### Parameters
 
-#### Returns
+### Returns
 
 - `ExportedContractKeypairs`:
 
@@ -157,7 +125,7 @@ instance.decrypt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c', response)
 }
 ```
 
-#### Example
+### Example
 
 ```javascript
 const instance = await createInstance({ chainId: 9000, publicKey });

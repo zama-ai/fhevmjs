@@ -1,5 +1,6 @@
 import sodium, { KeyPair } from 'libsodium-wrappers';
 import { toHexString } from '../utils';
+import { ContractKeypair } from './types';
 
 export type EIP712Type = { name: string; type: string };
 
@@ -24,7 +25,7 @@ export type GenerateTokenParams = {
   version?: string;
   chainId?: number;
   verifyingContract: string;
-  keypair?: KeyPair;
+  keypair?: ContractKeypair;
 };
 
 export type FhevmToken = {

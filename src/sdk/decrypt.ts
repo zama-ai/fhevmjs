@@ -1,7 +1,8 @@
-import sodium, { KeyPair } from 'libsodium-wrappers';
+import sodium from 'libsodium-wrappers';
 import { bytesToNumber, fromHexString } from '../utils';
+import { ContractKeypair } from './types';
 
-export const decrypt = async (keypair: KeyPair, ciphertext: string | Uint8Array): Promise<number> => {
+export const decrypt = async (keypair: ContractKeypair, ciphertext: string | Uint8Array): Promise<number> => {
   await sodium.ready;
   const toDecrypt = typeof ciphertext === 'string' ? fromHexString(ciphertext) : ciphertext;
 

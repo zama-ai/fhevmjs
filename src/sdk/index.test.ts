@@ -1,7 +1,7 @@
 import { createInstance } from './index';
 import { createTFHEKey } from '../tfhe';
 import sodium from 'libsodium-wrappers';
-import { fromHexString, numberToBytes } from '../utils';
+import { fromHexString, toHexString, numberToBytes } from '../utils';
 
 describe('token', () => {
   beforeAll(async () => {
@@ -10,7 +10,7 @@ describe('token', () => {
 
   it('creates an instance', async () => {
     const TFHEkeypair = createTFHEKey();
-    const instance = await createInstance({
+    const instance = createInstance({
       chainId: 1234,
       publicKey: TFHEkeypair.publicKey,
     });
@@ -19,7 +19,9 @@ describe('token', () => {
     expect(instance.encrypt32).toBeDefined();
     expect(instance.generateToken).toBeDefined();
     expect(instance.decrypt).toBeDefined();
-    expect(instance.getContractKeypairs).toBeDefined();
+    expect(instance.serializeKeypairs).toBeDefined();
+    expect(instance.getTokenSignature).toBeDefined();
+    expect(instance.hasKeypair).toBeDefined();
   });
 
   it('creates an instance with keypairs', async () => {
@@ -32,7 +34,11 @@ describe('token', () => {
       chainId: 1234,
       publicKey: TFHEkeypair.publicKey,
       keypairs: {
-        [contractAddress]: keypair,
+        [contractAddress]: {
+          privateKey: keypair.privateKey,
+          publicKey: keypair.publicKey,
+          signature: null,
+        },
       },
     });
 
@@ -66,11 +72,22 @@ describe('token', () => {
 
     const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
 
-    const keypairs = instance.getContractKeypairs();
-    expect(keypairs[contractAddress].publicKey).toBe(publicKey);
+    const keypairs = instance.serializeKeypairs();
+    expect(keypairs[contractAddress]).toBeUndefined();
+    const keypair = instance.getTokenSignature(contractAddress);
+    expect(keypair).toBeNull();
+
+    instance.setTokenSignature(contractAddress, 'signnnn');
+    const kp = instance.getTokenSignature(contractAddress);
+    expect(kp!.publicKey).toBe(publicKey);
+
+    const keypairs2 = instance.serializeKeypairs();
+    expect(keypairs2[contractAddress].publicKey).toBe(toHexString(publicKey));
+    const keypair2 = instance.getTokenSignature(contractAddress);
+    expect(keypair2?.publicKey).toBe(publicKey);
 
     const value = 8238290348;
-    const ciphertext = sodium.crypto_box_seal(numberToBytes(value), fromHexString(publicKey), 'hex');
+    const ciphertext = sodium.crypto_box_seal(numberToBytes(value), publicKey, 'hex');
     const cleartext = await instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
   });
