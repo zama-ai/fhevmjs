@@ -1,6 +1,6 @@
 # Table of contents
 
-- [What is Zama blockchain ecosystem?](README.md)
+- [What is fhEVM ecosystem?](README.md)
 
 ## fhevmjs
 
@@ -8,7 +8,7 @@
 - [Usage](sdk/api.md)
 
   - [Encryption](sdk/api.md#encryption)
-  - [EIP-712 Token](sdk/api.md#eip-712-token)
+  - [Reencryption](sdk/api.md#reencryption)
 
 - [Examples](sdk/examples.md)
   - [Transfer ERC-20 tokens](sdk/api.md#transfer-ERC-20-tokens)
