@@ -22,4 +22,12 @@ module.exports = {
   coverageReporters: ['lcov', 'text-summary', 'json'],
   transformIgnorePatterns: ['/node_modules/'],
   coveragePathIgnorePatterns: [],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: -10,
+    },
+  },
 };
