@@ -5,11 +5,9 @@
 ## fhevmjs
 
 - [Getting Started](sdk/getting_started.md)
-- [Usage](sdk/api.md)
-
-  - [Encryption](sdk/api.md#encryption)
-  - [Reencryption](sdk/api.md#reencryption)
-
+- [Instance](sdk/instance.md)
+- [Parameters](sdk/parameters.md)
+- [Reencryption](sdk/reencryption.md)
 - [Examples](sdk/examples.md)
   - [Transfer ERC-20 tokens](sdk/api.md#transfer-ERC-20-tokens)
 
