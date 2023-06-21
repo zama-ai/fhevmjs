@@ -26,9 +26,9 @@
     "crypto-js": "^4.1.1",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
-    "node-tfhe": "^0.2.4",
+    "node-tfhe": "^0.3.0-beta.0",
     "sha3": "^2.1.4",
-    "tfhe": "^0.2.4"
+    "tfhe": "^0.3.0-beta.0"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.0.0",
