@@ -60,22 +60,24 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
     // Parameters
     encrypt8(value) {
       if (!value) throw new Error('Missing value');
+      if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt8(value, publicKey);
     },
     encrypt16(value) {
       if (!value) throw new Error('Missing value');
+      if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt16(value, publicKey);
     },
 
     encrypt32(value) {
       if (!value) throw new Error('Missing value');
-
+      if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt32(value, publicKey);
     },
 
     // Reencryption
     async generateToken(options) {
-      if (!options.verifyingContract) throw new Error('Missing contract address');
+      if (!options || !options.verifyingContract) throw new Error('Missing contract address');
       if (!isAddress(options.verifyingContract)) throw new Error('Invalid contract address');
       let kp;
       if (!options.force && contractKeypairs[options.verifyingContract]) {

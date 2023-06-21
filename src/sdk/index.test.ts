@@ -30,7 +30,7 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const instance = await createInstance({
+    const instance = createInstance({
       chainId: 1234,
       publicKey: TFHEkeypair.publicKey,
       keypairs: {
@@ -56,14 +56,28 @@ describe('token', () => {
       publicKey: TFHEkeypair.publicKey,
     });
 
-    expect(() => instance.encrypt8(undefined as any)).toThrow();
-    expect(() => instance.encrypt16(undefined as any)).toThrow();
-    expect(() => instance.encrypt32(undefined as any)).toThrow();
+    expect(() => instance.encrypt8(undefined as any)).toThrow('Missing value');
+    expect(() => instance.encrypt16(undefined as any)).toThrow('Missing value');
+    expect(() => instance.encrypt32(undefined as any)).toThrow('Missing value');
+
+    expect(() => instance.encrypt8('wrong value' as any)).toThrow('Value must be a number');
+    expect(() => instance.encrypt16('wrong value' as any)).toThrow('Value must be a number');
+    expect(() => instance.encrypt32('wrong value' as any)).toThrow('Value must be a number');
   });
 
-  it('save generated tokens', async () => {
+  it('controls generateToken', async () => {
     const TFHEkeypair = createTFHEKey();
-    const instance = await createInstance({
+    const instance = createInstance({
+      chainId: 1234,
+      publicKey: TFHEkeypair.publicKey,
+    });
+    await expect(instance.generateToken(undefined as any)).rejects.toThrow('Missing contract address');
+    await expect(instance.generateToken({ verifyingContract: '' })).rejects.toThrow('Missing contract address');
+  });
+
+  it('save generated token', async () => {
+    const TFHEkeypair = createTFHEKey();
+    const instance = createInstance({
       chainId: 1234,
       publicKey: TFHEkeypair.publicKey,
     });
@@ -72,19 +86,46 @@ describe('token', () => {
 
     const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
 
+    instance.setTokenSignature(contractAddress, 'signnnn');
+
+    expect(instance.hasKeypair(contractAddress)).toBeTruthy();
+
+    const kp = instance.getTokenSignature(contractAddress);
+    expect(kp!.publicKey).toBe(publicKey);
+  });
+
+  it("don't export keys without signature", async () => {
+    const TFHEkeypair = createTFHEKey();
+    const instance = createInstance({
+      chainId: 1234,
+      publicKey: TFHEkeypair.publicKey,
+    });
+
+    const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+
+    const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
     const keypairs = instance.serializeKeypairs();
     expect(keypairs[contractAddress]).toBeUndefined();
     const keypair = instance.getTokenSignature(contractAddress);
     expect(keypair).toBeNull();
+    expect(instance.hasKeypair(contractAddress)).toBeFalsy();
+  });
+
+  it('decrypts data', async () => {
+    const TFHEkeypair = createTFHEKey();
+    const instance = createInstance({
+      chainId: 1234,
+      publicKey: TFHEkeypair.publicKey,
+    });
+
+    const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+
+    const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
+
     const kp = instance.getTokenSignature(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
-
-    const keypairs2 = instance.serializeKeypairs();
-    expect(keypairs2[contractAddress].publicKey).toBe(toHexString(publicKey));
-    const keypair2 = instance.getTokenSignature(contractAddress);
-    expect(keypair2?.publicKey).toBe(publicKey);
 
     const value = 8238290348;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), publicKey, 'hex');

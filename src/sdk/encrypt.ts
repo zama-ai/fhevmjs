@@ -13,7 +13,6 @@ export const encrypt16 = (value: number, publicKey: TfheCompactPublicKey): Uint8
 };
 
 export const encrypt32 = (value: number, publicKey: TfheCompactPublicKey): Uint8Array => {
-  // const encrypted = FheUint32.encrypt_with_compact_public_key(value, publicKey);
   const uint32Array = new Uint32Array([value]);
   const encrypted = CompactFheUint32List.encrypt_with_compact_public_key(uint32Array, publicKey);
   return encrypted.serialize();
