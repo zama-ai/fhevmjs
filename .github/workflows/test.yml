@@ -2,8 +2,6 @@ name: Node.js CI
 
 on:
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -21,3 +19,4 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - uses: ArtiomTr/jest-coverage-report-action@v2
