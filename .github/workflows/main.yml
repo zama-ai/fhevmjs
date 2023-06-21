@@ -1,9 +1,10 @@
-name: PR test
+name: Main
 
 on:
-  pull_request:
+  push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,4 +21,3 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: ArtiomTr/jest-coverage-report-action@v2
