@@ -1,7 +1,7 @@
 import sha3 from 'sha3';
 
 export const fromHexString = (hexString: string): Uint8Array => {
-  const arr = hexString.match(/.{1,2}/g);
+  const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
   if (!arr) return new Uint8Array();
   return Uint8Array.from(arr.map((byte) => parseInt(byte, 16)));
 };

@@ -1,18 +1,20 @@
 import { createInstance } from './index';
-import { createTFHEKey } from '../tfhe';
+import { createTfhePublicKey } from '../tfhe';
 import sodium from 'libsodium-wrappers';
 import { fromHexString, toHexString, numberToBytes } from '../utils';
 
 describe('token', () => {
+  let tfhePublicKey: string;
+
   beforeAll(async () => {
     await sodium.ready;
+    tfhePublicKey = createTfhePublicKey();
   });
 
   it('creates an instance', async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
     expect(instance.encrypt8).toBeDefined();
     expect(instance.encrypt16).toBeDefined();
@@ -25,14 +27,13 @@ describe('token', () => {
   });
 
   it('creates an instance with keypairs', async () => {
-    const TFHEkeypair = createTFHEKey();
     const keypair = sodium.crypto_box_keypair('hex');
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
       keypairs: {
         [contractAddress]: {
           privateKey: keypair.privateKey,
@@ -50,10 +51,9 @@ describe('token', () => {
   });
 
   it('controls encrypt', async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
 
     expect(() => instance.encrypt8(undefined as any)).toThrow('Missing value');
@@ -66,20 +66,18 @@ describe('token', () => {
   });
 
   it('controls generateToken', async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
     await expect(instance.generateToken(undefined as any)).rejects.toThrow('Missing contract address');
     await expect(instance.generateToken({ verifyingContract: '' })).rejects.toThrow('Missing contract address');
   });
 
   it('save generated token', async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
@@ -95,10 +93,9 @@ describe('token', () => {
   });
 
   it("don't export keys without signature", async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
@@ -112,10 +109,9 @@ describe('token', () => {
   });
 
   it('decrypts data', async () => {
-    const TFHEkeypair = createTFHEKey();
     const instance = createInstance({
       chainId: 1234,
-      publicKey: TFHEkeypair.publicKey,
+      publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';

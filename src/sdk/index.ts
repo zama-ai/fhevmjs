@@ -32,12 +32,14 @@ export type ExportedContractKeypairs = {
 
 export type FhevmInstanceParams = {
   chainId: number;
-  publicKey: TfheCompactPublicKey;
+  publicKey: string;
   keypairs?: ExportedContractKeypairs;
 };
 
 export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
   const { chainId, publicKey, keypairs } = params;
+  const buff = fromHexString(publicKey);
+  const tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
 
   let contractKeypairs: ContractKeypairs = {};
 
@@ -61,18 +63,18 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
     encrypt8(value) {
       if (!value) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
-      return encrypt8(value, publicKey);
+      return encrypt8(value, tfheCompactPublicKey);
     },
     encrypt16(value) {
       if (!value) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
-      return encrypt16(value, publicKey);
+      return encrypt16(value, tfheCompactPublicKey);
     },
 
     encrypt32(value) {
       if (!value) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
-      return encrypt32(value, publicKey);
+      return encrypt32(value, tfheCompactPublicKey);
     },
 
     // Reencryption
@@ -123,7 +125,6 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
       if (!contractAddress) throw new Error('Missing contract address');
       const kp = contractKeypairs[contractAddress];
       if (!kp) throw new Error(`Missing keypair for ${contractAddress}`);
-
       return decrypt(kp, ciphertext);
     },
 

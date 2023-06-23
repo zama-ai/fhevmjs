@@ -1,4 +1,4 @@
-import sodium, { KeyPair } from 'libsodium-wrappers';
+import sodium from 'libsodium-wrappers';
 import { toHexString } from '../utils';
 import { ContractKeypair } from './types';
 
@@ -29,13 +29,13 @@ export type GenerateTokenParams = {
 };
 
 export type FhevmToken = {
-  keypair: KeyPair;
+  keypair: ContractKeypair;
   token: EIP712;
 };
 
 export const generateToken = async (params: GenerateTokenParams): Promise<FhevmToken> => {
   await sodium.ready;
-  const keypair = sodium.crypto_box_keypair();
+  const keypair = params.keypair || sodium.crypto_box_keypair();
   const msgParams: EIP712 = {
     types: {
       // This refers to the domain the contract is hosted on.
@@ -67,9 +67,11 @@ export const generateToken = async (params: GenerateTokenParams): Promise<FhevmT
       publicKey: `0x${toHexString(keypair.publicKey)}`,
     },
   };
-
   return {
-    keypair,
+    keypair: {
+      publicKey: keypair.publicKey,
+      privateKey: keypair.privateKey,
+    },
     token: msgParams,
   };
 };
