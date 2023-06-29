@@ -34,11 +34,11 @@ fhevm.createInstance({ chainId, publicKey }).then((instance) => {
 To use the library in your project, you need to load WASM of TFHE first with `initFhevm`.
 
 ```javascript
-import { initSDK, createInstance } from 'fhevmjs';
+import { initFhevm, createInstance } from 'fhevmjs';
 
 const start = async () => {
   await initFhevm(); // load wasm needed
-  const instance = createInstance({ chainId, publicKey }).then((instance) => {
+  const instance = await createInstance({ chainId, publicKey }).then((instance) => {
     console.log(instance);
   });
 };
@@ -49,7 +49,7 @@ const start = async () => {
 With bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`. If you encounter any issue, you can force import of the browser package.
 
 ```javascript
-import { initSDK, createInstance } from 'fhevmjs/web';
+import { initFhevm, createInstance } from 'fhevmjs/web';
 ```
 
 Note: You need to handle WASM in your bundler.

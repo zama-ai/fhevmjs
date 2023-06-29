@@ -1,6 +1,6 @@
+import sodium from 'libsodium-wrappers';
 import { createInstance } from './index';
 import { createTfhePublicKey } from '../tfhe';
-import sodium from 'libsodium-wrappers';
 import { fromHexString, toHexString, numberToBytes } from '../utils';
 
 describe('token', () => {
@@ -12,7 +12,7 @@ describe('token', () => {
   });
 
   it('creates an instance', async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
@@ -31,7 +31,7 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
       keypairs: {
@@ -46,12 +46,12 @@ describe('token', () => {
     const value = 937387;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), fromHexString(keypair.publicKey), 'hex');
 
-    const cleartext = await instance.decrypt(contractAddress, ciphertext);
+    const cleartext = instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
   });
 
   it('controls encrypt', async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
@@ -66,23 +66,23 @@ describe('token', () => {
   });
 
   it('controls generateToken', async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
-    await expect(instance.generateToken(undefined as any)).rejects.toThrow('Missing contract address');
-    await expect(instance.generateToken({ verifyingContract: '' })).rejects.toThrow('Missing contract address');
+    expect(() => instance.generateToken(undefined as any)).toThrow('Missing contract address');
+    expect(() => instance.generateToken({ verifyingContract: '' })).toThrow('Missing contract address');
   });
 
   it('save generated token', async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
 
@@ -93,14 +93,14 @@ describe('token', () => {
   });
 
   it("don't export keys without signature", async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
     const keypairs = instance.serializeKeypairs();
     expect(keypairs[contractAddress]).toBeUndefined();
     const keypair = instance.getTokenSignature(contractAddress);
@@ -109,14 +109,14 @@ describe('token', () => {
   });
 
   it('decrypts data', async () => {
-    const instance = createInstance({
+    const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = await instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
 
@@ -125,7 +125,7 @@ describe('token', () => {
 
     const value = 8238290348;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), publicKey, 'hex');
-    const cleartext = await instance.decrypt(contractAddress, ciphertext);
+    const cleartext = instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
   });
 });

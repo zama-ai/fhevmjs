@@ -15,7 +15,7 @@ The library provides a set of functions to encrypt integers of various sizes (8,
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
+const instance = await createInstance({ chainId, publicKey });
 const encryptedParam = instance.encrypt8(14);
 ```
 
@@ -32,7 +32,7 @@ const encryptedParam = instance.encrypt8(14);
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
+const instance = await createInstance({ chainId, publicKey });
 const encryptedParam = instance.encrypt16(1234);
 ```
 
@@ -49,6 +49,6 @@ const encryptedParam = instance.encrypt16(1234);
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
+const instance = await createInstance({ chainId, publicKey });
 const encryptedParam = instance.encrypt32(94839304);
 ```

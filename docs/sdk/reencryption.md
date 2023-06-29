@@ -15,16 +15,28 @@ By utilizing this JSON object and having it signed by the user, a secure process
 
 ### Returns
 
-- `EIP712`
+- `FhevmToken`
+
+```typescript
+{
+  keypair: {
+    publicKey: Uint8Array;
+    privateKey: Uint8Array;
+  }
+  token: EIP712;
+}
+```
 
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
+const instance = await createInstance({ chainId, publicKey });
 const encryptedParam = instance.generateToken({
   name: 'Authentication',
   verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
 });
+const params = [userAddress, JSON.stringify(generatedToken.token)];
+const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
 ```
 
 ## FhevmInstance.decrypt
@@ -36,13 +48,13 @@ const encryptedParam = instance.generateToken({
 
 ### Returns
 
-- `string`
+- `number`
 
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
-const token = await instance.generateToken({
+const instance = await createInstance({ chainId, publicKey });
+const token = instance.generateToken({
   name: 'Authentication',
   verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
 });
@@ -64,8 +76,8 @@ This method allows you to store the signature of a public key for a specific con
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
-const generatedToken = await instance.generateToken({
+const instance = await createInstance({ chainId, publicKey });
+const generatedToken = instance.generateToken({
   name: 'Authentication',
   verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
 });
@@ -92,22 +104,23 @@ This method returns true if contract has a keypair and a signature.
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
-const generatedToken = await instance.generateToken({
+const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+const instance = await createInstance({ chainId, publicKey });
+const generatedToken = instance.generateToken({
   name: 'Authentication',
-  verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
+  verifyingContract: ,
 });
 
 // Ask for user to sign the token
 const params = [userAddress, JSON.stringify(generatedToken.token)];
 const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
 
-console.log(instance.setTokenSignature(contractAddress)); // false
+console.log(instance.hasKeypair(contractAddress)); // false
 
 // Store signature
 instance.setTokenSignature(contractAddress, sign);
 
-console.log(instance.setTokenSignature(contractAddress)); // true
+console.log(instance.hasKeypair(contractAddress)); // true
 ```
 
 ## FhevmInstance.getTokenSignature
@@ -120,15 +133,20 @@ This method returns saved public key and signature for a specific contract. If t
 
 ### Returns
 
-- `{ publicKey: Uint8Array; signature: string }` or `null`
+- `TokenSignature` or `null`
+
+```typescript
+{ publicKey: Uint8Array; signature: string; } | null
+```
 
 ### Example
 
 ```javascript
-const instance = await createInstance({ chainId: 9000, publicKey });
-const generatedToken = await instance.generateToken({
+const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+const instance = await createInstance({ chainId, publicKey });
+const generatedToken = instance.generateToken({
   name: 'Authentication',
-  verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
+  verifyingContract: contractAddress,
 });
 
 // Ask for user to sign the token
@@ -143,7 +161,7 @@ console.log(publicKey); // Uint8Array(32) [192, 108, 9, ...]
 console.log(signature); // '0x6214e232b2dae4d8d2c99837dd1af004e1b...'
 
 const response = await contract.balanceOf(publicKey, signature);
-instance.decrypt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c', response);
+instance.decrypt(contractAddress, response);
 ```
 
 ## FhevmInstance.serializeKeypairs
@@ -154,12 +172,12 @@ This method is useful if you want to store contract keypairs in the user LocalSt
 
 - `ExportedContractKeypairs`:
 
-```javascript
+```typescript
 {
-  '0x1c786b8ca49D932AFaDCEc00827352B503edf16c': {
-    keyType: 'x25519',
-    publicKey: '7b2352b10cb4e379fc89094c445acb8b2161ec23a3694c309e01e797ab2bae22',
-    privateKey: '764d194c6c686164fa5eb3c53ef3f7f5b90985723f19e865baf0961dd28991eb',
+  [contractAddress: string]: {
+    publicKey: string;
+    privateKey: string;
+    signature: string;
   }
 }
 ```
@@ -176,8 +194,4 @@ console.log(keypairs);
 //      privateKey: '764d194c6c686164fa5eb3c53ef3f7f5b90985723f19e865baf0961dd28991eb',
 //    }
 // }
-...
-const response = await contract.balanceOf(token.publicKey, sign);
-instance.decrypt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c', response)
-
 ```

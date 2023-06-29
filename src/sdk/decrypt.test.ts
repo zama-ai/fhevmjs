@@ -12,7 +12,7 @@ describe('decrypt', () => {
 
     const value = 28482;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), keypair.publicKey, 'hex');
-    const cleartext = await decrypt(keypair, ciphertext);
+    const cleartext = decrypt(keypair, ciphertext);
     expect(cleartext).toBe(value);
   });
 
@@ -21,7 +21,7 @@ describe('decrypt', () => {
 
     const value = 28482;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), keypair.publicKey);
-    const cleartext = await decrypt(keypair, ciphertext);
+    const cleartext = decrypt(keypair, ciphertext);
     expect(cleartext).toBe(value);
   });
 });

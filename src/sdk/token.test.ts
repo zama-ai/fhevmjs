@@ -1,9 +1,13 @@
+import sodium from 'libsodium-wrappers';
 import { toHexString } from '../utils';
 import { generateToken } from './token';
 
 describe('token', () => {
+  beforeAll(async () => {
+    await sodium.ready;
+  });
   it('creates a valid EIP712 object', async () => {
-    const { token, keypair } = await generateToken({
+    const { token, keypair } = generateToken({
       verifyingContract: '0xccc',
       chainId: 1234,
       name: 'hello',
@@ -21,7 +25,7 @@ describe('token', () => {
   });
 
   it('creates a valid EIP712 object with default values', async () => {
-    const { token, keypair } = await generateToken({
+    const { token, keypair } = generateToken({
       verifyingContract: '0xccc',
     });
     expect(token.domain.chainId).toBe(9000);

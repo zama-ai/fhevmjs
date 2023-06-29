@@ -33,8 +33,7 @@ export type FhevmToken = {
   token: EIP712;
 };
 
-export const generateToken = async (params: GenerateTokenParams): Promise<FhevmToken> => {
-  await sodium.ready;
+export const generateToken = (params: GenerateTokenParams): FhevmToken => {
   const keypair = params.keypair || sodium.crypto_box_keypair();
   const msgParams: EIP712 = {
     types: {

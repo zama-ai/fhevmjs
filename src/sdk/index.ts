@@ -1,4 +1,5 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
+import sodium from 'libsodium-wrappers';
 import { encrypt8, encrypt16, encrypt32 } from './encrypt';
 import { EIP712, generateToken } from './token';
 import { decrypt } from './decrypt';
@@ -9,17 +10,20 @@ export type FhevmInstance = {
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
-  generateToken: (options: {
-    verifyingContract: string;
-    name?: string;
-    version?: string;
-    force?: boolean;
-  }) => Promise<{ publicKey: Uint8Array; token: EIP712 }>;
+  generateToken: (options: { verifyingContract: string; name?: string; version?: string; force?: boolean }) => {
+    publicKey: Uint8Array;
+    token: EIP712;
+  };
   setTokenSignature: (contractAddress: string, signature: string) => void;
   getTokenSignature: (contractAddress: string) => { publicKey: Uint8Array; signature: string } | null;
   hasKeypair: (contractAddress: string) => boolean;
-  decrypt: (contractAddress: string, ciphertext: string) => Promise<number>;
+  decrypt: (contractAddress: string, ciphertext: string) => number;
   serializeKeypairs: () => ExportedContractKeypairs;
+};
+
+export type TokenSignature = {
+  publicKey: Uint8Array;
+  signature: string;
 };
 
 export type ExportedContractKeypairs = {
@@ -36,7 +40,8 @@ export type FhevmInstanceParams = {
   keypairs?: ExportedContractKeypairs;
 };
 
-export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
+export const createInstance = async (params: FhevmInstanceParams): Promise<FhevmInstance> => {
+  await sodium.ready;
   const { chainId, publicKey, keypairs } = params;
   const buff = fromHexString(publicKey);
   const tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
@@ -58,6 +63,10 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
     });
   }
 
+  const hasKeypair = (contractAddress: string) => {
+    return contractKeypairs[contractAddress] != null && !!contractKeypairs[contractAddress].signature;
+  };
+
   return {
     // Parameters
     encrypt8(value) {
@@ -78,14 +87,14 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
     },
 
     // Reencryption
-    async generateToken(options) {
+    generateToken(options) {
       if (!options || !options.verifyingContract) throw new Error('Missing contract address');
       if (!isAddress(options.verifyingContract)) throw new Error('Invalid contract address');
       let kp;
       if (!options.force && contractKeypairs[options.verifyingContract]) {
         kp = contractKeypairs[options.verifyingContract];
       }
-      const { token, keypair } = await generateToken({
+      const { token, keypair } = generateToken({
         verifyingContract: options.verifyingContract,
         name: options.name,
         version: options.version,
@@ -106,8 +115,8 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
       }
     },
 
-    getTokenSignature(contractAddress: string) {
-      if (this.hasKeypair(contractAddress)) {
+    getTokenSignature(contractAddress: string): TokenSignature | null {
+      if (hasKeypair(contractAddress)) {
         return {
           publicKey: contractKeypairs[contractAddress].publicKey,
           signature: contractKeypairs[contractAddress].signature!,
@@ -116,11 +125,9 @@ export const createInstance = (params: FhevmInstanceParams): FhevmInstance => {
       return null;
     },
 
-    hasKeypair(contractAddress: string) {
-      return contractKeypairs[contractAddress] != null && !!contractKeypairs[contractAddress].signature;
-    },
+    hasKeypair,
 
-    async decrypt(contractAddress, ciphertext) {
+    decrypt(contractAddress, ciphertext) {
       if (!ciphertext) throw new Error('Missing ciphertext');
       if (!contractAddress) throw new Error('Missing contract address');
       const kp = contractKeypairs[contractAddress];

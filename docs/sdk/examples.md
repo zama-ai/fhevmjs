@@ -1,86 +1,101 @@
 # Examples
 
-## Transfer ERC-20 tokens
+## Nodejs
+
+### Transfer ERC-20 tokens
 
 ```javascript
-import ethers from 'ethers';
-import { initFhevm, createInstance, decrypt } from 'fhevmjs';
-import { getPublicKey } from './publicKey';
+import { createInstance } from 'fhevmjs';
+import Web3 from 'web3';
+
 import abi from './abi.json';
+
+const web3 = new Web3(`https://devnet.zama.ai/`);
+web3.eth.accounts.wallet.create(1);
+
+let _instance;
 
 const CONTRACT_ADDRESS = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 const getInstance = async () => {
-  await initFhevm();
-  // Get blockchain public key
-  const publicKey = await getPublicKey();
-  const chainId = 9000;
+  if (_instance) return _instance;
+  // 1. Get chain id
+  const chainId = await web3.eth.getChainId();
 
-  // Create instance with the library
-  return createInstance({ chainId, publicKey });
+  // Get blockchain public key
+  const publicKey = await web3.eth.call({ to: '0x0000000000000000000000000000000000000044' });
+
+  // Create instance
+  _instance = createInstance({ chainId, publicKey, keypairs });
+  return _instance;
 };
 
 const transfer = async (to, amount) => {
   // Initialize contract with ethers
-  new ethers.Contract(CONTRACT_ADDRESS, abi, provider.getSigner());
+  const contract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
 
   // Get instance to encrypt amount parameter
   const instance = await getInstance();
   const encryptedAmount = instance.encrypt32(amount);
 
-  const transaction = contract.transfer(address, encryptedAmount);
-  return transaction.hash;
+  const transaction = await contract.methods.transfer(address, encryptedAmount);
+  return transaction;
 };
 ```
 
 ## Get balance
 
 ```javascript
-import ethers from 'ethers';
-import { initFhevm, createInstance } from 'fhevmjs';
-import { getPublicKey } from './publicKey';
+
+import { createInstance } from 'fhevmjs';
+import Web3 from 'web3';
+
 import abi from './abi.json';
+
+const web3 = new Web3(`https://devnet.zama.ai/`);
+web3.eth.accounts.privateKeyToAccount(PRIVATE_KEY);
+
+let _instance;
 
 const CONTRACT_ADDRESS = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-const getInstance = () => {
-  await initFhevm();
+const getInstance = async () => {
+  if (_instance) return _instance;
+  // 1. Get chain id
+  const chainId = await web3.eth.getChainId();
+
   // Get blockchain public key
-  const publicKey = await getPublicKey();
-  const chainId = 9000;
+  const publicKey = await web3.eth.call({ to: '0x0000000000000000000000000000000000000044' });
 
-  // Create instance with the library
-  return createInstance({ chainId, publicKey });
-}
+  // Create instance
+  _instance = createInstance({ chainId, publicKey, keypairs });
+  return _instance;
+};
 
-const getBalance = async (to, amount) => {
-  const userAddress = await provider.getSigner().getAddress();
+const balanceOf = async (to, amount) => {
   // Initialize contract with ethers
-  new ethers.Contract(CONTRACT_ADDRESS, abi, provider.getSigner());
+  const contract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
 
   // Get instance to encrypt amount parameter
-  const instance = getInstance();
+  const instance = await getInstance();
 
-  // Generate EIP-712 token
-  const token = await instance.generateToken({
+  // Generate token to decrypt
+  const generatedToken = instance.generateToken({
     name: 'Authentication',
     verifyingContract: CONTRACT_ADDRESS,
   });
 
-  // Ask the user to sign the token
-  const params = [userAddress, JSON.stringify(token.eip712)];
-  const signature = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
+  // Sign the public key
+  const signature = web3.accounts.sign(JSON.stringify(generatedToken.token), PRIVATE_KEY);
 
-  // Get balance, passing publicKey and signature
-  const response = await contract.balanceOf(token.keypair.publicKey, signature);
+  // Call the method
+  const encryptedBalance = await contract.methods.balanceOf(publicKey, signature);
 
-  if (response) {
-    decrypt
-    setPrivateKey(token.keypair.privateKey);
-  }
-
-  return transaction.hash;
+  // Decrypt the balance
+  const balance = instance.decrypt(CONTRACT_ADDRESS, encryptedBalance);
+  return balance;
+  };
 };
 ```
