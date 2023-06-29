@@ -9,7 +9,8 @@
 - [Parameters](sdk/parameters.md)
 - [Reencryption](sdk/reencryption.md)
 - [Examples](sdk/examples.md)
-  - [Transfer ERC-20 tokens](sdk/api.md#transfer-ERC-20-tokens)
+  - [Transfer ERC-20 tokens](sdk/examples.md#transfer-erc-20-tokens)
+  - [Get balance](sdk/examples.md#get-balance)
 
 ## Solidity library
 
