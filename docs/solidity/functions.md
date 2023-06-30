@@ -1,7 +1,7 @@
 # Functions
 
 The functions exposed by the `TFHE` Solidity library come in various shapes and sizes in order to facilitate developer experience. 
-For example, most binary operators (eg., `add`) can take as input any combination of the following types: 
+For example, most binary operators (e.g., `add`) can take as input any combination of the following types: 
 
 - `euint8`
 - `euint16`
@@ -17,19 +17,6 @@ In this case, they only accept as input any combination of the `euintX` types.
 
 Note that in the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
-
-
-## Arithmetic operations (`add`, `sub`, `mul`)
-Performs the operation homomorphically.
-
-Note that division is not currently supported.
-
-### Examples 
-```solidity
-function add(euint8 a, euint8 b) internal view returns (euint8) // a + b
-function add(euint8 a, euint16 b) internal view returns (euint16)
-function add(uint32 a, euint16 b) internal view returns (euint32)
-```
 
 ## `asEuint`
 The `asEuint` serves three purposes:
@@ -49,9 +36,45 @@ More information about trivial encryption can be found [here](https://www.zama.a
 
 ### Examples
 ```solidity
-function asEuint8(bytes memory ciphertext) internal view returns (euint8) // first case
-function asEuint16(euint8 ciphertext) internal view returns (euint16) // second case
-function asEuint16(uint16 value) internal view returns (euint16) // third case
+// first case
+function asEuint8(bytes memory ciphertext) internal view returns (euint8) 
+// second case
+function asEuint16(euint8 ciphertext) internal view returns (euint16) 
+// third case
+function asEuint16(uint16 value) internal view returns (euint16) 
+```
+
+## Reencrypt
+The reencrypt functions takes as inputs a ciphertext and a public encryption key (namely, a [NaCl box](https://nacl.cr.yp.to/index.html)). 
+
+During reencryption, the ciphertext is decrypted using the network private key (threshold decryption protocol in the works). 
+Then, the decrypted result is encrypted under the user-provided public encryption key.
+The result of this encryption is sent back to the caller as `bytes memory`.
+
+It is also possible to provide a default value to the `reencrypt` function. 
+In this case, if the provided ciphertext is not initialized (i.e., if the ciphertext handle is `0`), the function will return an encryption of the provided default value.
+
+### Examples
+```solidity
+// returns the decryption of `ciphertext`, encrypted under `publicKey`.
+function reencrypt(euint32 ciphertext, bytes32 publicKey) internal view returns (bytes memory reencrypted) 
+
+// if the handle of `ciphertext` is equal to `0`, returns `defaultValue` encrypted under `publicKey`.
+// otherwise, returns as above
+function reencrypt(euint32 ciphertext, bytes32 publicKey, uint32 defaultValue) internal view returns (bytes memory reencrypted) 
+```
+
+## Arithmetic operations (`add`, `sub`, `mul`)
+Performs the operation homomorphically.
+
+Note that division is not currently supported.
+
+### Examples 
+```solidity
+// a + b
+function add(euint8 a, euint8 b) internal view returns (euint8) 
+function add(euint8 a, euint16 b) internal view returns (euint16)
+function add(uint32 a, euint16 b) internal view returns (euint32)
 ```
 
 ## Bitwise operations (`AND`, `OR`, `XOR`)
@@ -61,8 +84,11 @@ Such overloads implicitely do a trivial encryption before actually calling the o
 
 ### Examples
 ```solidity
-function and(euint8 a, euint8 b) internal view returns (euint8) // a & b
-function and(euint8 a, uint16 b) internal view returns (euint16) // implicit trivial encryption of `b` before calling the operator
+// a & b
+function and(euint8 a, euint8 b) internal view returns (euint8) 
+
+// implicit trivial encryption of `b` before calling the operator
+function and(euint8 a, uint16 b) internal view returns (euint16) 
 ```
 
 ## Bit shift operations (`<<`, `>>`)
@@ -70,7 +96,9 @@ Self explanatory
 
 ### Examples
 ```solidity
+// a << b
 function shl(euint16 a, euint8 b) internal view returns (euint16)
+// a >> b
 function shr(euint32 a, euint16 b) internal view returns (euint32)
 ```
 
@@ -82,15 +110,23 @@ The result of comparison operations is always an encryption of `0` (false) or `1
 
 ### Examples
 ```solidity
-function eq(euint32 a, euint16 b) internal view returns (euint32) // a == b
-function gt(uint32 a, euint16 b) internal view returns (euint32) // actually returns `lt(b, a)`
-function gt(euint16 a, uint32 b) internal view returns (euint32) // actually returns `gt(a, b)`
+// a == b
+function eq(euint32 a, euint16 b) internal view returns (euint32) 
+
+// actually returns `lt(b, a)`
+function gt(uint32 a, euint16 b) internal view returns (euint32) 
+
+// actually returns `gt(a, b)`
+function gt(euint16 a, uint32 b) internal view returns (euint32) 
 ```
 ## `Min`, `Max`
 Self explanatory
 
 ### Examples
 ```solidity
-function min(euint32 a, euint16 b) internal view returns (euint32) // min(a, b)
-function max(uint32 a, euint8 b) internal view returns (euint32) // max(a, b)
+// min(a, b)
+function min(euint32 a, euint16 b) internal view returns (euint32) 
+
+// max(a, b)
+function max(uint32 a, euint8 b) internal view returns (euint32) 
 ```
