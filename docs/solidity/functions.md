@@ -12,9 +12,6 @@ For example, most binary operators (e.g., `add`) can take as input any combinati
 
 Note that ciphertext-plaintext operations may take less time to compute than ciphertext-ciphertext operations.
 
-Some binary operations do not have the capability of mixing ciphertext and plaintext operands. 
-In this case, they only accept as input any combination of the `euintX` types.
-
 Note that in the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
 
