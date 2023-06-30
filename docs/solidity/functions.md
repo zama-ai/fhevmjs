@@ -91,6 +91,6 @@ Self explanatory
 
 ### Examples
 ```solidity
-function min(euint32 a, euint16 b) internal view returns (euint32)
-function max(uint32 a, euint8 b) internal view returns (euint32)
+function min(euint32 a, euint16 b) internal view returns (euint32) // min(a, b)
+function max(uint32 a, euint8 b) internal view returns (euint32) // max(a, b)
 ```
