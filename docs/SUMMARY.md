@@ -16,6 +16,7 @@
 
 - [Getting Started](solidity/getting_started.md)
 - [TFHE Library](solidity/library.md)
+- [Function specifications](solidity/functions.md)
 - [Examples](solidity/examples.md)
   - [ERC20](solidity/examples.md#ERC20)
   - [Blind auction](solidity/examples.md#blind-auction)
