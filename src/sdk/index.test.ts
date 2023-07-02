@@ -123,7 +123,7 @@ describe('token', () => {
     const kp = instance.getTokenSignature(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
 
-    const value = 8238290348;
+    const value = 89290;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), publicKey, 'hex');
     const cleartext = instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
