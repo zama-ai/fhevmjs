@@ -9,27 +9,26 @@ export const fromHexString = (hexString: string): Uint8Array => {
 export const toHexString = (bytes: Uint8Array) =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-export const numberToBytes = (number: number) => {
-  // you can use constant number of bytes by using 8 or 4
-  const len = Math.ceil(Math.log2(number) / 8);
-  const byteArray = new Uint8Array(len);
+export const numberToBytes = (uint32Value: number) => {
+  const byteArrayLength = Math.ceil(Math.log2(uint32Value + 1) / 8);
+  const byteArray = new Uint8Array(byteArrayLength);
 
-  for (let index = 0; index < byteArray.length; index++) {
-    const byte = number & 0xff;
-    byteArray[index] = byte;
-    number = (number - byte) / 256;
+  for (let i = byteArrayLength - 1; i >= 0; i--) {
+    byteArray[i] = uint32Value & 0xff;
+    uint32Value >>= 8;
   }
 
   return byteArray;
 };
 
-export const bytesToNumber = (byteArray: Uint8Array) => {
-  let result = 0;
-  for (let i = byteArray.length - 1; i >= 0; i--) {
-    result = result * 256 + byteArray[i];
+export const bytesToNumber = (byteArray: Uint8Array): number => {
+  let uint32Value = 0;
+
+  for (let i = 0; i < byteArray.length; i++) {
+    uint32Value |= byteArray[i] << (8 * (byteArray.length - 1 - i));
   }
 
-  return result;
+  return uint32Value;
 };
 
 export const isAddress = function (address: string) {

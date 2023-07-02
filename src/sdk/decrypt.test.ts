@@ -19,7 +19,7 @@ describe('decrypt', () => {
   it('decrypts a Uint8Array value', async () => {
     const keypair = sodium.crypto_box_keypair();
 
-    const value = 28482;
+    const value = 10;
     const ciphertext = sodium.crypto_box_seal(numberToBytes(value), keypair.publicKey);
     const cleartext = decrypt(keypair, ciphertext);
     expect(cleartext).toBe(value);
