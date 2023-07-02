@@ -1,6 +1,7 @@
 *
 !bundle/*
 !lib/*
+!lib/sdk/*
 !package.json
 !README.md
 !LICENSE
