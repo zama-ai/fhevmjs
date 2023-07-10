@@ -26,25 +26,26 @@ The `euint` types are _wrappers_ over these handles.
 The library exposes utility functions for operations on TFHE ciphertexts. 
 The list of supported operations is presented below. 
 
-| name                  | type   |
-| --------------------- | ------ |
-| Add                   | Binary |
-| Sub                   | Binary |
-| Mul                   | Binary |
-| BitAnd                | Binary |
-| BitOr                 | Binary |
-| BitXor                | Binary |
-| Shift Right           | Binary |
-| Equal                 | Binary |
-| Not equal             | Binary |
-| Greater than or equal | Binary | 
-| Greater than          | Binary |
-| Less than or equal    | Binary |
-| Less than             | Binary |
-| Min                   | Binary | 
-| Max                   | Binary |
-| Neg                   | Unary  |
-| Not                   | Unary  |
+| name                  | function name | type   |
+| --------------------- | ------------- | ------ |
+| Add                   | `TFHE.add`    | Binary |
+| Sub                   | `TFHE.sub`    | Binary |
+| Mul                   | `TFHE.mul`    | Binary |
+| BitAnd                | `TFHE.and`    | Binary |
+| BitOr                 | `TFHE.or`     | Binary |
+| BitXor                | `TFHE.xor`    | Binary |
+| Shift Right           | `TFHE.shr`    | Binary |
+| Shift Left            | `TFHE.shl`    | Binary |
+| Equal                 | `TFHE.eq`     | Binary |
+| Not equal             | `TFHE.ne`     | Binary |
+| Greater than or equal | `TFHE.ge`     | Binary | 
+| Greater than          | `TFHE.gt`     | Binary |
+| Less than or equal    | `TFHE.le`     | Binary |
+| Less than             | `TFHE.lt`     | Binary |
+| Min                   | `TFHE.min`    | Binary | 
+| Max                   | `TFHE.max`    | Binary |
+| Neg                   | `TFHE.neg`    | Unary  |
+| Not                   | `TFHE.not`    | Unary  |
 
 More information about the supported operations can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/high-level-api/operations#integer). 
 

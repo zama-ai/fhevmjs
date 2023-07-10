@@ -6,11 +6,23 @@ For example, most binary operators (e.g., `add`) can take as input any combinati
 - `euint8`
 - `euint16`
 - `euint32`
+
+Note that in the backend, FHE operations are only defined on same-type operands.
+Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
+
+Most binary operators are also defined with a mix of ciphertext and plaintext inputs. 
+In this case, operators can take as input operands of the following types 
+
+- `euint8`
+- `euint16`
+- `euint32`
 - `uint8`
 - `uint16`
 - `uint32`
 
-Note that ciphertext-plaintext operations may take less time to compute than ciphertext-ciphertext operations.
+under the condition that the size of the `uint` operand is at most the size of the `euint` operand. 
+For example, `add(uint8 a, euint8 b)` is defined but `add(uint16 a, euint16 b)` is not.
+Note that these ciphertext-plaintext operations may take less time to compute than ciphertext-ciphertext operations.
 
 Note that in the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
@@ -61,6 +73,8 @@ function reencrypt(euint32 ciphertext, bytes32 publicKey) internal view returns 
 function reencrypt(euint32 ciphertext, bytes32 publicKey, uint32 defaultValue) internal view returns (bytes memory reencrypted) 
 ```
 
+> **_NOTE:_**  If one of the following operations is called with an uninitialized ciphertext handle as an operand, this handle will be made to point to a trivial encryption of `0` before the operation is executed. 
+
 ## Arithmetic operations (`add`, `sub`, `mul`)
 Performs the operation homomorphically.
 
@@ -71,7 +85,7 @@ Note that division is not currently supported.
 // a + b
 function add(euint8 a, euint8 b) internal view returns (euint8) 
 function add(euint8 a, euint16 b) internal view returns (euint16)
-function add(uint32 a, euint16 b) internal view returns (euint32)
+function add(uint32 a, euint32 b) internal view returns (euint32)
 ```
 
 ## Bitwise operations (`AND`, `OR`, `XOR`)
@@ -89,7 +103,7 @@ function and(euint8 a, uint16 b) internal view returns (euint16)
 ```
 
 ## Bit shift operations (`<<`, `>>`)
-Self explanatory
+Shifts the bits of the base two representation of `a` by `b` positions.
 
 ### Examples
 ```solidity
@@ -117,7 +131,7 @@ function gt(uint32 a, euint16 b) internal view returns (euint32)
 function gt(euint16 a, uint32 b) internal view returns (euint32) 
 ```
 ## `Min`, `Max`
-Self explanatory
+Minimum (resp. maximum) of the two given values.
 
 ### Examples
 ```solidity
@@ -127,3 +141,5 @@ function min(euint32 a, euint16 b) internal view returns (euint32)
 // max(a, b)
 function max(uint32 a, euint8 b) internal view returns (euint32) 
 ```
+
+> **_NOTE:_**  More information about the behavior of these operators can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/high-level-api/operations#integer). 

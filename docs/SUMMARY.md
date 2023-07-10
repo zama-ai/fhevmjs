@@ -18,7 +18,7 @@
 - [TFHE Library](solidity/library.md)
 - [Function specifications](solidity/functions.md)
 - [Examples](solidity/examples.md)
-  - [ERC20](solidity/examples.md#ERC20)
+  - [ERC20](solidity/examples.md#ERC-20)
   - [Blind auction](solidity/examples.md#blind-auction)
 
 ## Developers
