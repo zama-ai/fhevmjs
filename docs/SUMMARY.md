@@ -12,7 +12,7 @@
   - [Transfer ERC-20 tokens](sdk/examples.md#transfer-erc-20-tokens)
   - [Get balance](sdk/examples.md#get-balance)
 
-## Solidity library
+## Solidity
 
 - [Getting Started](solidity/getting_started.md)
 - [TFHE Library](solidity/library.md)
