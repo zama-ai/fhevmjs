@@ -130,8 +130,8 @@ function gt(uint32 a, euint16 b) internal view returns (euint32)
 // actually returns `gt(a, b)`
 function gt(euint16 a, uint32 b) internal view returns (euint32) 
 ```
-## `Min`, `Max`
-Minimum (resp. maximum) of the two given values.
+## `min`, `max`
+Returns the minimum (resp. maximum) of the two given values.
 
 ### Examples
 ```solidity
@@ -141,5 +141,10 @@ function min(euint32 a, euint16 b) internal view returns (euint32)
 // max(a, b)
 function max(uint32 a, euint8 b) internal view returns (euint32) 
 ```
+
+## Unary operators (`neg`, `not`)
+There are two unary operators: `neg` (`-`) and `not` (`!`).
+Note that since we work with unsigned integers, the result of negation is interpreted as the modular opposite.
+The `not` operator returns the value obtained after flipping all the bits of the operand.
 
 > **_NOTE:_**  More information about the behavior of these operators can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/high-level-api/operations#integer). 
