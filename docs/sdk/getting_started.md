@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to the documentation for fhevmjs, a JavaScript library that enables interaction with blockchain using Zama technology! This comprehensive guide provides developers with detailed information on encryption of data using the TFHE (Fully Homomorphic Encryption over the Torus) and generation of EIP-719 token for reencrypt data.
+Welcome to the documentation for fhevmjs, a JavaScript library that enables interaction with blockchain using Zama's technology! This comprehensive guide provides developers with detailed information on encryption of data using TFHE (Fully Homomorphic Encryption over the Torus) and generation of EIP-719 tokens for reencrypt data.
 
 ## Installation
 
@@ -46,15 +46,15 @@ const start = async () => {
 
 #### Loading the library
 
-With bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`. If you encounter any issue, you can force import of the browser package.
+With a bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`. If you encounter any issues, you can force import of the browser package.
 
 ```javascript
 import { initFhevm, createInstance } from 'fhevmjs/web';
 ```
 
-Note: You need to handle WASM in your bundler.
+Note: you need to handle WASM in your bundler.
 
-If you have issue with bundling the library (for example with SSR framework), you can use prebundled version available in `fhevmjs/bundle`
+If you have an issue with bundling the library (for example with SSR framework), you can use the prebundled version available in `fhevmjs/bundle`
 
 ```javascript
 const start = async () => {
