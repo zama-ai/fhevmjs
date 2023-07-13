@@ -119,7 +119,7 @@ function shr(euint32 a, euint16 b) internal view returns (euint32)
 ## Comparison operation (`eq`, `ne`, `ge`, `gt`, `le`, `lt`)
 Note that in the case of ciphertext-plaintext operations, since our backend only accepts plaintext right operands, calling the operation with a plaintext left operand will actually invert the operand order and call the _opposite_ comparison.
 
-The result of comparison operations is an encrypted boolean (`ebool`). In the backend, the boolean is represented by an encrypted unsinged integer of bit width 8, but this is abstracted away as much as possible by the Solidity library. 
+The result of comparison operations is an encrypted boolean (`ebool`). In the backend, the boolean is represented by an encrypted unsinged integer of bit width 8, but this is abstracted away by the Solidity library. 
 
 ### Examples
 ```solidity

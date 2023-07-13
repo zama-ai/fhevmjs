@@ -25,5 +25,5 @@ function failingRequire(euint8 a) public {
 ## Optimistic encrypted require statements
 The require statements described above may lead to important delays during the transaction execution as several of them may need to be processed in a single transaction.
 This is why we introduce optimistic encrypted statements (`optReq`). 
-These require statemts are accumulated throughout the execution of the transaction and are only decrypted at the end of execution. 
+These require statements are accumulated throughout the execution of the transaction and are only decrypted at the end of execution. 
 Optimistic requires may be more efficient, but this efficiency comes at the price of paying more gas if it so happens that one of the predicates is false. 
