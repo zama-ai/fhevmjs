@@ -28,7 +28,7 @@ Note that in the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
 
 ## `asEuint`
-The `asEuint` serves three purposes:
+The `asEuint` functions serve three purposes:
 
 1. verify ciphertext bytes and return a valid handle to the calling smart contract; 
 2. cast a `euintX` typed ciphertext to a `euintY` typed ciphertext, where `X != Y`;
@@ -52,6 +52,9 @@ function asEuint16(euint8 ciphertext) internal view returns (euint16)
 // third case
 function asEuint16(uint16 value) internal view returns (euint16) 
 ```
+
+## `asEbool`
+The `asEbool` functions behave similarly to the `asEuint` functions, but for encrypted boolean values.
 
 ## Reencrypt
 The reencrypt functions takes as inputs a ciphertext and a public encryption key (namely, a [NaCl box](https://nacl.cr.yp.to/index.html)). 
@@ -116,19 +119,18 @@ function shr(euint32 a, euint16 b) internal view returns (euint32)
 ## Comparison operation (`eq`, `ne`, `ge`, `gt`, `le`, `lt`)
 Note that in the case of ciphertext-plaintext operations, since our backend only accepts plaintext right operands, calling the operation with a plaintext left operand will actually invert the operand order and call the _opposite_ comparison.
 
-The result of comparison operations is always an encryption of `0` (false) or `1` (true), and this no matter what the return type is.
-
+The result of comparison operations is an encrypted boolean (`ebool`). In the backend, the boolean is represented by an encrypted unsinged integer of bit width 8, but this is abstracted away as much as possible by the Solidity library. 
 
 ### Examples
 ```solidity
 // a == b
-function eq(euint32 a, euint16 b) internal view returns (euint32) 
+function eq(euint32 a, euint16 b) internal view returns (ebool) 
 
 // actually returns `lt(b, a)`
-function gt(uint32 a, euint16 b) internal view returns (euint32) 
+function gt(uint32 a, euint16 b) internal view returns (ebool) 
 
 // actually returns `gt(a, b)`
-function gt(euint16 a, uint32 b) internal view returns (euint32) 
+function gt(euint16 a, uint32 b) internal view returns (ebool) 
 ```
 ## `min`, `max`
 Returns the minimum (resp. maximum) of the two given values.

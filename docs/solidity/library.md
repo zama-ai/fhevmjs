@@ -12,6 +12,7 @@ We currently support encrypted integers of bit length up to 32 bits.
 <!-- Support for up to 256 bits is on our roadmap.  -->
 
 Our library provides the following types :
+- `ebool`
 - `euint8`
 - `euint16`
 - `euint32`
