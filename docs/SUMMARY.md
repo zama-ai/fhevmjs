@@ -20,7 +20,8 @@
 - [Examples](solidity/examples.md)
   - [ERC20](solidity/examples.md#ERC-20)
   - [Blind auction](solidity/examples.md#blind-auction)
-
+<!--
 ## Developers
 
 - [Contributing](dev/contributing.md)
+-->
