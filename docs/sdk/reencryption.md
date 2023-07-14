@@ -44,7 +44,7 @@ const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', par
 ### Parameters
 
 - `contractAddress: string` (required): address of the contract
-- `ciphertext: Uint8Array | string` (required): a ciphertext, as binary or hex string, to decrypt
+- `ciphertext: Uint8Array | string` (required): a ciphertext, as a binary or hex string, to decrypt
 
 ### Returns
 
@@ -66,7 +66,7 @@ instance.decrypt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c', response)
 
 ## FhevmInstance.setTokenSignature
 
-This method allows you to store the signature of a public key for a specific contract to retrieve it later. Signature are also serialized in `serializeKeypairs`.
+This method allows you to store the signature of a public key for a specific contract, in order to retrieve it later. The signature is also serialized in `serializeKeypairs`.
 
 ### Parameters
 
@@ -125,7 +125,7 @@ console.log(instance.hasKeypair(contractAddress)); // true
 
 ## FhevmInstance.getTokenSignature
 
-This method returns saved public key and signature for a specific contract. If the contract has no keypair or no signature,this method returns `null`.
+This method returns the saved public key and signature for a specific contract. If the contract has no keypair or no signature, this method returns `null`.
 
 ### Parameters
 

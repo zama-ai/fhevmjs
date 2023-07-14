@@ -24,7 +24,7 @@ under the condition that the size of the `uint` operand is at most the size of t
 For example, `add(uint8 a, euint8 b)` is defined but `add(uint16 a, euint16 b)` is not.
 Note that these ciphertext-plaintext operations may take less time to compute than ciphertext-ciphertext operations.
 
-Note that in the backend, FHE operations are only defined on same-type operands.
+In the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
 
 ## `asEuint`
