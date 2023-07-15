@@ -21,6 +21,16 @@ describe('encrypt8', () => {
     publicKey = keypair.publicKey;
   });
 
+  it('encrypt/decrypt 0 8bits', async () => {
+    const buffer = encrypt8(0, publicKey);
+    const compactList = CompactFheUint8List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint8) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted).toBe(0);
+    });
+  });
+
   it('encrypt/decrypt 8bits', async () => {
     const buffer = encrypt8(34, publicKey);
     const compactList = CompactFheUint8List.deserialize(buffer);
@@ -31,6 +41,16 @@ describe('encrypt8', () => {
     });
   });
 
+  it('encrypt/decrypt 0 16bits', async () => {
+    const buffer = encrypt16(0, publicKey);
+    const compactList = CompactFheUint8List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint8) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted).toBe(0);
+    });
+  });
+
   it('encrypt/decrypt 16bits', async () => {
     const buffer = encrypt16(434, publicKey);
     const compactList = CompactFheUint16List.deserialize(buffer);
@@ -38,6 +58,16 @@ describe('encrypt8', () => {
     encryptedList.forEach((v: FheUint16) => {
       const decrypted = v.decrypt(clientKey);
       expect(decrypted).toBe(434);
+    });
+  });
+
+  it('encrypt/decrypt 0 32bits', async () => {
+    const buffer = encrypt32(0, publicKey);
+    const compactList = CompactFheUint8List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint8) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted).toBe(0);
     });
   });
 
