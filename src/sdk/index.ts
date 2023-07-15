@@ -43,8 +43,8 @@ export type FhevmInstanceParams = {
 export const createInstance = async (params: FhevmInstanceParams): Promise<FhevmInstance> => {
   await sodium.ready;
   const { chainId, publicKey, keypairs } = params;
-  if (typeof chainId !== 'number') throw new Error('chainId must be a number.');
-  if (typeof publicKey !== 'string') throw new Error('publicKey must be a string.');
+  if (typeof chainId !== 'number') throw new Error('chainId must be a number');
+  if (typeof publicKey !== 'string') throw new Error('publicKey must be a string');
   const buff = fromHexString(publicKey);
   const tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
 

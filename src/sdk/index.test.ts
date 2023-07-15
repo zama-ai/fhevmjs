@@ -26,6 +26,14 @@ describe('token', () => {
     expect(instance.hasKeypair).toBeDefined();
   });
 
+  it('fails to create an instance', async () => {
+    await expect(createInstance({ chainId: BigInt(1234) as any, publicKey: tfhePublicKey })).rejects.toThrow(
+      'chainId must be a number'
+    );
+
+    await expect(createInstance({ chainId: 9000, publicKey: 43 as any })).rejects.toThrow('publicKey must be a string');
+  });
+
   it('creates an instance with keypairs', async () => {
     const keypair = sodium.crypto_box_keypair('hex');
 
