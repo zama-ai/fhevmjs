@@ -18,4 +18,4 @@ This will download and install the fhevmjs library and its dependencies into you
 
 ## Documentation
 
-Soon...
+fhevmjs library is documented in [the documentation of fhEVM](https://docs.zama.ai/fhevm/).
