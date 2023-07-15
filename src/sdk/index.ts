@@ -70,18 +70,18 @@ export const createInstance = async (params: FhevmInstanceParams): Promise<Fhevm
   return {
     // Parameters
     encrypt8(value) {
-      if (!value) throw new Error('Missing value');
+      if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt8(value, tfheCompactPublicKey);
     },
     encrypt16(value) {
-      if (!value) throw new Error('Missing value');
+      if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt16(value, tfheCompactPublicKey);
     },
 
     encrypt32(value) {
-      if (!value) throw new Error('Missing value');
+      if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt32(value, tfheCompactPublicKey);
     },
