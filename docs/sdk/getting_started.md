@@ -23,19 +23,19 @@ The package includes two different versions: node and browser.
 ### Node
 
 ```javascript
-const fhevm = require("fhevmjs");
-fhevm.createInstance({ chainId, publicKey }).then((instance) => {
+const { createInstance } = require("fhevmjs");
+createInstance({ chainId, publicKey }).then((instance) => {
   console.log(instance);
 });
 ```
 
 ### Browser
 
-To use the library in your project, you need to load WASM of TFHE first with `initFhevm`.
+To use the library in your project, you need to load WASM of [TFHE](https://www.npmjs.com/package/tfhe) first with `initFhevm`. Then, you ca instantiate an instance.
 
 ```javascript
 import { BrowserProvider } from "ethers";
-import { initFhevm, createInstance } from "fhevmjs/web";
+import { initFhevm, createInstance } from "fhevmjs";
 
 const createFhevmInstance = async () => {
   const provider = new BrowserProvider(window.ethereum);
@@ -49,7 +49,7 @@ const createFhevmInstance = async () => {
 };
 
 const init = async () => {
-  await initFhevm();
+  await initFhevm(); // Load TFHE
   return createFhevmInstance();
 };
 
@@ -58,6 +58,8 @@ init().then((instance) => {
 });
 ```
 
+You can take a look at [this template](https://github.com/zama-ai/fhevmjs-react-template) for an example using Vite, React and TypeScript.
+
 #### Loading the library
 
 With a bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`. If you encounter any issues, you can force import of the browser package.
@@ -65,8 +67,6 @@ With a bundler such as Webpack or Rollup, imports will be replaced with the vers
 ```javascript
 import { initFhevm, createInstance } from "fhevmjs/web";
 ```
-
-Note: you need to handle WASM in your bundler.
 
 If you have an issue with bundling the library (for example with SSR framework), you can use the prebundled version available in `fhevmjs/bundle`
 
