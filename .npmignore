@@ -2,6 +2,8 @@
 !bundle/*
 !lib/*
 !lib/sdk/*
+!web.d.ts
+!web.js
 !package.json
 !README.md
 !LICENSE
