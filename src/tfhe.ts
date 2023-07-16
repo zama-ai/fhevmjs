@@ -5,7 +5,7 @@ import {
   ShortintParameters,
   ShortintParametersName,
 } from 'node-tfhe';
-import { fromHexString, toHexString } from './utils';
+import { toHexString } from './utils';
 
 export const createTfheKeypair = () => {
   const block_params = new ShortintParameters(ShortintParametersName.PARAM_SMALL_MESSAGE_2_CARRY_2_COMPACT_PK);

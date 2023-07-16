@@ -1,7 +1,7 @@
 import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 
@@ -19,6 +19,11 @@ const plugins = [
     targetEnv: 'browser',
     maxFileSize: 10000000,
   }),
+  resolve({
+    browser: true,
+    resolveOnly: ['tfhe'],
+    extensions: ['.js', '.ts', '.wasm'],
+  }),
   commonjs(),
 ];
 
@@ -28,7 +33,7 @@ export default [
     output: {
       dir: 'lib',
       name: 'fhevm',
-      format: 'cjs',
+      format: 'es',
     },
     plugins: [...plugins],
   },

@@ -80,6 +80,7 @@ describe('token', () => {
     });
     expect(() => instance.generateToken(undefined as any)).toThrow('Missing contract address');
     expect(() => instance.generateToken({ verifyingContract: '' })).toThrow('Missing contract address');
+    expect(() => instance.generateToken({ verifyingContract: '0x847473829d' })).toThrow('Invalid contract address');
   });
 
   it('save generated token', async () => {

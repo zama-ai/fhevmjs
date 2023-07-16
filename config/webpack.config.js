@@ -47,18 +47,7 @@ const web = {
           filename: '[name][ext]',
         },
       },
-      {
-        test: /\.wasm$/,
-        type: 'asset/resource',
-        generator: {
-          filename: '[name][ext]',
-        },
-      },
     ],
-  },
-  experiments: {
-    asyncWebAssembly: true,
-    syncWebAssembly: true,
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
@@ -70,6 +59,7 @@ const web = {
       'node-tfhe': 'tfhe/tfhe',
     },
     fallback: {
+      'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
       'node-tfhe': require.resolve('tfhe/tfhe'),
       buffer: require.resolve('buffer/'),
       crypto: require.resolve('crypto-browserify'),

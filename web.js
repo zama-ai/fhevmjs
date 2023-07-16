@@ -1,1 +1,1 @@
-module.exports = { default: require('./lib/web') };
+export * from './lib/web';
