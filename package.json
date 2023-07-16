@@ -2,13 +2,20 @@
   "name": "fhevmjs",
   "version": "0.1.0",
   "description": "fhEVM SDK for blockchain using TFHE",
-  "main": "lib/node.js",
+  "main": "lib/node.cjs",
   "browser": "lib/web.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/web.js",
+      "require": "./lib/node.cjs"
+    }
+  },
   "scripts": {
     "lint": "eslint src/",
     "build": "npm run build:lib && npm run build:bundle",
-    "build:lib": "rollup -c config/rollup.config.mjs",
-    "build:bundle": "webpack --mode=production --config config/webpack.config.js",
+    "build:lib": "rollup -c config/rollup.config.js",
+    "build:bundle": "webpack --mode=production --config config/webpack.config.cjs",
     "test": "jest --colors --passWithNoTests --coverage",
     "test:watch": "jest --colors --passWithNoTests --watch"
   },

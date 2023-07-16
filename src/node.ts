@@ -1,2 +1,3 @@
-export * from './sdk';
-export * from './tfhe';
+//@ts-check
+export * from "./sdk";
+export * from "./tfhe";
