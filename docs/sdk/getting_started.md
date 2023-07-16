@@ -69,7 +69,7 @@ In the codebase, there is a `new URL('tfhe_bg.wasm')` which triggers a resolve b
 ```javascript
     resolve: {
       fallback: {
-        'tfhe_bg.wasm': require.resolve('./node_modules/fhevmjs/bundle/tfhe_bg.wasm'),
+        'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
       },
     },
 ```
