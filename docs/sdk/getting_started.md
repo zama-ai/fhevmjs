@@ -76,7 +76,10 @@ In the codebase, there is a `new URL('tfhe_bg.wasm')` which triggers a resolve b
 
 ##### Issue with importing ESM version
 
-With a bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`. If you encounter any issue, you can force import of the browser package.
+With a bundler such as Webpack or Rollup, imports will be replaced with the version mentioned in the `"browser"` field of the `package.json`.
+If you encounter issue with typing, you can use this [tsconfig.json](https://github.com/zama-ai/fhevmjs-react-template/blob/main/tsconfig.json) using TypeScript 5.
+
+If you encounter any other issue, you can force import of the browser package.
 
 ```javascript
 import { initFhevm, createInstance } from "fhevmjs/web";
