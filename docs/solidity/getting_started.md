@@ -8,10 +8,10 @@ To get started with fhEVM Solidity Library, you need to install it as a dependen
 
 ```bash
 # Using npm
-npm install fh-solidity
+npm install fhevm
 
 # Using Yarn
-yarn add fh-solidity
+yarn add fhevm
 ```
 
 This will download and install the fhEVM Solidity Library and its dependencies into your project.
