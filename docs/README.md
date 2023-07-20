@@ -4,6 +4,8 @@
 
 <figure><img src=".gitbook/assets/Zama (3).png" alt=""><figcaption></figcaption></figure>
 
+Zama's fhEVM allows developer to create private smart contracts using homomorphic encryption on the EVM. 
+
 ## fhevmjs
 
 fhevmjs is a javascript library that enables developers to interact with blockchains using Zama's cutting-edge technology based on TFHE (Fully Homomorphic Encryption over the Torus). This library provides a seamless integration of TFHE encryption capabilities into web3 applications, allowing for secure and private interactions with smart contracts.
