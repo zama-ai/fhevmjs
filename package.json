@@ -5,6 +5,9 @@
   "main": "lib/node.cjs",
   "browser": "lib/web.js",
   "type": "module",
+  "bin": {
+    "fhevmjs": "./bin/fhevmjs.js"
+  },
   "exports": {
     ".": {
       "import": "./lib/web.js",
@@ -30,7 +33,9 @@
   },
   "homepage": "https://github.com/zama-ai/fhevmjs#readme",
   "dependencies": {
+    "commander": "^11.0.0",
     "crypto-js": "^4.1.1",
+    "ethers": "^6.6.4",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
     "node-tfhe": "^0.3.0-beta.0",
