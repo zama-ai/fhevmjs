@@ -27,11 +27,16 @@ describe('token', () => {
   });
 
   it('fails to create an instance', async () => {
-    await expect(createInstance({ chainId: BigInt(1234) as any, publicKey: tfhePublicKey })).rejects.toThrow(
-      'chainId must be a number'
-    );
+    await expect(
+      createInstance({
+        chainId: BigInt(1234) as any,
+        publicKey: tfhePublicKey,
+      }),
+    ).rejects.toThrow('chainId must be a number');
 
-    await expect(createInstance({ chainId: 9000, publicKey: 43 as any })).rejects.toThrow('publicKey must be a string');
+    await expect(
+      createInstance({ chainId: 9000, publicKey: 43 as any }),
+    ).rejects.toThrow('publicKey must be a string');
   });
 
   it('creates an instance with keypairs', async () => {
@@ -52,7 +57,11 @@ describe('token', () => {
     });
 
     const value = 937387;
-    const ciphertext = sodium.crypto_box_seal(numberToBytes(value), fromHexString(keypair.publicKey), 'hex');
+    const ciphertext = sodium.crypto_box_seal(
+      numberToBytes(value),
+      fromHexString(keypair.publicKey),
+      'hex',
+    );
 
     const cleartext = instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
@@ -68,9 +77,15 @@ describe('token', () => {
     expect(() => instance.encrypt16(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt32(undefined as any)).toThrow('Missing value');
 
-    expect(() => instance.encrypt8('wrong value' as any)).toThrow('Value must be a number');
-    expect(() => instance.encrypt16('wrong value' as any)).toThrow('Value must be a number');
-    expect(() => instance.encrypt32('wrong value' as any)).toThrow('Value must be a number');
+    expect(() => instance.encrypt8('wrong value' as any)).toThrow(
+      'Value must be a number',
+    );
+    expect(() => instance.encrypt16('wrong value' as any)).toThrow(
+      'Value must be a number',
+    );
+    expect(() => instance.encrypt32('wrong value' as any)).toThrow(
+      'Value must be a number',
+    );
   });
 
   it('controls generateToken', async () => {
@@ -78,9 +93,15 @@ describe('token', () => {
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
-    expect(() => instance.generateToken(undefined as any)).toThrow('Missing contract address');
-    expect(() => instance.generateToken({ verifyingContract: '' })).toThrow('Missing contract address');
-    expect(() => instance.generateToken({ verifyingContract: '0x847473829d' })).toThrow('Invalid contract address');
+    expect(() => instance.generateToken(undefined as any)).toThrow(
+      'Missing contract address',
+    );
+    expect(() => instance.generateToken({ verifyingContract: '' })).toThrow(
+      'Missing contract address',
+    );
+    expect(() =>
+      instance.generateToken({ verifyingContract: '0x847473829d' }),
+    ).toThrow('Invalid contract address');
   });
 
   it('save generated token', async () => {
@@ -91,7 +112,9 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({
+      verifyingContract: contractAddress,
+    });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
 
@@ -109,7 +132,9 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({
+      verifyingContract: contractAddress,
+    });
     const keypairs = instance.serializeKeypairs();
     expect(keypairs[contractAddress]).toBeUndefined();
     const keypair = instance.getTokenSignature(contractAddress);
@@ -125,7 +150,9 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({ verifyingContract: contractAddress });
+    const { token, publicKey } = instance.generateToken({
+      verifyingContract: contractAddress,
+    });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
 
@@ -133,7 +160,11 @@ describe('token', () => {
     expect(kp!.publicKey).toBe(publicKey);
 
     const value = 89290;
-    const ciphertext = sodium.crypto_box_seal(numberToBytes(value), publicKey, 'hex');
+    const ciphertext = sodium.crypto_box_seal(
+      numberToBytes(value),
+      publicKey,
+      'hex',
+    );
     const cleartext = instance.decrypt(contractAddress, ciphertext);
     expect(cleartext).toBe(value);
   });

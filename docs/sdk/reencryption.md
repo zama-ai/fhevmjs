@@ -36,7 +36,10 @@ const encryptedParam = instance.generateToken({
   verifyingContract: '0x1c786b8ca49D932AFaDCEc00827352B503edf16c',
 });
 const params = [userAddress, JSON.stringify(generatedToken.token)];
-const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
+const sign = await window.ethereum.request({
+  method: 'eth_signTypedData_v4',
+  params,
+});
 ```
 
 ## FhevmInstance.decrypt
@@ -84,7 +87,10 @@ const generatedToken = instance.generateToken({
 
 // Ask for user to sign the token
 const params = [userAddress, JSON.stringify(generatedToken.token)];
-const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
+const sign = await window.ethereum.request({
+  method: 'eth_signTypedData_v4',
+  params,
+});
 // Store signature
 instance.setTokenSignature(contractAddress, sign);
 ```
@@ -151,7 +157,10 @@ const generatedToken = instance.generateToken({
 
 // Ask for user to sign the token
 const params = [userAddress, JSON.stringify(generatedToken.token)];
-const sign = await window.ethereum.request({ method: 'eth_signTypedData_v4', params });
+const sign = await window.ethereum.request({
+  method: 'eth_signTypedData_v4',
+  params,
+});
 // Store signature
 instance.setTokenSignature(contractAddress, sign);
 

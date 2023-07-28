@@ -9,8 +9,7 @@
 - [Instance](sdk/instance.md)
 - [Parameters](sdk/parameters.md)
 - [Reencryption](sdk/reencryption.md)
-- [Examples](sdk/examples.md)
-  -
+- ## [Examples](sdk/examples.md)
   -
 
 ## Solidity
@@ -19,6 +18,5 @@
 - [TFHE Library](solidity/library.md)
 - [Function specifications](solidity/functions.md)
 - [Booleans and control structures](solidity/requires.md)
-- [Examples](solidity/examples.md)
-  -
+- ## [Examples](solidity/examples.md)
   -

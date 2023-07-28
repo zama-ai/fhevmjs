@@ -14,7 +14,10 @@ const CONTRACT_ADDRESS = '0x309cf2aae85ad8a1db70ca88cfd4225bf17a7482';
 
 const provider = new JsonRpcProvider(`https://devnet.zama.ai/`);
 
-const signer = new Wallet('0x92293977156de6e03b20b26708cb4496b523116190b5c32d77cee8286d0c41f6', provider);
+const signer = new Wallet(
+  '0x92293977156de6e03b20b26708cb4496b523116190b5c32d77cee8286d0c41f6',
+  provider,
+);
 
 let _instance;
 
@@ -26,7 +29,9 @@ const getInstance = async () => {
   const chainId = +network.chainId.toString(); // Need to be a number
 
   // Get blockchain public key
-  const publicKey = await provider.call({ to: '0x0000000000000000000000000000000000000044' });
+  const publicKey = await provider.call({
+    to: '0x0000000000000000000000000000000000000044',
+  });
 
   // Create instance
   _instance = createInstance({ chainId, publicKey });
@@ -40,7 +45,10 @@ const transfer = async (to, amount) => {
   const instance = await getInstance();
   const encryptedAmount = instance.encrypt32(amount);
 
-  const transaction = await contract['transfer(address,bytes)'](to, encryptedAmount);
+  const transaction = await contract['transfer(address,bytes)'](
+    to,
+    encryptedAmount,
+  );
   return transaction;
 };
 
@@ -59,7 +67,10 @@ const CONTRACT_ADDRESS = '0x309cf2aae85ad8a1db70ca88cfd4225bf17a7482';
 
 const provider = new JsonRpcProvider(`https://devnet.zama.ai/`);
 
-const signer = new Wallet('0x92293977156de6e03b20b26708cb4496b523116190b5c32d77cee8286d0c41f6', provider);
+const signer = new Wallet(
+  '0x92293977156de6e03b20b26708cb4496b523116190b5c32d77cee8286d0c41f6',
+  provider,
+);
 
 let _instance;
 
@@ -72,7 +83,9 @@ const getInstance = async () => {
   const chainId = +network.chainId.toString();
 
   // Get blockchain public key
-  const publicKey = await provider.call({ to: '0x0000000000000000000000000000000000000044' });
+  const publicKey = await provider.call({
+    to: '0x0000000000000000000000000000000000000044',
+  });
 
   // Create instance
   _instance = createInstance({ chainId, publicKey });
@@ -95,12 +108,15 @@ const getBalance = async () => {
   const signature = await signer.signTypedData(
     generatedToken.token.domain,
     { Reencrypt: generatedToken.token.types.Reencrypt }, // Need to remove EIP712Domain from types
-    generatedToken.token.message
+    generatedToken.token.message,
   );
   instance.setTokenSignature(CONTRACT_ADDRESS, signature);
 
   // Call the method
-  const encryptedBalance = await contract.balanceOf(generatedToken.publicKey, signature);
+  const encryptedBalance = await contract.balanceOf(
+    generatedToken.publicKey,
+    signature,
+  );
 
   // Decrypt the balance
   const balance = instance.decrypt(CONTRACT_ADDRESS, encryptedBalance);

@@ -10,12 +10,19 @@ export type FhevmInstance = {
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
-  generateToken: (options: { verifyingContract: string; name?: string; version?: string; force?: boolean }) => {
+  generateToken: (options: {
+    verifyingContract: string;
+    name?: string;
+    version?: string;
+    force?: boolean;
+  }) => {
     publicKey: Uint8Array;
     token: EIP712;
   };
   setTokenSignature: (contractAddress: string, signature: string) => void;
-  getTokenSignature: (contractAddress: string) => { publicKey: Uint8Array; signature: string } | null;
+  getTokenSignature: (
+    contractAddress: string,
+  ) => { publicKey: Uint8Array; signature: string } | null;
   hasKeypair: (contractAddress: string) => boolean;
   decrypt: (contractAddress: string, ciphertext: string) => number;
   serializeKeypairs: () => ExportedContractKeypairs;
@@ -40,11 +47,14 @@ export type FhevmInstanceParams = {
   keypairs?: ExportedContractKeypairs;
 };
 
-export const createInstance = async (params: FhevmInstanceParams): Promise<FhevmInstance> => {
+export const createInstance = async (
+  params: FhevmInstanceParams,
+): Promise<FhevmInstance> => {
   await sodium.ready;
   const { chainId, publicKey, keypairs } = params;
   if (typeof chainId !== 'number') throw new Error('chainId must be a number');
-  if (typeof publicKey !== 'string') throw new Error('publicKey must be a string');
+  if (typeof publicKey !== 'string')
+    throw new Error('publicKey must be a string');
   const buff = fromHexString(publicKey);
   const tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
 
@@ -54,7 +64,11 @@ export const createInstance = async (params: FhevmInstanceParams): Promise<Fhevm
     Object.keys(keypairs).forEach((contractAddress) => {
       if (isAddress(contractAddress)) {
         const oKeys = Object.keys(keypairs[contractAddress]);
-        if (['signature', 'privateKey', 'publicKey'].every((v) => oKeys.includes(v))) {
+        if (
+          ['signature', 'privateKey', 'publicKey'].every((v) =>
+            oKeys.includes(v),
+          )
+        ) {
           contractKeypairs[contractAddress] = {
             signature: keypairs[contractAddress].signature,
             publicKey: fromHexString(keypairs[contractAddress].publicKey),
@@ -66,7 +80,10 @@ export const createInstance = async (params: FhevmInstanceParams): Promise<Fhevm
   }
 
   const hasKeypair = (contractAddress: string) => {
-    return contractKeypairs[contractAddress] != null && !!contractKeypairs[contractAddress].signature;
+    return (
+      contractKeypairs[contractAddress] != null &&
+      !!contractKeypairs[contractAddress].signature
+    );
   };
 
   return {
@@ -90,8 +107,10 @@ export const createInstance = async (params: FhevmInstanceParams): Promise<Fhevm
 
     // Reencryption
     generateToken(options) {
-      if (!options || !options.verifyingContract) throw new Error('Missing contract address');
-      if (!isAddress(options.verifyingContract)) throw new Error('Invalid contract address');
+      if (!options || !options.verifyingContract)
+        throw new Error('Missing contract address');
+      if (!isAddress(options.verifyingContract))
+        throw new Error('Invalid contract address');
       let kp;
       if (!options.force && contractKeypairs[options.verifyingContract]) {
         kp = contractKeypairs[options.verifyingContract];
@@ -112,7 +131,10 @@ export const createInstance = async (params: FhevmInstanceParams): Promise<Fhevm
     },
 
     setTokenSignature(contractAddress: string, signature: string) {
-      if (contractKeypairs[contractAddress] && contractKeypairs[contractAddress].privateKey) {
+      if (
+        contractKeypairs[contractAddress] &&
+        contractKeypairs[contractAddress].privateKey
+      ) {
         contractKeypairs[contractAddress].signature = signature;
       }
     },
