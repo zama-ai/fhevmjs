@@ -16,6 +16,10 @@ yarn add fhevmjs
 
 This will download and install the fhevmjs library and its dependencies into your project.
 
+## Template
+
+You can use our [React template using Vite and TypeScript](https://github.com/zama-ai/fhevmjs-react-template)
+
 ## Usage
 
 The package includes two different versions: node and browser.
@@ -23,7 +27,7 @@ The package includes two different versions: node and browser.
 ### Node
 
 ```javascript
-const { createInstance } = require("fhevmjs");
+const { createInstance } = require('fhevmjs');
 createInstance({ chainId, publicKey }).then((instance) => {
   console.log(instance);
 });
@@ -34,8 +38,8 @@ createInstance({ chainId, publicKey }).then((instance) => {
 To use the library in your project, you need to load WASM of [TFHE](https://www.npmjs.com/package/tfhe) first with `initFhevm`.
 
 ```javascript
-import { BrowserProvider } from "ethers";
-import { initFhevm, createInstance } from "fhevmjs";
+import { BrowserProvider } from 'ethers';
+import { initFhevm, createInstance } from 'fhevmjs';
 
 const createFhevmInstance = async () => {
   const provider = new BrowserProvider(window.ethereum);
@@ -43,7 +47,7 @@ const createFhevmInstance = async () => {
   const chainId = +network.chainId.toString();
   const publicKey = await provider.call({
     from: null,
-    to: "0x0000000000000000000000000000000000000044",
+    to: '0x0000000000000000000000000000000000000044',
   });
   return createInstance({ chainId, publicKey });
 };
@@ -82,7 +86,7 @@ If you encounter issue with typing, you can use this [tsconfig.json](https://git
 If you encounter any other issue, you can force import of the browser package.
 
 ```javascript
-import { initFhevm, createInstance } from "fhevmjs/web";
+import { initFhevm, createInstance } from 'fhevmjs/web';
 ```
 
 ##### Use bundled version

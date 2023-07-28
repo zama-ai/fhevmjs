@@ -15,3 +15,7 @@ yarn add fhevm
 ```
 
 This will download and install the fhEVM Solidity Library and its dependencies into your project.
+
+## Template
+
+You can use our [Hardhat template](https://github.com/zama-ai/fhevm-hardhat-template)
