@@ -1,10 +1,10 @@
 # What is fhEVM ecosystem?
 
-📁 [Github](https://github.com/zama-ai/tfhe-rs) | 💛 [Community support](https://zama.ai/community) | 🟨 [Zama Bounty Program](https://github.com/zama-ai/bounty-program)
+📁 [Github](https://github.com/zama-ai/fhevm) | 💛 [Community support](https://zama.ai/community) | 🟨 [Zama Bounty Program](https://github.com/zama-ai/bounty-program)
 
 <figure><img src=".gitbook/assets/Zama (3).png" alt=""><figcaption></figcaption></figure>
 
-Zama's fhEVM allows developer to create private smart contracts using homomorphic encryption on the EVM. 
+Zama's fhEVM allows developer to create private smart contracts using homomorphic encryption on the EVM.
 
 ## fhevmjs
 
