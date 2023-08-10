@@ -17,6 +17,6 @@
 - [Getting Started](solidity/getting_started.md)
 - [TFHE Library](solidity/library.md)
 - [Function specifications](solidity/functions.md)
-- [Booleans and control structures](solidity/requires.md)
+- [Decryption and control structures](solidity/requires.md)
 - ## [Examples](solidity/examples.md)
   -
