@@ -9,7 +9,7 @@ import { toHexString } from './utils';
 
 export const createTfheKeypair = () => {
   const block_params = new ShortintParameters(
-    ShortintParametersName.PARAM_SMALL_MESSAGE_2_CARRY_2_COMPACT_PK,
+    ShortintParametersName.PARAM_MESSAGE_2_CARRY_2_COMPACT_PK_PBS_KS,
   );
   let config = TfheConfigBuilder.all_disabled()
     .enable_custom_integers(block_params)
