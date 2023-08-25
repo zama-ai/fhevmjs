@@ -33,10 +33,12 @@ These require statements are accumulated throughout the execution of the transac
 Optimistic requires may be more efficient, but this efficiency comes at the price of paying more gas if it so happens that one of the predicates is false.
 
 ## Decryptions
-We also allow explicit decryptions requests for any type encrypted type. 
+
+We also allow explicit decryptions requests for any type encrypted type.
 The values are decrypted in the same way requires are, that is through the distributed decryption protocol.
 
 ### Examples
+
 ```solidity
 function decryptAmount(euint8 amount) public view returns (uint8) {
     return TFHE.decrypt(amount);
