@@ -18,5 +18,9 @@
 - [TFHE Library](solidity/library.md)
 - [Function specifications](solidity/functions.md)
 - [Decryption and control structures](solidity/requires.md)
-- ## [Examples](solidity/examples.md)
-  -
+
+## Examples
+
+- [ERC-20](examples/erc20.md)
+- [Blind auction](examples/blindauction.md)
+- [Other examples](examples/other.md)
