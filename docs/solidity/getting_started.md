@@ -11,7 +11,7 @@ The best way to start writing smart contracts with fhEVM is to use our [Hardhat 
 We provide a docker image to spin up a fhEVM node for local development.
 
 ```bash
-docker run -i -p 8545:8545 --rm --name fhevm ghcr.io/zama-ai/evmos-dev-node:v0.1.7
+docker run -i -p 8545:8545 --rm --name fhevm ghcr.io/zama-ai/evmos-dev-node:v0.1.8
 ```
 
 ### Faucet
