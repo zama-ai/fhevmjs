@@ -166,4 +166,4 @@ There are two unary operators: `neg` (`-`) and `not` (`!`).
 Note that since we work with unsigned integers, the result of negation is interpreted as the modular opposite.
 The `not` operator returns the value obtained after flipping all the bits of the operand.
 
-> **_NOTE:_** More information about the behavior of these operators can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/high-level-api/operations#integer).
+> **_NOTE:_** More information about the behavior of these operators can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/getting-started/operations#arithmetic-operations.).
