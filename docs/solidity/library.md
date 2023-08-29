@@ -51,4 +51,4 @@ The list of supported operations is presented below.
 | Neg                   | `TFHE.neg`    | Unary  |
 | Not                   | `TFHE.not`    | Unary  |
 
-More information about the supported operations can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/high-level-api/operations#integer).
+More information about the supported operations can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/getting-started/operations#arithmetic-operations.).
