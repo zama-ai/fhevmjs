@@ -29,7 +29,7 @@ npm install fhevmjs
 yarn add fhevmjs
 
 # Using pnpm
-yarn add pnpm
+pnpm add fhevmjs
 ```
 
 This will download and install the fhevmjs library and its dependencies into your project.
