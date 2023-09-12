@@ -4,7 +4,7 @@ Welcome to the documentation for fhevmjs, a JavaScript library that enables inte
 
 ## Installation
 
-To get started with fhevmjs, you need to install it as a dependency in your JavaScript project. You can do this using npm (Node Package Manager) or Yarn. Open your terminal and navigate to your project's directory, then run one of the following commands:
+To get started with fhevmjs, you need to install it as a dependency in your JavaScript project. You can do this using npm, Yarn or pnpm. Open your terminal and navigate to your project's directory, then run one of the following commands:
 
 ```bash
 # Using npm
@@ -12,6 +12,9 @@ npm install fhevmjs
 
 # Using Yarn
 yarn add fhevmjs
+
+# Using pnpm
+pnpm add fhevmjs
 ```
 
 This will download and install the fhevmjs library and its dependencies into your project.
@@ -65,18 +68,6 @@ init().then((instance) => {
 You can take a look at [this template](https://github.com/zama-ai/fhevmjs-react-template) for an example using Vite, React and TypeScript.
 
 #### Troubleshooting
-
-##### Module not found: Error: Can't resolve 'tfhe_bg.wasm'
-
-In the codebase, there is a `new URL('tfhe_bg.wasm')` which triggers a resolve by Webpack. If you encounter an issue, you can add a fallback for this file by adding a resolve configuration in your `webpack.config.js`:
-
-```javascript
-    resolve: {
-      fallback: {
-        'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
-      },
-    },
-```
 
 ##### Issue with importing ESM version
 

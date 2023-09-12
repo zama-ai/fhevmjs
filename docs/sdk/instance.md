@@ -1,4 +1,9 @@
-# Instance
+# Setup an instance
+
+First, you need to create an instance. An instance allows you to:
+
+- Encrypt inputs with blockchain public key
+- Manage user keys to reencrypt contract's encrypted data
 
 ## createInstance
 
