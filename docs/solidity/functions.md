@@ -10,7 +10,7 @@ For example, most binary operators (e.g., `add`) can take as input any combinati
 Note that in the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
 
-Most binary operators are also defined for a mix of ciphertext and plaintext inputs.
+Most binary operators are also defined with a mix of ciphertext and plaintext inputs.
 In this case, operators can take as input operands of the following types
 
 - `euint8`
@@ -21,10 +21,10 @@ In this case, operators can take as input operands of the following types
 - `uint32`
 
 under the condition that the size of the `uint` operand is at most the size of the `euint` operand.
-For example, `add(uint8 a, euint8 b)` is defined but `add(uint32 a, euint16 b)` is not.
+For example, `add(uint8 a, euint8 b)` is defined but `add(uint16 a, euint16 b)` is not.
 Note that these ciphertext-plaintext operations may take less time to compute than ciphertext-ciphertext operations.
 
-In the backend, FHE operations are only defined on operands of the same bit length.
+In the backend, FHE operations are only defined on same-type operands.
 Therefore, the `TFHE` Solidity library will do implicit upcasting if necessary.
 
 ## `asEuint`
@@ -83,11 +83,11 @@ function reencrypt(euint32 ciphertext, bytes32 publicKey, uint32 defaultValue) i
 
 > **_NOTE:_** If one of the following operations is called with an uninitialized ciphertext handle as an operand, this handle will be made to point to a trivial encryption of `0` before the operation is executed.
 
-## Arithmetic operations (`add`, `sub`, `mul`, `div`)
+## Arithmetic operations (`add`, `sub`, `mul`)
 
 Performs the operation homomorphically.
 
-Note that division is currently only supported with a plaintext divisor.
+Note that division is not currently supported.
 
 ### Examples
 
@@ -96,16 +96,13 @@ Note that division is currently only supported with a plaintext divisor.
 function add(euint8 a, euint8 b) internal view returns (euint8)
 function add(euint8 a, euint16 b) internal view returns (euint16)
 function add(uint32 a, euint32 b) internal view returns (euint32)
-
-// a / b
-function div(euint16 a, uint16 b) internal view returns (euint16)
 ```
 
 ## Bitwise operations (`AND`, `OR`, `XOR`)
 
 Unlike other binary operations, bitwise operations do not natively accept a mix of ciphertext and plaintext inputs.
 To ease developer experience, the `TFHE` library adds function overloads for these operations.
-Such overloads implicitely do a trivial encryption on plaintext inputs before actually calling the operation function, as shown in the examples below.
+Such overloads implicitely do a trivial encryption before actually calling the operation function, as shown in the examples below.
 
 ### Examples
 
@@ -134,7 +131,7 @@ function shr(euint32 a, euint16 b) internal view returns (euint32)
 
 Note that in the case of ciphertext-plaintext operations, since our backend only accepts plaintext right operands, calling the operation with a plaintext left operand will actually invert the operand order and call the _opposite_ comparison.
 
-The result of comparison operations is an encrypted boolean (`ebool`). In the backend, the boolean is represented by an encrypted unsinged integer of bit length 8, but this is abstracted away by the Solidity library.
+The result of comparison operations is an encrypted boolean (`ebool`). In the backend, the boolean is represented by an encrypted unsinged integer of bit width 8, but this is abstracted away by the Solidity library.
 
 ### Examples
 

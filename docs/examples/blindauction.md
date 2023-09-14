@@ -1,15 +1,13 @@
 # Blind auction
 
-The following shows an example of a blind auction contract. Note that this contract relies on the [Encrypted ERC-20 contract](erc20.md).
-
 ```solidity
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 pragma solidity >=0.8.13 <0.8.20;
 
-import "../lib/TFHE.sol";
+import "fhevm/TFHE.sol";
 
-import "../abstracts/EIP712WithModifier.sol";
+import "fhevm/abstracts/EIP712WithModifier.sol";
 
 import "./EncryptedERC20.sol";
 
@@ -123,7 +121,7 @@ contract BlindAuction is EIP712WithModifier {
     // Claim the object. Succeeds only if the caller has the highest bid.
     function claim() public onlyAfterEnd {
         require(!objectClaimed);
-        require(TFHE.decrypt(TFHE.le(highestBid, bids[msg.sender])));
+        TFHE.req(TFHE.le(highestBid, bids[msg.sender]));
 
         objectClaimed = true;
         bids[msg.sender] = TFHE.NIL32;
@@ -142,7 +140,7 @@ contract BlindAuction is EIP712WithModifier {
     function withdraw() public onlyAfterEnd {
         euint32 bidValue = bids[msg.sender];
         if (!objectClaimed) {
-            require(TFHE.decrypt(TFHE.lt(bidValue, highestBid)));
+            TFHE.req(TFHE.lt(bidValue, highestBid));
         }
         tokenContract.transfer(msg.sender, bidValue);
         bids[msg.sender] = TFHE.NIL32;
