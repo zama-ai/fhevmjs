@@ -35,7 +35,7 @@ The `asEuint` functions serve three purposes:
 2. cast a `euintX` typed ciphertext to a `euintY` typed ciphertext, where `X != Y`;
 3. trivially encrypt a plaintext value.
 
-The first case is used to process encrypted inputs, e.g. user-provided ciphertexts. Those generally comes from a wallet.
+The first case is used to process encrypted inputs, e.g. user-provided ciphertexts. Those are generally included in a transaction payload.
 
 The second case is self-explanatory. When `X > Y`, the most significant bits are dropped. When `X < Y`, the ciphertext is padded to the left with trivial encryptions of `0`.
 
@@ -63,7 +63,7 @@ The `asEbool` functions behave similarly to the `asEuint` functions, but for enc
 
 The reencrypt functions takes as inputs a ciphertext and a public encryption key (namely, a [NaCl box](https://nacl.cr.yp.to/index.html)).
 
-During reencryption, the ciphertext is decrypted using the network private key (threshold decryption protocol in the works).
+During reencryption, the ciphertext is decrypted using the network private key (the threshold decryption protocol is in the works).
 Then, the decrypted result is encrypted under the user-provided public encryption key.
 The result of this encryption is sent back to the caller as `bytes memory`.
 
@@ -144,6 +144,19 @@ function gt(uint32 a, euint16 b) internal view returns (ebool)
 
 // actually returns `gt(a, b)`
 function gt(euint16 a, uint32 b) internal view returns (ebool)
+```
+
+## Multiplexer operator (`cmux`)
+
+This operator takes three inputs. The first input `b` is of type `ebool` and the two others of type `euintX`. 
+If `b` is an encryption of `true`, the first integer parameter is returned. Otherwise, the second integer parameter is returned. 
+
+### Example
+```solidity
+// if (b == true) return val1 else return val2
+function cmux(ebool b, euint8 val1, euint8 val2) internal view returns (euint8) {
+    return TFHE.cmux(b, val1, val2);
+}
 ```
 
 ## `min`, `max`

@@ -50,5 +50,6 @@ The list of supported operations is presented below.
 | Max                   | `TFHE.max`    | Binary |
 | Neg                   | `TFHE.neg`    | Unary  |
 | Not                   | `TFHE.not`    | Unary  |
+| Cmyx                  | `TFHE.cmux`   | Ternary|
 
 More information about the supported operations can be found at the [TFHE-rs docs](https://docs.zama.ai/tfhe-rs/getting-started/operations#arithmetic-operations.).
