@@ -1,13 +1,15 @@
-# ERC-20
+# Encrypted ERC-20
+
+The following shows an example of an private token contract similar to an ERC-20 contract.
 
 ```solidity
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 pragma solidity >=0.8.13 <0.8.20;
 
-import "fhevm/abstracts/EIP712WithModifier.sol";
+import "../abstracts/EIP712WithModifier.sol";
 
-import "fhevm/TFHE.sol";
+import "../lib/TFHE.sol";
 
 contract EncryptedERC20 is EIP712WithModifier {
     euint32 private totalSupply;
@@ -107,14 +109,14 @@ contract EncryptedERC20 is EIP712WithModifier {
 
     function _updateAllowance(address owner, address spender, euint32 amount) internal {
         euint32 currentAllowance = _allowance(owner, spender);
-        TFHE.req(TFHE.le(amount, currentAllowance));
+        require(TFHE.decrypt(TFHE.le(amount, currentAllowance)));
         _approve(owner, spender, TFHE.sub(currentAllowance, amount));
     }
 
     // Transfers an encrypted amount.
     function _transfer(address from, address to, euint32 amount) internal {
         // Make sure the sender has enough tokens.
-        TFHE.req(TFHE.le(amount, balances[from]));
+        require(TFHE.decrypt(TFHE.le(amount, balances[from])));
 
         // Add to the balance of `to` and subract from the balance of `from`.
         balances[to] = TFHE.add(balances[to], amount);
