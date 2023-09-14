@@ -26,7 +26,7 @@ The purpose of the `ebool` type is two-fold:
 
 The decryption statements described above may lead to important delays during the transaction execution as several of them may need to be processed in a single transaction.
 Given that those decryptions might be used for control flow by using the Solidity `require` function, we introduce optimistic require statements (`optReq`).
-These require statements take as input a value to type `ebool` and are accumulated throughout the execution of the transaction and are only decrypted at the end of execution.
-Optimistic requires may be more efficient, but this efficiency comes at the price of paying more gas if it so happens that one of the predicates is false.
-
-
+These require statements take as input a value to type `ebool` and are accumulated throughout the execution of the transaction. 
+The accumulated boolean value is decrypted via the threshold decryption protocol either when an explicit decryption is executed, or at the very end of a transaction execution. 
+If the decryption returns `false`, the transaction is reverted. Otherwise, state changes are persisted as usual.
+Optimistic requires may be more efficient, but this efficiency comes at the price of paying the full transaction gas cost if one of the boolean predicates is false.
