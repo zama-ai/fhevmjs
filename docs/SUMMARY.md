@@ -7,7 +7,7 @@
 * [Getting Started](solidity/getting\_started.md)
 * [TFHE Library](solidity/library.md)
 * [Function specifications](solidity/functions.md)
-* [Decryption and control structures](solidity/requires.md)
+* [Decryption and control structures](solidity/decryption.md)
 
 ## fhevmjs
 
