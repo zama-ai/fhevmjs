@@ -5,11 +5,17 @@
 We allow explicit decryption requests for any encrypted type.
 The values are decrypted through the distributed decryption protocol and are stored on-chain.
 
-### Example
+### Examples
 
 ```solidity
 function decryptAmount(euint8 amount) public view returns (uint8) {
     return TFHE.decrypt(amount);
+}
+
+function revertIfConditionIsFalse(ebool condition) public {
+    bool plaintextCondition = TFHE.decrypt(condition);
+    require(plaintextCondition, "Condition was not met");
+    // ... continue execution if `condition` is true
 }
 ```
 
