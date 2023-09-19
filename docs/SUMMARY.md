@@ -1,26 +1,24 @@
 # Table of contents
 
-- [What is fhEVM ecosystem?](README.md)
+* [What is Zama's fhEVM?](README.md)
+
+## Contract
+
+* [Getting Started](solidity/getting\_started.md)
+* [TFHE Library](solidity/library.md)
+* [Function specifications](solidity/functions.md)
+* [Decryption and control structures](solidity/requires.md)
 
 ## fhevmjs
 
-- [Getting Started](sdk/getting_started.md)
-- [Using the CLI](sdk/cli.md)
-- [Instance](sdk/instance.md)
-- [Parameters](sdk/parameters.md)
-- [Reencryption](sdk/reencryption.md)
-- ## [Examples](sdk/examples.md)
-  -
+* [Getting Started](sdk/getting\_started.md)
+* [Using the CLI](sdk/cli.md)
+* [Setup an instance](sdk/instance.md)
+* [Inputs](sdk/inputs.md)
+* [Reencryption](sdk/reencryption.md)
+* [Examples](sdk/examples.md)
 
-## Solidity
+## Resources
 
-- [Getting Started](solidity/getting_started.md)
-- [TFHE Library](solidity/library.md)
-- [Function specifications](solidity/functions.md)
-- [Decryption and control structures](solidity/decryption.md)
-
-## Examples
-
-- [ERC-20](examples/erc20.md)
-- [Blind auction](examples/blindauction.md)
-- [Other examples](examples/other.md)
+* [Tutorials](resources/tutorials.md)
+* [Examples](resources/examples.md)
