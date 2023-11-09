@@ -22,6 +22,10 @@ export const numberToBytes = (uint32Value: number) => {
 };
 
 export const bytesToNumber = function (byteArray: Uint8Array): number {
+  if (!byteArray || byteArray?.length === 0) {
+    return 0;
+  }
+
   const length = byteArray.length;
 
   const buffer = Buffer.from(byteArray);
