@@ -21,14 +21,17 @@ export const numberToBytes = (uint32Value: number) => {
   return byteArray;
 };
 
-export const bytesToNumber = (byteArray: Uint8Array): number => {
-  let uint32Value = 0;
-
-  for (let i = 0; i < byteArray.length; i++) {
-    uint32Value |= byteArray[i] << (8 * (byteArray.length - 1 - i));
+export const bytesToNumber = function (byteArray: Uint8Array): number {
+  if (!byteArray || byteArray?.length === 0) {
+    return 0;
   }
 
-  return uint32Value;
+  const length = byteArray.length;
+
+  const buffer = Buffer.from(byteArray);
+  const result = buffer.readUIntBE(0, length);
+
+  return result;
 };
 
 export const isAddress = function (address: string) {
