@@ -19,10 +19,10 @@ describe('token', () => {
     expect(instance.encrypt8).toBeDefined();
     expect(instance.encrypt16).toBeDefined();
     expect(instance.encrypt32).toBeDefined();
-    expect(instance.generateToken).toBeDefined();
+    expect(instance.generatePublicKey).toBeDefined();
     expect(instance.decrypt).toBeDefined();
     expect(instance.serializeKeypairs).toBeDefined();
-    expect(instance.getTokenSignature).toBeDefined();
+    expect(instance.getPublicKey).toBeDefined();
     expect(instance.hasKeypair).toBeDefined();
   });
 
@@ -104,6 +104,22 @@ describe('token', () => {
     ).toThrow('Invalid contract address');
   });
 
+  it('controls generatePublicKey', async () => {
+    const instance = await createInstance({
+      chainId: 1234,
+      publicKey: tfhePublicKey,
+    });
+    expect(() => instance.generatePublicKey(undefined as any)).toThrow(
+      'Missing contract address',
+    );
+    expect(() => instance.generatePublicKey({ verifyingContract: '' })).toThrow(
+      'Missing contract address',
+    );
+    expect(() =>
+      instance.generatePublicKey({ verifyingContract: '0x847473829d' }),
+    ).toThrow('Invalid contract address');
+  });
+
   it('save generated token', async () => {
     const instance = await createInstance({
       chainId: 1234,
@@ -112,7 +128,7 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({
+    const { eip712, publicKey } = instance.generatePublicKey({
       verifyingContract: contractAddress,
     });
 
@@ -120,7 +136,7 @@ describe('token', () => {
 
     expect(instance.hasKeypair(contractAddress)).toBeTruthy();
 
-    const kp = instance.getTokenSignature(contractAddress);
+    const kp = instance.getPublicKey(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
   });
 
@@ -132,12 +148,12 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({
+    const { eip712, publicKey } = instance.generatePublicKey({
       verifyingContract: contractAddress,
     });
     const keypairs = instance.serializeKeypairs();
     expect(keypairs[contractAddress]).toBeUndefined();
-    const keypair = instance.getTokenSignature(contractAddress);
+    const keypair = instance.getPublicKey(contractAddress);
     expect(keypair).toBeNull();
     expect(instance.hasKeypair(contractAddress)).toBeFalsy();
   });
@@ -150,13 +166,13 @@ describe('token', () => {
 
     const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
 
-    const { token, publicKey } = instance.generateToken({
+    const { eip712, publicKey } = instance.generatePublicKey({
       verifyingContract: contractAddress,
     });
 
     instance.setTokenSignature(contractAddress, 'signnnn');
 
-    const kp = instance.getTokenSignature(contractAddress);
+    const kp = instance.getPublicKey(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
 
     const value = 89290;
