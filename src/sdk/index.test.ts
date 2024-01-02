@@ -132,11 +132,31 @@ describe('token', () => {
       verifyingContract: contractAddress,
     });
 
-    instance.setTokenSignature(contractAddress, 'signnnn');
+    instance.setSignature(contractAddress, 'signnnn');
 
     expect(instance.hasKeypair(contractAddress)).toBeTruthy();
 
     const kp = instance.getPublicKey(contractAddress);
+    expect(kp!.publicKey).toBe(publicKey);
+  });
+
+  it('save generated token (deprecated)', async () => {
+    const instance = await createInstance({
+      chainId: 1234,
+      publicKey: tfhePublicKey,
+    });
+
+    const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+
+    const { token, publicKey } = instance.generateToken({
+      verifyingContract: contractAddress,
+    });
+
+    instance.setTokenSignature(contractAddress, 'signnnn');
+
+    expect(instance.hasKeypair(contractAddress)).toBeTruthy();
+
+    const kp = instance.getTokenSignature(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
   });
 
