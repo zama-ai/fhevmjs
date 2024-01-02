@@ -20,7 +20,7 @@ export type EIP712 = {
   };
 };
 
-export type GenerateTokenParams = {
+export type GeneratePublicKeyParams = {
   name?: string;
   version?: string;
   chainId?: number;
@@ -30,10 +30,12 @@ export type GenerateTokenParams = {
 
 export type FhevmToken = {
   keypair: ContractKeypair;
-  token: EIP712;
+  eip712: EIP712;
 };
 
-export const generateToken = (params: GenerateTokenParams): FhevmToken => {
+export const generatePublicKey = (
+  params: GeneratePublicKeyParams,
+): FhevmToken => {
   const keypair = params.keypair || sodium.crypto_box_keypair();
   const msgParams: EIP712 = {
     types: {
@@ -54,7 +56,7 @@ export const generateToken = (params: GenerateTokenParams): FhevmToken => {
     primaryType: 'Reencrypt',
     domain: {
       // Give a user-friendly name to the specific contract you're signing for.
-      name: params.name || 'Authorization token',
+      name: params.name || 'Reencryption',
       // This identifies the latest version.
       version: params.version || '1',
       // This defines the network, in this case, Mainnet.
@@ -71,6 +73,6 @@ export const generateToken = (params: GenerateTokenParams): FhevmToken => {
       publicKey: keypair.publicKey,
       privateKey: keypair.privateKey,
     },
-    token: msgParams,
+    eip712: msgParams,
   };
 };
