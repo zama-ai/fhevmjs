@@ -31,7 +31,7 @@ describe('token', () => {
       verifyingContract: '0xccc',
     });
     expect(eip712.domain.chainId).toBe(9000);
-    expect(eip712.domain.name).toBe('Reencryption');
+    expect(eip712.domain.name).toBe('Authorization token');
     expect(eip712.domain.version).toBe('1');
     expect(eip712.message.publicKey).toBe(
       `0x${toHexString(keypair.publicKey)}`,

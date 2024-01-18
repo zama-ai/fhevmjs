@@ -56,7 +56,7 @@ export const generatePublicKey = (
     primaryType: 'Reencrypt',
     domain: {
       // Give a user-friendly name to the specific contract you're signing for.
-      name: params.name || 'Reencryption',
+      name: params.name || 'Authorization token',
       // This identifies the latest version.
       version: params.version || '1',
       // This defines the network, in this case, Mainnet.
