@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 
-import { JsonRpcProvider } from 'ethers';
+import { JsonRpcProvider, AbiCoder } from 'ethers';
 import { program } from 'commander';
 import { toHexString, prependHttps, throwError } from './utils.js';
 import { createInstance } from '../lib/node.cjs';
+
+const FHE_LIB_ADDRESS = '0x000000000000000000000000000000000000005d';
 
 let _instance;
 const getInstance = async (provider) => {
@@ -18,14 +20,15 @@ const getInstance = async (provider) => {
     throwError('Network is unreachable');
   }
   const chainId = +network.chainId.toString();
-
-  // Get blockchain public key
-  const publicKey = await provider.call({
-    to: '0x0000000000000000000000000000000000000044',
+  const ret = await provider.call({
+    to: FHE_LIB_ADDRESS,
+    // first four bytes of keccak256('fhePubKey(bytes1)') + 1 byte for library
+    data: '0xd9d47bb001',
   });
+  const decoded = AbiCoder.defaultAbiCoder().decode(['bytes'], ret);
+  const publicKey = decoded[0];
+  _instance = await createInstance({ chainId, publicKey });
 
-  // Create instance
-  _instance = createInstance({ chainId, publicKey });
   return _instance;
 };
 
