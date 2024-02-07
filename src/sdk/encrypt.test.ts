@@ -2,14 +2,16 @@ import {
   FheUint8,
   FheUint16,
   FheUint32,
+  FheUint64,
   CompactFheUint8List,
   CompactFheUint16List,
   CompactFheUint32List,
+  CompactFheUint64List,
   TfheCompactPublicKey,
   TfheClientKey,
 } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
-import { encrypt8, encrypt16, encrypt32 } from './encrypt';
+import { encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
 
 describe('encrypt8', () => {
   let clientKey: TfheClientKey;
@@ -78,6 +80,16 @@ describe('encrypt8', () => {
     encryptedList.forEach((v: FheUint32) => {
       const decrypted = v.decrypt(clientKey);
       expect(decrypted).toBe(30210);
+    });
+  });
+
+  it('encrypt/decrypt 32bits', async () => {
+    const buffer = encrypt64(3021094839202949, publicKey);
+    const compactList = CompactFheUint64List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint64) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted.toString()).toBe('3021094839202949');
     });
   });
 });
