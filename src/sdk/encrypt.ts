@@ -3,6 +3,7 @@ import {
   CompactFheUint8List,
   CompactFheUint16List,
   CompactFheUint32List,
+  CompactFheUint64List,
 } from 'node-tfhe';
 
 export const encrypt8 = (
@@ -36,6 +37,18 @@ export const encrypt32 = (
   const uint32Array = new Uint32Array([value]);
   const encrypted = CompactFheUint32List.encrypt_with_compact_public_key(
     uint32Array,
+    publicKey,
+  );
+  return encrypted.serialize();
+};
+
+export const encrypt64 = (
+  value: number,
+  publicKey: TfheCompactPublicKey,
+): Uint8Array => {
+  const uint64Array = new BigUint64Array([BigInt(value)]);
+  const encrypted = CompactFheUint64List.encrypt_with_compact_public_key(
+    uint64Array,
     publicKey,
   );
   return encrypted.serialize();

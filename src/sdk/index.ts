@@ -1,6 +1,6 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
 import sodium from 'libsodium-wrappers';
-import { encrypt8, encrypt16, encrypt32 } from './encrypt';
+import { encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
 import {
   EIP712,
   GeneratePublicKeyParams,
@@ -14,6 +14,7 @@ export type FhevmInstance = {
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
+  encrypt64: (value: number) => Uint8Array;
   generateToken: (
     options: GeneratePublicKeyParams & {
       force?: boolean;
@@ -118,6 +119,12 @@ export const createInstance = async (
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
       return encrypt32(value, tfheCompactPublicKey);
+    },
+
+    encrypt64(value) {
+      if (value == null) throw new Error('Missing value');
+      if (typeof value !== 'number') throw new Error('Value must be a number');
+      return encrypt64(value, tfheCompactPublicKey);
     },
 
     /**
