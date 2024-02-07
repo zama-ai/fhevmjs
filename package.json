@@ -44,9 +44,9 @@
     "ethers": "^6.6.4",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
-    "node-tfhe": "^0.4.1",
+    "node-tfhe": "^0.5.1",
     "sha3": "^2.1.4",
-    "tfhe": "^0.4.1"
+    "tfhe": "^0.5.1"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.0.0",
