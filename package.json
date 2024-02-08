@@ -1,6 +1,6 @@
 {
   "name": "fhevmjs",
-  "version": "0.4.0-1",
+  "version": "0.4.0-2",
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.cjs",
   "types": "lib/node.d.ts",
@@ -39,13 +39,13 @@
   },
   "homepage": "https://github.com/zama-ai/fhevmjs#readme",
   "dependencies": {
+    "bigint-buffer": "^1.1.5",
     "commander": "^11.0.0",
     "crypto-js": "^4.1.1",
     "ethers": "^6.6.4",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
     "node-tfhe": "^0.5.1",
-    "sha3": "^2.1.4",
     "tfhe": "^0.5.1"
   },
   "devDependencies": {

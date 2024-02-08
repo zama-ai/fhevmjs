@@ -1,4 +1,4 @@
-import { numberToBytes, bytesToNumber } from './utils';
+import { numberToBytes, bytesToBigInt } from './utils';
 
 describe('decrypt', () => {
   it('converts a number to bytes', async () => {
@@ -13,11 +13,11 @@ describe('decrypt', () => {
 
   it('converts bytes to number', async () => {
     const value = new Uint8Array([23, 200, 15]);
-    const bytes = bytesToNumber(value);
-    expect(bytes).toBe(1558543);
+    const bytes = bytesToBigInt(value);
+    expect(bytes.toString()).toBe('1558543');
 
     const value2 = new Uint8Array();
-    const bytes2 = bytesToNumber(value2);
-    expect(bytes2).toBe(0);
+    const bytes2 = bytesToBigInt(value2);
+    expect(bytes2.toString()).toBe('0');
   });
 });

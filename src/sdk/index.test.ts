@@ -64,7 +64,7 @@ describe('token', () => {
     );
 
     const cleartext = instance.decrypt(contractAddress, ciphertext);
-    expect(cleartext).toBe(value);
+    expect(cleartext.toString()).toBe(`${value}`);
   });
 
   it('controls encrypt', async () => {
@@ -202,6 +202,6 @@ describe('token', () => {
       'hex',
     );
     const cleartext = instance.decrypt(contractAddress, ciphertext);
-    expect(cleartext).toBe(value);
+    expect(cleartext.toString()).toBe(`${value}`);
   });
 });

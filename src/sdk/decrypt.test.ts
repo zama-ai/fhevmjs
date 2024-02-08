@@ -17,7 +17,7 @@ describe('decrypt', () => {
       'hex',
     );
     const cleartext = decrypt(keypair, ciphertext);
-    expect(cleartext).toBe(value);
+    expect(cleartext.toString()).toBe(`${value}`);
   });
 
   it('decrypts a Uint8Array value', async () => {
@@ -29,6 +29,6 @@ describe('decrypt', () => {
       keypair.publicKey,
     );
     const cleartext = decrypt(keypair, ciphertext);
-    expect(cleartext).toBe(value);
+    expect(cleartext.toString()).toBe(`${value}`);
   });
 });

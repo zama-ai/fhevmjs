@@ -1,11 +1,11 @@
 import sodium from 'libsodium-wrappers';
-import { bytesToNumber, fromHexString } from '../utils';
+import { bytesToBigInt, fromHexString } from '../utils';
 import { ContractKeypair } from './types';
 
 export const decrypt = (
   keypair: ContractKeypair,
   ciphertext: string | Uint8Array,
-): number => {
+): bigint => {
   const toDecrypt =
     typeof ciphertext === 'string' ? fromHexString(ciphertext) : ciphertext;
   const decrypted = sodium.crypto_box_seal_open(
@@ -13,5 +13,5 @@ export const decrypt = (
     keypair.publicKey,
     keypair.privateKey,
   );
-  return bytesToNumber(decrypted);
+  return bytesToBigInt(decrypted);
 };

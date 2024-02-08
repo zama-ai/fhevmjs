@@ -1,4 +1,4 @@
-import sha3 from 'sha3';
+import { toBigIntBE } from 'bigint-buffer';
 
 export const fromHexString = (hexString: string): Uint8Array => {
   const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
@@ -21,15 +21,15 @@ export const numberToBytes = (uint32Value: number) => {
   return byteArray;
 };
 
-export const bytesToNumber = function (byteArray: Uint8Array): number {
+export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
   if (!byteArray || byteArray?.length === 0) {
-    return 0;
+    return BigInt(0);
   }
 
   const length = byteArray.length;
 
   const buffer = Buffer.from(byteArray);
-  const result = buffer.readUIntBE(0, length);
+  const result = toBigIntBE(buffer);
 
   return result;
 };
