@@ -40,7 +40,7 @@ export type FhevmInstance = {
     contractAddress: string,
   ) => { publicKey: Uint8Array; signature: string } | null;
   hasKeypair: (contractAddress: string) => boolean;
-  decrypt: (contractAddress: string, ciphertext: string) => number;
+  decrypt: (contractAddress: string, ciphertext: string) => bigint;
   serializeKeypairs: () => ExportedContractKeypairs;
 };
 
