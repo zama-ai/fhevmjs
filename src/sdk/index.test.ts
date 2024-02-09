@@ -26,6 +26,34 @@ describe('token', () => {
     expect(instance.hasKeypair).toBeDefined();
   });
 
+  it('creates an instance for mock', async () => {
+    const instance = await createInstance({
+      chainId: 1234,
+    });
+    expect(instance.encrypt8).toBeDefined();
+    expect(instance.encrypt16).toBeDefined();
+    expect(instance.encrypt32).toBeDefined();
+    expect(instance.encrypt64).toBeDefined();
+    expect(instance.generatePublicKey).toBeDefined();
+    expect(instance.decrypt).toBeDefined();
+    expect(instance.serializeKeypairs).toBeDefined();
+    expect(instance.getPublicKey).toBeDefined();
+    expect(instance.hasKeypair).toBeDefined();
+
+    expect(() => instance.encrypt8(2)).toThrow(
+      'Your instance has been created without the public blockchain key',
+    );
+    expect(() => instance.encrypt16(2)).toThrow(
+      'Your instance has been created without the public blockchain key',
+    );
+    expect(() => instance.encrypt32(2)).toThrow(
+      'Your instance has been created without the public blockchain key',
+    );
+    expect(() => instance.encrypt64(2)).toThrow(
+      'Your instance has been created without the public blockchain key',
+    );
+  });
+
   it('fails to create an instance', async () => {
     await expect(
       createInstance({
