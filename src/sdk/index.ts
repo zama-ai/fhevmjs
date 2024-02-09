@@ -69,10 +69,13 @@ export const createInstance = async (
   await sodium.ready;
   const { chainId, publicKey, keypairs } = params;
   if (typeof chainId !== 'number') throw new Error('chainId must be a number');
-  if (typeof publicKey !== 'string')
+  if (publicKey && typeof publicKey !== 'string')
     throw new Error('publicKey must be a string');
-  const buff = fromHexString(publicKey);
-  const tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
+  let tfheCompactPublicKey: TfheCompactPublicKey;
+  if (publicKey) {
+    const buff = fromHexString(publicKey);
+    tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
+  }
 
   let contractKeypairs: ContractKeypairs = {};
 
@@ -107,23 +110,39 @@ export const createInstance = async (
     encrypt8(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
       return encrypt8(value, tfheCompactPublicKey);
     },
     encrypt16(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
       return encrypt16(value, tfheCompactPublicKey);
     },
 
     encrypt32(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
       return encrypt32(value, tfheCompactPublicKey);
     },
 
     encrypt64(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
       return encrypt64(value, tfheCompactPublicKey);
     },
 
