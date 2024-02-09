@@ -59,7 +59,7 @@ export type ExportedContractKeypairs = {
 
 export type FhevmInstanceParams = {
   chainId: number;
-  publicKey: string;
+  publicKey?: string;
   keypairs?: ExportedContractKeypairs;
 };
 
