@@ -56,7 +56,7 @@ export const encrypt32 = (
 };
 
 export const encrypt64 = (
-  value: number,
+  value: number | bigint,
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint64Array = new BigUint64Array([BigInt(value)]);
