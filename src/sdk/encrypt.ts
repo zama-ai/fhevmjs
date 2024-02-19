@@ -1,10 +1,23 @@
 import {
   TfheCompactPublicKey,
+  CompactFheUint4List,
   CompactFheUint8List,
   CompactFheUint16List,
   CompactFheUint32List,
   CompactFheUint64List,
 } from 'node-tfhe';
+
+export const encrypt4 = (
+  value: number,
+  publicKey: TfheCompactPublicKey,
+): Uint8Array => {
+  const uint8Array = new Uint8Array([value]);
+  const encrypted = CompactFheUint4List.encrypt_with_compact_public_key(
+    uint8Array,
+    publicKey,
+  );
+  return encrypted.serialize();
+};
 
 export const encrypt8 = (
   value: number,
