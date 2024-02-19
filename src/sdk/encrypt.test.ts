@@ -105,13 +105,33 @@ describe('encrypt8', () => {
     });
   });
 
-  it('encrypt/decrypt 32bits', async () => {
+  it('encrypt/decrypt 0 64bits', async () => {
+    const buffer = encrypt64(0, publicKey);
+    const compactList = CompactFheUint64List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint64) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted.toString()).toBe('0');
+    });
+  });
+
+  it('encrypt/decrypt 64bits', async () => {
     const buffer = encrypt64(3021094839202949, publicKey);
     const compactList = CompactFheUint64List.deserialize(buffer);
     let encryptedList = compactList.expand();
     encryptedList.forEach((v: FheUint64) => {
       const decrypted = v.decrypt(clientKey);
       expect(decrypted.toString()).toBe('3021094839202949');
+    });
+  });
+
+  it('encrypt/decrypt 64bits', async () => {
+    const buffer = encrypt64(BigInt('18446744073709551615'), publicKey);
+    const compactList = CompactFheUint64List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint64) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted.toString()).toBe('18446744073709551615');
     });
   });
 });

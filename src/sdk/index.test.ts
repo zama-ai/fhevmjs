@@ -3,7 +3,7 @@ import { createInstance } from './index';
 import { createTfhePublicKey } from '../tfhe';
 import { fromHexString, toHexString, numberToBytes } from '../utils';
 
-describe('token', () => {
+describe('index', () => {
   let tfhePublicKey: string;
 
   beforeAll(async () => {
@@ -100,10 +100,13 @@ describe('token', () => {
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
+    expect(instance.encrypt64(BigInt(34))).toBeTruthy();
 
+    expect(() => instance.encrypt4(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt8(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt16(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt32(undefined as any)).toThrow('Missing value');
+    expect(() => instance.encrypt64(undefined as any)).toThrow('Missing value');
 
     expect(() => instance.encrypt8('wrong value' as any)).toThrow(
       'Value must be a number',
@@ -114,22 +117,22 @@ describe('token', () => {
     expect(() => instance.encrypt32('wrong value' as any)).toThrow(
       'Value must be a number',
     );
-  });
+    expect(() => instance.encrypt64('wrong value' as any)).toThrow(
+      'Value must be a number',
+    );
 
-  it('controls generateToken', async () => {
-    const instance = await createInstance({
-      chainId: 1234,
-      publicKey: tfhePublicKey,
-    });
-    expect(() => instance.generateToken(undefined as any)).toThrow(
-      'Missing contract address',
+    expect(() => instance.encrypt4(BigInt(34) as any)).toThrow(
+      'Value must be a number',
     );
-    expect(() => instance.generateToken({ verifyingContract: '' })).toThrow(
-      'Missing contract address',
+    expect(() => instance.encrypt8(BigInt(34) as any)).toThrow(
+      'Value must be a number',
     );
-    expect(() =>
-      instance.generateToken({ verifyingContract: '0x847473829d' }),
-    ).toThrow('Invalid contract address');
+    expect(() => instance.encrypt16(BigInt(34) as any)).toThrow(
+      'Value must be a number',
+    );
+    expect(() => instance.encrypt32(BigInt(34) as any)).toThrow(
+      'Value must be a number',
+    );
   });
 
   it('controls generatePublicKey', async () => {
@@ -148,7 +151,7 @@ describe('token', () => {
     ).toThrow('Invalid contract address');
   });
 
-  it('save generated token', async () => {
+  it('save generated public key', async () => {
     const instance = await createInstance({
       chainId: 1234,
       publicKey: tfhePublicKey,
@@ -165,26 +168,6 @@ describe('token', () => {
     expect(instance.hasKeypair(contractAddress)).toBeTruthy();
 
     const kp = instance.getPublicKey(contractAddress);
-    expect(kp!.publicKey).toBe(publicKey);
-  });
-
-  it('save generated token (deprecated)', async () => {
-    const instance = await createInstance({
-      chainId: 1234,
-      publicKey: tfhePublicKey,
-    });
-
-    const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
-
-    const { token, publicKey } = instance.generateToken({
-      verifyingContract: contractAddress,
-    });
-
-    instance.setTokenSignature(contractAddress, 'signnnn');
-
-    expect(instance.hasKeypair(contractAddress)).toBeTruthy();
-
-    const kp = instance.getTokenSignature(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
   });
 
@@ -218,7 +201,7 @@ describe('token', () => {
       verifyingContract: contractAddress,
     });
 
-    instance.setTokenSignature(contractAddress, 'signnnn');
+    instance.setSignature(contractAddress, 'signnnn');
 
     const kp = instance.getPublicKey(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
