@@ -15,7 +15,7 @@ export type FhevmInstance = {
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
-  encrypt64: (value: number) => Uint8Array;
+  encrypt64: (value: number | bigint) => Uint8Array;
   generateToken: (
     options: GeneratePublicKeyParams & {
       force?: boolean;
@@ -148,7 +148,8 @@ export const createInstance = async (
 
     encrypt64(value) {
       if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (typeof value !== 'number' && typeof value !== 'bigint')
+        throw new Error('Value must be a number or a bigint');
       if (!tfheCompactPublicKey)
         throw new Error(
           'Your instance has been created without the public blockchain key',
