@@ -1,6 +1,6 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
 import sodium from 'libsodium-wrappers';
-import { encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
+import { encrypt4, encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
 import {
   EIP712,
   GeneratePublicKeyParams,
@@ -11,18 +11,11 @@ import { fromHexString, isAddress, toHexString } from '../utils';
 import { ContractKeypairs } from './types';
 
 export type FhevmInstance = {
+  encrypt4: (value: number) => Uint8Array;
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
   encrypt32: (value: number) => Uint8Array;
-  encrypt64: (value: number) => Uint8Array;
-  generateToken: (
-    options: GeneratePublicKeyParams & {
-      force?: boolean;
-    },
-  ) => {
-    publicKey: Uint8Array;
-    token: EIP712;
-  };
+  encrypt64: (value: number | bigint) => Uint8Array;
   generatePublicKey: (
     options: GeneratePublicKeyParams & {
       force?: boolean;
@@ -31,10 +24,6 @@ export type FhevmInstance = {
     publicKey: Uint8Array;
     eip712: EIP712;
   };
-  setTokenSignature: (contractAddress: string, signature: string) => void;
-  getTokenSignature: (
-    contractAddress: string,
-  ) => { publicKey: Uint8Array; signature: string } | null;
   setSignature: (contractAddress: string, signature: string) => void;
   getPublicKey: (
     contractAddress: string,
@@ -107,6 +96,15 @@ export const createInstance = async (
 
   return {
     // Parameters
+    encrypt4(value) {
+      if (value == null) throw new Error('Missing value');
+      if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
+      return encrypt4(value, tfheCompactPublicKey);
+    },
     encrypt8(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
@@ -138,42 +136,13 @@ export const createInstance = async (
 
     encrypt64(value) {
       if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
+      if (typeof value !== 'number' && typeof value !== 'bigint')
+        throw new Error('Value must be a number or a bigint');
       if (!tfheCompactPublicKey)
         throw new Error(
           'Your instance has been created without the public blockchain key',
         );
       return encrypt64(value, tfheCompactPublicKey);
-    },
-
-    /**
-     * @deprecated Since version 0.3.0. Will be deleted in version 0.4.0. Use generatePublicKey instead.
-     */
-    generateToken(options) {
-      console.warn(
-        'generateToken is deprecated. Use generatePublicKey instead',
-      );
-      if (!options || !options.verifyingContract)
-        throw new Error('Missing contract address');
-      if (!isAddress(options.verifyingContract))
-        throw new Error('Invalid contract address');
-      let kp;
-      if (!options.force && contractKeypairs[options.verifyingContract]) {
-        kp = contractKeypairs[options.verifyingContract];
-      }
-      const { eip712, keypair } = generatePublicKey({
-        verifyingContract: options.verifyingContract,
-        name: options.name,
-        version: options.version,
-        chainId,
-        keypair: kp,
-      });
-      contractKeypairs[options.verifyingContract] = {
-        privateKey: keypair.privateKey,
-        publicKey: keypair.publicKey,
-        signature: null,
-      };
-      return { token: eip712, publicKey: keypair.publicKey };
     },
 
     // Reencryption
@@ -201,21 +170,6 @@ export const createInstance = async (
       return { eip712, publicKey: keypair.publicKey };
     },
 
-    /**
-     * @deprecated Since version 0.3.0. Will be deleted in version 0.4.0. Use generatePublicKey instead.
-     */
-    setTokenSignature(contractAddress: string, signature: string) {
-      console.warn(
-        'setTokenSignature is deprecated. Use generatePublicKey instead',
-      );
-      if (
-        contractKeypairs[contractAddress] &&
-        contractKeypairs[contractAddress].privateKey
-      ) {
-        contractKeypairs[contractAddress].signature = signature;
-      }
-    },
-
     setSignature(contractAddress: string, signature: string) {
       if (
         contractKeypairs[contractAddress] &&
@@ -223,22 +177,6 @@ export const createInstance = async (
       ) {
         contractKeypairs[contractAddress].signature = signature;
       }
-    },
-
-    /**
-     * @deprecated Since version 0.3.0. Will be deleted in version 0.4.0. Use generatePublicKey instead.
-     */
-    getTokenSignature(contractAddress: string): TokenSignature | null {
-      console.warn(
-        'setTokenSignature is deprecated. Use generatePublicKey instead',
-      );
-      if (hasKeypair(contractAddress)) {
-        return {
-          publicKey: contractKeypairs[contractAddress].publicKey,
-          signature: contractKeypairs[contractAddress].signature!,
-        };
-      }
-      return null;
     },
 
     getPublicKey(contractAddress: string): TokenSignature | null {
