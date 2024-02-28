@@ -1,5 +1,6 @@
 import {
   TfheCompactPublicKey,
+  CompactFheBoolList,
   CompactFheUint4List,
   CompactFheUint8List,
   CompactFheUint16List,
@@ -14,6 +15,17 @@ export const encrypt4 = (
   const uint8Array = new Uint8Array([value]);
   const encrypted = CompactFheUint4List.encrypt_with_compact_public_key(
     uint8Array,
+    publicKey,
+  );
+  return encrypted.serialize();
+};
+
+export const encryptBool = (
+  value: boolean,
+  publicKey: TfheCompactPublicKey,
+): Uint8Array => {
+  const encrypted = CompactFheBoolList.encrypt_with_compact_public_key(
+    [value],
     publicKey,
   );
   return encrypted.serialize();
