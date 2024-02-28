@@ -16,6 +16,8 @@ describe('index', () => {
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
+    expect(instance.encryptBool).toBeDefined();
+    expect(instance.encrypt4).toBeDefined();
     expect(instance.encrypt8).toBeDefined();
     expect(instance.encrypt16).toBeDefined();
     expect(instance.encrypt32).toBeDefined();
@@ -100,14 +102,28 @@ describe('index', () => {
       chainId: 1234,
       publicKey: tfhePublicKey,
     });
+    expect(instance.encryptBool(true)).toBeTruthy();
+    expect(instance.encrypt4(2)).toBeTruthy();
+    expect(instance.encrypt8(34)).toBeTruthy();
+    expect(instance.encrypt16(344)).toBeTruthy();
+    expect(instance.encrypt32(3422)).toBeTruthy();
     expect(instance.encrypt64(BigInt(34))).toBeTruthy();
 
+    expect(() => instance.encryptBool(undefined as any)).toThrow(
+      'Missing value',
+    );
     expect(() => instance.encrypt4(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt8(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt16(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt32(undefined as any)).toThrow('Missing value');
     expect(() => instance.encrypt64(undefined as any)).toThrow('Missing value');
 
+    expect(() => instance.encryptBool('wrong value' as any)).toThrow(
+      'Value must be a boolean',
+    );
+    expect(() => instance.encrypt4('wrong value' as any)).toThrow(
+      'Value must be a number',
+    );
     expect(() => instance.encrypt8('wrong value' as any)).toThrow(
       'Value must be a number',
     );

@@ -1,4 +1,5 @@
 import {
+  FheBool,
   FheUint4,
   FheUint8,
   FheUint16,
@@ -13,7 +14,14 @@ import {
   TfheClientKey,
 } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
-import { encrypt4, encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
+import {
+  encryptBool,
+  encrypt4,
+  encrypt8,
+  encrypt16,
+  encrypt32,
+  encrypt64,
+} from './encrypt';
 
 describe('encrypt8', () => {
   let clientKey: TfheClientKey;
@@ -23,6 +31,26 @@ describe('encrypt8', () => {
     const keypair = createTfheKeypair();
     clientKey = keypair.clientKey;
     publicKey = keypair.publicKey;
+  });
+
+  it('encrypt/decrypt 0 bool', async () => {
+    const buffer = encryptBool(false, publicKey);
+    const compactList = CompactFheUint4List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheBool) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted).toBe(0);
+    });
+  });
+
+  it('encrypt/decrypt bool', async () => {
+    const buffer = encryptBool(true, publicKey);
+    const compactList = CompactFheUint4List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheBool) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted).toBe(1);
+    });
   });
 
   it('encrypt/decrypt 0 4bits', async () => {

@@ -1,6 +1,13 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
 import sodium from 'libsodium-wrappers';
-import { encrypt4, encrypt8, encrypt16, encrypt32, encrypt64 } from './encrypt';
+import {
+  encrypt4,
+  encrypt8,
+  encrypt16,
+  encrypt32,
+  encrypt64,
+  encryptBool,
+} from './encrypt';
 import {
   EIP712,
   GeneratePublicKeyParams,
@@ -11,6 +18,7 @@ import { fromHexString, isAddress, toHexString } from '../utils';
 import { ContractKeypairs } from './types';
 
 export type FhevmInstance = {
+  encryptBool: (value: boolean) => Uint8Array;
   encrypt4: (value: number) => Uint8Array;
   encrypt8: (value: number) => Uint8Array;
   encrypt16: (value: number) => Uint8Array;
@@ -96,6 +104,16 @@ export const createInstance = async (
 
   return {
     // Parameters
+    encryptBool(value) {
+      if (value == null) throw new Error('Missing value');
+      if (typeof value !== 'boolean')
+        throw new Error('Value must be a boolean');
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key',
+        );
+      return encryptBool(value, tfheCompactPublicKey);
+    },
     encrypt4(value) {
       if (value == null) throw new Error('Missing value');
       if (typeof value !== 'number') throw new Error('Value must be a number');
