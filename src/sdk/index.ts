@@ -18,11 +18,11 @@ import { fromHexString, isAddress, toHexString } from '../utils';
 import { ContractKeypairs } from './types';
 
 export type FhevmInstance = {
-  encryptBool: (value: boolean) => Uint8Array;
-  encrypt4: (value: number) => Uint8Array;
-  encrypt8: (value: number) => Uint8Array;
-  encrypt16: (value: number) => Uint8Array;
-  encrypt32: (value: number) => Uint8Array;
+  encryptBool: (value: boolean | number | bigint) => Uint8Array;
+  encrypt4: (value: number | bigint) => Uint8Array;
+  encrypt8: (value: number | bigint) => Uint8Array;
+  encrypt16: (value: number | bigint) => Uint8Array;
+  encrypt32: (value: number | bigint) => Uint8Array;
   encrypt64: (value: number | bigint) => Uint8Array;
   generatePublicKey: (
     options: GeneratePublicKeyParams & {
@@ -102,64 +102,81 @@ export const createInstance = async (
     );
   };
 
+  const checkEncryptedValue = (value: number | bigint, bits: number) => {
+    if (value == null) throw new Error('Missing value');
+    const limit = BigInt(Math.pow(2, bits));
+    if (typeof value !== 'number' && typeof value !== 'bigint')
+      throw new Error('Value must be a number or a bigint.');
+    if (value >= limit) {
+      throw new Error(
+        `The value exceeds the limit for ${bits}bits integer (${(
+          limit - BigInt(1)
+        ).toString()}).`,
+      );
+    }
+  };
+
   return {
     // Parameters
     encryptBool(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'boolean')
-        throw new Error('Value must be a boolean');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
-      return encryptBool(value, tfheCompactPublicKey);
+      if (value == null) throw new Error('Missing value');
+      if (
+        typeof value !== 'boolean' &&
+        typeof value !== 'number' &&
+        typeof value !== 'bigint'
+      )
+        throw new Error('Value must be a boolean, a number or a bigint.');
+      if (
+        (typeof value !== 'bigint' || typeof value !== 'number') &&
+        Number(value) > 1
+      )
+        throw new Error('Value must be 1 or 0.');
+      return encryptBool(Boolean(value), tfheCompactPublicKey);
     },
     encrypt4(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
-      return encrypt4(value, tfheCompactPublicKey);
+      checkEncryptedValue(value, 4);
+      return encrypt4(Number(value), tfheCompactPublicKey);
     },
     encrypt8(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
-      return encrypt8(value, tfheCompactPublicKey);
+      checkEncryptedValue(value, 8);
+      return encrypt8(Number(value), tfheCompactPublicKey);
     },
     encrypt16(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
-      return encrypt16(value, tfheCompactPublicKey);
+      checkEncryptedValue(value, 16);
+      return encrypt16(Number(value), tfheCompactPublicKey);
     },
 
     encrypt32(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number') throw new Error('Value must be a number');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
-      return encrypt32(value, tfheCompactPublicKey);
+      checkEncryptedValue(value, 32);
+      return encrypt32(Number(value), tfheCompactPublicKey);
     },
 
     encrypt64(value) {
-      if (value == null) throw new Error('Missing value');
-      if (typeof value !== 'number' && typeof value !== 'bigint')
-        throw new Error('Value must be a number or a bigint');
       if (!tfheCompactPublicKey)
         throw new Error(
-          'Your instance has been created without the public blockchain key',
+          'Your instance has been created without the public blockchain key.',
         );
+      checkEncryptedValue(value, 64);
       return encrypt64(value, tfheCompactPublicKey);
     },
 
@@ -210,10 +227,10 @@ export const createInstance = async (
     hasKeypair,
 
     decrypt(contractAddress, ciphertext) {
-      if (!ciphertext) throw new Error('Missing ciphertext');
-      if (!contractAddress) throw new Error('Missing contract address');
+      if (!ciphertext) throw new Error('Missing ciphertext.');
+      if (!contractAddress) throw new Error('Missing contract address.');
       const kp = contractKeypairs[contractAddress];
-      if (!kp) throw new Error(`Missing keypair for ${contractAddress}`);
+      if (!kp) throw new Error(`Missing keypair for ${contractAddress}.`);
       return decrypt(kp, ciphertext);
     },
 
