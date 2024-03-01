@@ -103,11 +103,20 @@ describe('index', () => {
       publicKey: tfhePublicKey,
     });
     expect(instance.encryptBool(true)).toBeTruthy();
+
+    expect(instance.encryptBool(1)).toBeTruthy();
     expect(instance.encrypt4(2)).toBeTruthy();
     expect(instance.encrypt8(34)).toBeTruthy();
     expect(instance.encrypt16(344)).toBeTruthy();
     expect(instance.encrypt32(3422)).toBeTruthy();
-    expect(instance.encrypt64(BigInt(34))).toBeTruthy();
+    expect(instance.encrypt64(34)).toBeTruthy();
+
+    expect(instance.encryptBool(BigInt(0))).toBeTruthy();
+    expect(instance.encrypt4(BigInt(2))).toBeTruthy();
+    expect(instance.encrypt8(BigInt(233))).toBeTruthy();
+    expect(instance.encrypt16(BigInt(3342))).toBeTruthy();
+    expect(instance.encrypt32(BigInt(838392))).toBeTruthy();
+    expect(instance.encrypt64(BigInt(3433434343))).toBeTruthy();
 
     expect(() => instance.encryptBool(undefined as any)).toThrow(
       'Missing value',
@@ -122,32 +131,53 @@ describe('index', () => {
       'Value must be a boolean',
     );
     expect(() => instance.encrypt4('wrong value' as any)).toThrow(
-      'Value must be a number',
+      'Value must be a number or a bigint.',
     );
     expect(() => instance.encrypt8('wrong value' as any)).toThrow(
-      'Value must be a number',
+      'Value must be a number or a bigint.',
     );
     expect(() => instance.encrypt16('wrong value' as any)).toThrow(
-      'Value must be a number',
+      'Value must be a number or a bigint.',
     );
     expect(() => instance.encrypt32('wrong value' as any)).toThrow(
-      'Value must be a number',
+      'Value must be a number or a bigint.',
     );
     expect(() => instance.encrypt64('wrong value' as any)).toThrow(
-      'Value must be a number',
+      'Value must be a number or a bigint.',
     );
 
-    expect(() => instance.encrypt4(BigInt(34) as any)).toThrow(
-      'Value must be a number',
+    // Check limit
+    expect(instance.encryptBool(1)).toBeTruthy();
+    expect(() => instance.encryptBool(34)).toThrow('Value must be 1 or 0.');
+    expect(() => instance.encryptBool(BigInt(34))).toThrow(
+      'Value must be 1 or 0.',
     );
-    expect(() => instance.encrypt8(BigInt(34) as any)).toThrow(
-      'Value must be a number',
+
+    expect(instance.encrypt4(Math.pow(2, 4) - 1)).toBeTruthy();
+    expect(() => instance.encrypt4(BigInt(34))).toThrow(
+      'The value exceeds the limit for 4bits integer (15).',
     );
-    expect(() => instance.encrypt16(BigInt(34) as any)).toThrow(
-      'Value must be a number',
+
+    expect(instance.encrypt8(Math.pow(2, 8) - 1)).toBeTruthy();
+    expect(() => instance.encrypt8(BigInt(256))).toThrow(
+      'The value exceeds the limit for 8bits integer (255).',
     );
-    expect(() => instance.encrypt32(BigInt(34) as any)).toThrow(
-      'Value must be a number',
+
+    expect(instance.encrypt16(Math.pow(2, 16) - 1)).toBeTruthy();
+    expect(() => instance.encrypt16(BigInt(70000))).toThrow(
+      'The value exceeds the limit for 16bits integer (65535).',
+    );
+
+    expect(instance.encrypt32(Math.pow(2, 32) - 1)).toBeTruthy();
+    expect(() => instance.encrypt32(BigInt(Math.pow(2, 32)) as any)).toThrow(
+      'The value exceeds the limit for 32bits integer (4294967295).',
+    );
+
+    expect(
+      instance.encrypt64(BigInt(Math.pow(2, 64)) - BigInt(1)),
+    ).toBeTruthy();
+    expect(() => instance.encrypt64(BigInt(Math.pow(2, 64)) as any)).toThrow(
+      'The value exceeds the limit for 64bits integer (18446744073709551615).',
     );
   });
 
