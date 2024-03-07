@@ -6,6 +6,7 @@ import {
   encrypt16,
   encrypt32,
   encrypt64,
+  encryptAddress,
   encryptBool,
 } from './encrypt';
 import {
@@ -24,6 +25,7 @@ export type FhevmInstance = {
   encrypt16: (value: number | bigint) => Uint8Array;
   encrypt32: (value: number | bigint) => Uint8Array;
   encrypt64: (value: number | bigint) => Uint8Array;
+  encryptAddress: (value: string) => Uint8Array;
   generatePublicKey: (
     options: GeneratePublicKeyParams & {
       force?: boolean;
@@ -183,6 +185,15 @@ export const createInstance = async (
         );
       checkEncryptedValue(value, 64);
       return encrypt64(value, tfheCompactPublicKey);
+    },
+
+    encryptAddress(value) {
+      if (!tfheCompactPublicKey)
+        throw new Error(
+          'Your instance has been created without the public blockchain key.',
+        );
+      if (!isAddress(value)) throw new Error('Value must be a valid address.');
+      return encryptAddress(value, tfheCompactPublicKey);
     },
 
     // Reencryption
