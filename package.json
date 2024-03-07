@@ -17,6 +17,10 @@
     "./web": {
       "import": "./lib/web.js",
       "require": "./lib/web.js"
+    },
+    "./node": {
+      "import": "./lib/node.cjs",
+      "require": "./lib/node.cjs"
     }
   },
   "scripts": {
