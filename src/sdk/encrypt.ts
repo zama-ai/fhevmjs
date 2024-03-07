@@ -87,7 +87,7 @@ export const encryptAddress = (
 ): Uint8Array => {
   // value is something like 0x8ba1f109551bd432803012645ac136ddd64dba72
   const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
-    [BigInt(value)] as unknown as any,
+    [BigInt(value)],
     publicKey,
   );
   return encrypted.serialize();
