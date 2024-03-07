@@ -192,6 +192,7 @@ export const createInstance = async (
         throw new Error(
           'Your instance has been created without the public blockchain key.',
         );
+      if (typeof value !== 'string') throw new Error('Value must be a string.');
       if (!isAddress(value)) throw new Error('Value must be a valid address.');
       return encryptAddress(value, tfheCompactPublicKey);
     },

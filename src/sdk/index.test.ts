@@ -118,6 +118,10 @@ describe('index', () => {
     expect(instance.encrypt32(BigInt(838392))).toBeTruthy();
     expect(instance.encrypt64(BigInt(3433434343))).toBeTruthy();
 
+    expect(
+      instance.encryptAddress('0x8ba1f109551bd432803012645ac136ddd64dba72'),
+    ).toBeTruthy();
+
     expect(() => instance.encryptBool(undefined as any)).toThrow(
       'Missing value',
     );
@@ -144,6 +148,12 @@ describe('index', () => {
     );
     expect(() => instance.encrypt64('wrong value' as any)).toThrow(
       'Value must be a number or a bigint.',
+    );
+    expect(() => instance.encryptAddress('wrong value' as any)).toThrow(
+      'Value must be a valid address.',
+    );
+    expect(() => instance.encryptAddress(BigInt(32) as any)).toThrow(
+      'Value must be a string.',
     );
 
     // Check limit
