@@ -60,6 +60,11 @@ export type FhevmInstanceParams = {
   keypairs?: ExportedContractKeypairs;
 };
 
+export const getPublicKeyCallParams = () => ({
+  to: '0x000000000000000000000000000000000000005d',
+  data: '0xd9d47bb001',
+});
+
 export const createInstance = async (
   params: FhevmInstanceParams,
 ): Promise<FhevmInstance> => {
