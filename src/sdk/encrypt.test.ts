@@ -10,6 +10,7 @@ import {
   CompactFheUint16List,
   CompactFheUint32List,
   CompactFheUint64List,
+  CompactFheUint160List,
   TfheCompactPublicKey,
   TfheClientKey,
 } from 'node-tfhe';
@@ -21,9 +22,10 @@ import {
   encrypt16,
   encrypt32,
   encrypt64,
+  encryptAddress,
 } from './encrypt';
 
-describe('encrypt8', () => {
+describe('encrypt', () => {
   let clientKey: TfheClientKey;
   let publicKey: TfheCompactPublicKey;
 
@@ -153,13 +155,40 @@ describe('encrypt8', () => {
     });
   });
 
-  it('encrypt/decrypt 64bits', async () => {
+  it('encrypt/decrypt bigint 64bits', async () => {
     const buffer = encrypt64(BigInt('18446744073709551615'), publicKey);
     const compactList = CompactFheUint64List.deserialize(buffer);
     let encryptedList = compactList.expand();
     encryptedList.forEach((v: FheUint64) => {
       const decrypted = v.decrypt(clientKey);
       expect(decrypted.toString()).toBe('18446744073709551615');
+    });
+  });
+  it('encrypt/decrypt 0x000... 160bits', async () => {
+    const buffer = encryptAddress(
+      '0x0000000000000000000000000000000000000000',
+      publicKey,
+    );
+    const compactList = CompactFheUint160List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint64) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted.toString()).toBe('0');
+    });
+  });
+
+  it('encrypt/decrypt 160bits', async () => {
+    const buffer = encryptAddress(
+      '0x8ba1f109551bd432803012645ac136ddd64dba72',
+      publicKey,
+    );
+    const compactList = CompactFheUint160List.deserialize(buffer);
+    let encryptedList = compactList.expand();
+    encryptedList.forEach((v: FheUint64) => {
+      const decrypted = v.decrypt(clientKey);
+      expect(decrypted.toString()).toBe(
+        '797161134358056856230896843146392277790002887282',
+      );
     });
   });
 });

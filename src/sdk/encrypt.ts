@@ -6,7 +6,9 @@ import {
   CompactFheUint16List,
   CompactFheUint32List,
   CompactFheUint64List,
+  CompactFheUint160List,
 } from 'node-tfhe';
+import { fromHexString } from '../utils';
 
 export const encrypt4 = (
   value: number,
@@ -74,6 +76,18 @@ export const encrypt64 = (
   const uint64Array = new BigUint64Array([BigInt(value)]);
   const encrypted = CompactFheUint64List.encrypt_with_compact_public_key(
     uint64Array,
+    publicKey,
+  );
+  return encrypted.serialize();
+};
+
+export const encryptAddress = (
+  value: string,
+  publicKey: TfheCompactPublicKey,
+): Uint8Array => {
+  // value is something like 0x8ba1f109551bd432803012645ac136ddd64dba72
+  const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
+    [BigInt(value)],
     publicKey,
   );
   return encrypted.serialize();
