@@ -1,4 +1,4 @@
-import { toBigIntBE } from 'bigint-buffer';
+import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 
 export const fromHexString = (hexString: string): Uint8Array => {
   const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
@@ -9,16 +9,22 @@ export const fromHexString = (hexString: string): Uint8Array => {
 export const toHexString = (bytes: Uint8Array) =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-export const numberToBytes = (uint32Value: number) => {
-  const byteArrayLength = Math.ceil(Math.log2(uint32Value + 1) / 8);
-  const byteArray = new Uint8Array(byteArrayLength);
+export const bigIntToBytes = (value: bigint) => {
+  const byteArrayLength = Math.ceil(value.toString(2).length / 8);
+  return new Uint8Array(toBufferBE(value, byteArrayLength));
+};
 
-  for (let i = byteArrayLength - 1; i >= 0; i--) {
-    byteArray[i] = uint32Value & 0xff;
-    uint32Value >>= 8;
+export const bytesToHex = function (byteArray: Uint8Array): string {
+  if (!byteArray || byteArray?.length === 0) {
+    return '0x0';
   }
 
-  return byteArray;
+  const length = byteArray.length;
+
+  const buffer = Buffer.from(byteArray);
+  const result = buffer.toString('hex');
+
+  return result;
 };
 
 export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
