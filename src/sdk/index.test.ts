@@ -1,7 +1,7 @@
 import sodium from 'libsodium-wrappers';
 import { createInstance } from './index';
 import { createTfhePublicKey } from '../tfhe';
-import { fromHexString, toHexString, numberToBytes } from '../utils';
+import { fromHexString, toHexString, bigIntToBytes } from '../utils';
 
 describe('index', () => {
   let tfhePublicKey: string;
@@ -23,6 +23,7 @@ describe('index', () => {
     expect(instance.encrypt32).toBeDefined();
     expect(instance.generatePublicKey).toBeDefined();
     expect(instance.decrypt).toBeDefined();
+    expect(instance.decryptAddress).toBeDefined();
     expect(instance.serializeKeypairs).toBeDefined();
     expect(instance.getPublicKey).toBeDefined();
     expect(instance.hasKeypair).toBeDefined();
@@ -38,6 +39,7 @@ describe('index', () => {
     expect(instance.encrypt64).toBeDefined();
     expect(instance.generatePublicKey).toBeDefined();
     expect(instance.decrypt).toBeDefined();
+    expect(instance.decryptAddress).toBeDefined();
     expect(instance.serializeKeypairs).toBeDefined();
     expect(instance.getPublicKey).toBeDefined();
     expect(instance.hasKeypair).toBeDefined();
@@ -86,15 +88,93 @@ describe('index', () => {
       },
     });
 
-    const value = 937387;
+    const value = BigInt(937387);
     const ciphertext = sodium.crypto_box_seal(
-      numberToBytes(value),
+      bigIntToBytes(value),
       fromHexString(keypair.publicKey),
       'hex',
     );
 
     const cleartext = instance.decrypt(contractAddress, ciphertext);
-    expect(cleartext.toString()).toBe(`${value}`);
+    expect(cleartext.toString()).toBe(value.toString());
+
+    const address = BigInt('0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6');
+    const ciphertextAddress = sodium.crypto_box_seal(
+      bigIntToBytes(address),
+      fromHexString(keypair.publicKey),
+      'hex',
+    );
+
+    const cleartextAddress = instance.decryptAddress(
+      contractAddress,
+      ciphertextAddress,
+    );
+    expect(cleartextAddress).toBe('0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6');
+  });
+
+  it('controls decrypt', async () => {
+    const instance = await createInstance({
+      chainId: 1234,
+      publicKey: tfhePublicKey,
+    });
+
+    const keypair = instance.generatePublicKey({
+      verifyingContract: '0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6',
+    });
+
+    const value = BigInt(937387);
+    const ciphertext = sodium.crypto_box_seal(
+      bigIntToBytes(value),
+      keypair.publicKey,
+      'hex',
+    );
+
+    const address = BigInt('0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6');
+    const ciphertextAddress = sodium.crypto_box_seal(
+      bigIntToBytes(address),
+      keypair.publicKey,
+      'hex',
+    );
+
+    expect(() => instance.decrypt(undefined as any, ciphertext)).toThrow(
+      'Missing contract address.',
+    );
+
+    expect(() =>
+      instance.decryptAddress(undefined as any, ciphertextAddress),
+    ).toThrow('Missing contract address.');
+
+    expect(() =>
+      instance.decrypt(
+        '0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6',
+        undefined as any,
+      ),
+    ).toThrow('Missing ciphertext.');
+
+    expect(() =>
+      instance.decryptAddress(
+        '0xD115BFFAbbdd893A6f7ceA402e7338643Ced44a6',
+        undefined as any,
+      ),
+    ).toThrow('Missing ciphertext.');
+
+    expect(() =>
+      instance.decrypt(
+        '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+        ciphertext,
+      ),
+    ).toThrow(
+      'Missing keypair for 0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.',
+    );
+
+    expect(() =>
+      instance.decryptAddress(
+        '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+        ciphertextAddress,
+      ),
+    ).toThrow(
+      'Missing keypair for 0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.',
+    );
   });
 
   it('controls encrypt', async () => {
@@ -262,13 +342,40 @@ describe('index', () => {
     const kp = instance.getPublicKey(contractAddress);
     expect(kp!.publicKey).toBe(publicKey);
 
-    const value = 89290;
+    const value = BigInt(89290);
     const ciphertext = sodium.crypto_box_seal(
-      numberToBytes(value),
+      bigIntToBytes(value),
       publicKey,
       'hex',
     );
     const cleartext = instance.decrypt(contractAddress, ciphertext);
-    expect(cleartext.toString()).toBe(`${value}`);
+    expect(cleartext.toString()).toBe(value.toString());
+  });
+
+  it('decrypts address', async () => {
+    const instance = await createInstance({
+      chainId: 1234,
+      publicKey: tfhePublicKey,
+    });
+
+    const contractAddress = '0x1c786b8ca49D932AFaDCEc00827352B503edf16c';
+
+    const { eip712, publicKey } = instance.generatePublicKey({
+      verifyingContract: contractAddress,
+    });
+
+    instance.setSignature(contractAddress, 'signnnn');
+
+    const kp = instance.getPublicKey(contractAddress);
+    expect(kp!.publicKey).toBe(publicKey);
+
+    const value = BigInt('0x1c786b8ca49D932AFaDCEc00827352B503edf16c');
+    const ciphertext = sodium.crypto_box_seal(
+      bigIntToBytes(value),
+      publicKey,
+      'hex',
+    );
+    const cleartext = instance.decryptAddress(contractAddress, ciphertext);
+    expect(cleartext).toBe('0x1c786b8ca49D932AFaDCEc00827352B503edf16c');
   });
 });

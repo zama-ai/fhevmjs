@@ -14,7 +14,7 @@ import {
   GeneratePublicKeyParams,
   generatePublicKey,
 } from './publicKey';
-import { decrypt } from './decrypt';
+import { decrypt, decryptAddress } from './decrypt';
 import { fromHexString, isAddress, toHexString } from '../utils';
 import { ContractKeypairs } from './types';
 
@@ -40,6 +40,7 @@ export type FhevmInstance = {
   ) => { publicKey: Uint8Array; signature: string } | null;
   hasKeypair: (contractAddress: string) => boolean;
   decrypt: (contractAddress: string, ciphertext: string) => bigint;
+  decryptAddress: (contractAddress: string, ciphertext: string) => string;
   serializeKeypairs: () => ExportedContractKeypairs;
 };
 
@@ -249,6 +250,14 @@ export const createInstance = async (
       const kp = contractKeypairs[contractAddress];
       if (!kp) throw new Error(`Missing keypair for ${contractAddress}.`);
       return decrypt(kp, ciphertext);
+    },
+
+    decryptAddress(contractAddress, ciphertext) {
+      if (!ciphertext) throw new Error('Missing ciphertext.');
+      if (!contractAddress) throw new Error('Missing contract address.');
+      const kp = contractKeypairs[contractAddress];
+      if (!kp) throw new Error(`Missing keypair for ${contractAddress}.`);
+      return decryptAddress(kp, ciphertext);
     },
 
     serializeKeypairs() {
