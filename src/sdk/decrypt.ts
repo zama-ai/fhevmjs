@@ -35,7 +35,7 @@ let hexString = bytesToHex(decrypted);
 if (hexString.length > 40) {
   hexString = hexString.substring(hexString.length - 40);
 } else {
-  hexString = hexString.padStart(40, '0');
+  hexString = hexString.slice(2).padStart(40, '0');
 }
   return getAddress(hexString);
 };
