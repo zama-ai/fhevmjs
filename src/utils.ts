@@ -18,12 +18,8 @@ export const bytesToHex = function (byteArray: Uint8Array): string {
   if (!byteArray || byteArray?.length === 0) {
     return '0x0';
   }
-
-  const length = byteArray.length;
-
   const buffer = Buffer.from(byteArray);
-  const result = buffer.toString('hex');
-
+  const result = '0x' + buffer.toString('hex');
   return result;
 };
 
@@ -31,8 +27,6 @@ export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
   if (!byteArray || byteArray?.length === 0) {
     return BigInt(0);
   }
-
-  const length = byteArray.length;
 
   const buffer = Buffer.from(byteArray);
   const result = toBigIntBE(buffer);
