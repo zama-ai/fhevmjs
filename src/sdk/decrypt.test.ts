@@ -59,7 +59,7 @@ describe('decrypt', () => {
     expect(cleartext).toBe(getAddress(expected));
   });
 
-  it.only('decrypts an address Uint8Array value lower than 160 bits', async () => {
+  it('decrypts an address Uint8Array value lower than 160 bits', async () => {
     const keypair = sodium.crypto_box_keypair();
     const address = '0x8ba1f109551bd432803012645ac136ddd64d'
     // Must add padding until to 40-digit
