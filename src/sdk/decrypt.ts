@@ -28,5 +28,14 @@ export const decryptAddress = (
     keypair.publicKey,
     keypair.privateKey,
   );
-  return getAddress(bytesToHex(decrypted));
+
+let hexString = bytesToHex(decrypted);
+// Ensure hexString forms a valid 40-digit Ethereum address.
+// Truncate or pad with leading zeros as necessary to correct length issues.
+if (hexString.length > 40) {
+  hexString = hexString.substring(hexString.length - 40);
+} else {
+  hexString = hexString.slice(2).padStart(40, '0');
+}
+  return getAddress(hexString);
 };
