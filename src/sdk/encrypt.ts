@@ -1,23 +1,37 @@
 import {
   TfheCompactPublicKey,
-  CompactFheBoolList,
-  CompactFheUint4List,
-  CompactFheUint8List,
-  CompactFheUint16List,
-  CompactFheUint32List,
-  CompactFheUint64List,
-  CompactFheUint160List,
+  CompactPkeCrs,
+  ProvenCompactFheBoolList,
+  ProvenCompactFheUint4List,
+  ProvenCompactFheUint8List,
+  ProvenCompactFheUint16List,
+  ProvenCompactFheUint32List,
+  ProvenCompactFheUint64List,
+  ProvenCompactFheUint160List,
+  ShortintParameters,
+  ShortintParametersName,
+  ZkComputeLoad,
 } from 'node-tfhe';
-import { fromHexString } from '../utils';
+
+const crs = CompactPkeCrs.from_parameters(
+  new ShortintParameters(
+    ShortintParametersName.PARAM_MESSAGE_1_CARRY_2_COMPACT_PK_KS_PBS_TUNIFORM_2M40,
+  ),
+  1,
+);
+
+const publicZkParams = crs.public_params();
 
 export const encrypt4 = (
   value: number,
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint8Array = new Uint8Array([value]);
-  const encrypted = CompactFheUint4List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint4List.encrypt_with_compact_public_key(
     uint8Array,
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -26,9 +40,11 @@ export const encryptBool = (
   value: boolean,
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
-  const encrypted = CompactFheBoolList.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheBoolList.encrypt_with_compact_public_key(
     [value],
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -38,9 +54,11 @@ export const encrypt8 = (
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint8Array = new Uint8Array([value]);
-  const encrypted = CompactFheUint8List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint8List.encrypt_with_compact_public_key(
     uint8Array,
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -50,9 +68,11 @@ export const encrypt16 = (
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint16Array = new Uint16Array([value]);
-  const encrypted = CompactFheUint16List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint16List.encrypt_with_compact_public_key(
     uint16Array,
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -62,9 +82,11 @@ export const encrypt32 = (
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint32Array = new Uint32Array([value]);
-  const encrypted = CompactFheUint32List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint32List.encrypt_with_compact_public_key(
     uint32Array,
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -74,9 +96,11 @@ export const encrypt64 = (
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   const uint64Array = new BigUint64Array([BigInt(value)]);
-  const encrypted = CompactFheUint64List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint64List.encrypt_with_compact_public_key(
     uint64Array,
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
@@ -86,9 +110,11 @@ export const encryptAddress = (
   publicKey: TfheCompactPublicKey,
 ): Uint8Array => {
   // value is something like 0x8ba1f109551bd432803012645ac136ddd64dba72
-  const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
+  const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
     [BigInt(value)],
+    publicZkParams,
     publicKey,
+    ZkComputeLoad.Proof,
   );
   return encrypted.serialize();
 };
