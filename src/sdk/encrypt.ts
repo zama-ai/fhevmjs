@@ -14,8 +14,9 @@ export type ZKInput = {
   addAddress: (value: string) => ZKInput;
   getValues: () => bigint[];
   getBits: () => number[];
-  resetValues: (value: string) => ZKInput;
+  resetValues: () => ZKInput;
   encrypt: () => Uint8Array;
+  encryptAndSend: () => UInt8Array;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -33,7 +34,7 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
 };
 
 export const createEncryptedInput =
-  (tfheCompactPublicKey?: TfheCompactPublicKey) =>
+  (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
   (contractAddress: string, userAddress: string) => {
     if (!tfheCompactPublicKey)
       throw new Error(
@@ -133,6 +134,14 @@ export const createEncryptedInput =
         //   ZkComputeLoad.Proof,
         // );
         return encrypted.serialize();
+      },
+      encryptAndSend() {
+        if (!coprocessorUrl) throw new Error('Coprocessor URL not provided');
+        const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
+          values,
+          publicKey,
+        );
+        return BigInt(20);
       },
     };
   };

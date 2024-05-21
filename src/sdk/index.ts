@@ -20,18 +20,16 @@ export type FhevmInstance = {
     contractAddress: string,
     userAddress: string,
   ) => ZKInput;
-  reencrypt: {
-    generateKeypair: () => { publicKey: string; privateKey: string };
-    createEIP712: (publicKey: string, contractAddress: string) => EIP712;
-    request: (
-      handle: bigint,
-      privateKey: string,
-      publicKey: string,
-      signature: string,
-      contractAddress: string,
-      userAddress: string,
-    ) => Promise<bigint>;
-  };
+  generateKeypair: () => { publicKey: string; privateKey: string };
+  createEIP712: (publicKey: string, contractAddress: string) => EIP712;
+  reencrypt: (
+    handle: bigint,
+    privateKey: string,
+    publicKey: string,
+    signature: string,
+    contractAddress: string,
+    userAddress: string,
+  ) => Promise<bigint>;
 };
 
 export const getCiphertextCallParams = (handle: bigint) => {
@@ -73,10 +71,8 @@ export const createInstance = async (
 
   return {
     createEncryptedInput: createEncryptedInput(tfheCompactPublicKey),
-    reencrypt: {
-      generateKeypair,
-      createEIP712: createEIP712(chainId),
-      request: reencryptRequest(networkUrl),
-    },
+    generateKeypair,
+    createEIP712: createEIP712(chainId),
+    reencrypt: reencryptRequest(networkUrl),
   };
 };

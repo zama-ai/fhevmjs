@@ -17,8 +17,8 @@ describe('index', () => {
       publicKey: tfhePublicKey,
     });
     expect(instance.reencrypt).toBeDefined();
-    expect(instance.reencrypt.createEIP712).toBeDefined();
-    expect(instance.reencrypt.generateKeypair).toBeDefined();
+    expect(instance.createEIP712).toBeDefined();
+    expect(instance.generateKeypair).toBeDefined();
     expect(instance.createEncryptedInput).toBeDefined();
   });
 
@@ -27,8 +27,8 @@ describe('index', () => {
       chainId: 1234,
     });
     expect(instance.reencrypt).toBeDefined();
-    expect(instance.reencrypt.createEIP712).toBeDefined();
-    expect(instance.reencrypt.generateKeypair).toBeDefined();
+    expect(instance.createEIP712).toBeDefined();
+    expect(instance.generateKeypair).toBeDefined();
     expect(instance.createEncryptedInput).toBeDefined();
   });
 
