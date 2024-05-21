@@ -28,6 +28,7 @@ const getInstance = async (provider) => {
       // first four bytes of keccak256('fhePubKey(bytes1)') + 1 byte for library
       data: '0xd9d47bb001',
     });
+    // console.log(ret);
     const decoded = AbiCoder.defaultAbiCoder().decode(['bytes'], ret);
     const publicKey = decoded[0];
     _instance = await createInstance({ chainId, publicKey });
