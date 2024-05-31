@@ -4,7 +4,7 @@ import {
   cryptobox_sk_to_u8vec,
   cryptobox_pk_to_u8vec,
   cryptobox_get_pk,
-} from '../kms';
+} from 'node-kms';
 
 export type EIP712Type = { name: string; type: string };
 

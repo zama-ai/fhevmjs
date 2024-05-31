@@ -6,6 +6,9 @@
     "kms_lib.js",
     "kms_lib.d.ts"
   ],
-  "main": "kms_lib.js",
-  "types": "kms_lib.d.ts"
+  "module": "kms_lib.js",
+  "types": "kms_lib.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
 }

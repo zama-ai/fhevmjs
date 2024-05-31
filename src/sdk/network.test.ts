@@ -1,9 +1,4 @@
-import {
-  FheUint160,
-  CompactFheUint160List,
-  TfheCompactPublicKey,
-  TfheClientKey,
-} from 'node-tfhe';
+import { TfheCompactPublicKey, TfheClientKey } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
 import { createEncryptedInput } from './encrypt';
 import { getPublicKeyCallParams, getPublicKeyFromNetwork } from './network';

@@ -1,31 +1,34 @@
 module.exports = {
-  preset: "ts-jest",
+  preset: 'ts-jest',
   transform: {
-    "^.+\\.tsx?$": [
-      "ts-jest",
+    '^.+\\.tsx?$': [
+      'ts-jest',
       {
-        tsconfig: "tsconfig.json",
+        tsconfig: 'tsconfig.json',
       },
     ],
-    "^.+\\.jsx?$": [
-      "ts-jest",
+    '^.+\\.jsx?$': [
+      'ts-jest',
       {
-        tsconfig: "tsconfig.json",
+        tsconfig: 'tsconfig.json',
       },
     ],
-    "^.+\\.bin$": ["<rootDir>config/rawLoader.cjs"],
+    '^.+\\.bin$': ['<rootDir>config/rawLoader.cjs'],
   },
-  testEnvironment: "node",
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  testEnvironment: 'node',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleNameMapper: {
+    '^node-kms$': '<rootDir>/src/kms/node',
+  },
   collectCoverageFrom: [
-    "src/**/*.ts",
-    "!src/**/*.d.ts",
-    "src/**/*.tsx",
-    "!src/**/*.story.**",
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    'src/**/*.tsx',
+    '!src/**/*.story.**',
   ],
-  testRegex: "\\.test\\.tsx?$",
-  coverageReporters: ["lcov", "text-summary", "json"],
-  transformIgnorePatterns: ["/node_modules/"],
+  testRegex: '\\.test\\.tsx?$',
+  coverageReporters: ['lcov', 'text-summary', 'json'],
+  transformIgnorePatterns: ['/node_modules/'],
   coveragePathIgnorePatterns: [],
   coverageThreshold: {
     global: {

@@ -10,6 +10,7 @@ const plugins = [
   replace({
     preventAssignment: true,
     'node-tfhe': 'tfhe',
+    'kms/node/': 'kms/web/',
   }),
   typescript({
     tsconfig: './tsconfig.rollup.json',
@@ -45,6 +46,7 @@ export default [
       format: 'cjs',
     },
     plugins: [
+      commonjs(),
       typescript({
         tsconfig: './tsconfig.rollup.json',
       }),

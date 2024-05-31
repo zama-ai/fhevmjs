@@ -1,10 +1,10 @@
-import { toHexString } from 'src/utils';
+import { toHexString } from '../utils';
 import {
   u8vec_to_cryptobox_pk,
   cryptobox_encrypt,
   cryptobox_decrypt,
   cryptobox_pk_to_u8vec,
-} from '../kms';
+} from '../kms/node';
 
 export const reencryptRequest =
   (reencryptUrl?: string) =>
@@ -25,5 +25,6 @@ export const reencryptRequest =
       userAddress,
     };
     // const response = await fetch(`${reencryptUrl}`);
+
     return BigInt(10);
   };

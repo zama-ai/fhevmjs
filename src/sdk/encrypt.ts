@@ -1,4 +1,4 @@
-import { isAddress } from 'ethers';
+import { isAddress } from 'web3-validator';
 import { TfheCompactPublicKey, CompactFheUint160List } from 'node-tfhe';
 
 // const publicZkParams = CompactPkePublicParams.deserialize(crsBuffer);
@@ -16,7 +16,7 @@ export type ZKInput = {
   getBits: () => number[];
   resetValues: () => ZKInput;
   encrypt: () => Uint8Array;
-  encryptAndSend: () => UInt8Array;
+  send: () => Uint8Array;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -35,7 +35,12 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
 
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
-  (contractAddress: string, userAddress: string) => {
+  (
+    contractAddress: string,
+    userAddress: string,
+    functionSignature: string,
+    callerAddress?: string,
+  ) => {
     if (!tfheCompactPublicKey)
       throw new Error(
         'Your instance has been created without the public blockchain key.',
@@ -133,15 +138,15 @@ export const createEncryptedInput =
         //   publicKey,
         //   ZkComputeLoad.Proof,
         // );
-        return encrypted.serialize();
+        return [encrypted.serialize()];
       },
-      encryptAndSend() {
+      send() {
         if (!coprocessorUrl) throw new Error('Coprocessor URL not provided');
         const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
           values,
           publicKey,
         );
-        return BigInt(20);
+        return encrypted.serialize();
       },
     };
   };

@@ -6,7 +6,7 @@ import {
   cryptobox_sk_to_u8vec,
   u8vec_to_cryptobox_pk,
   u8vec_to_cryptobox_sk,
-} from '../kms/kms_lib';
+} from '../kms/node/kms_lib';
 
 describe('token', () => {
   beforeAll(async () => {
