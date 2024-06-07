@@ -5,6 +5,7 @@ import {
   FheUint16,
   FheUint32,
   FheUint64,
+  CompactFheBoolList,
   CompactFheUint4List,
   CompactFheUint8List,
   CompactFheUint16List,
@@ -23,9 +24,9 @@ import {
   encrypt32,
   encrypt64,
   encryptAddress,
-} from './encrypt';
+} from './tfheEncrypt';
 
-describe('encrypt', () => {
+describe('tfheEncrypt', () => {
   let clientKey: TfheClientKey;
   let publicKey: TfheCompactPublicKey;
 
@@ -37,21 +38,21 @@ describe('encrypt', () => {
 
   it('encrypt/decrypt 0 bool', async () => {
     const buffer = encryptBool(false, publicKey);
-    const compactList = CompactFheUint4List.deserialize(buffer);
+    const compactList = CompactFheBoolList.deserialize(buffer);
     let encryptedList = compactList.expand();
     encryptedList.forEach((v: FheBool) => {
       const decrypted = v.decrypt(clientKey);
-      expect(decrypted).toBe(0);
+      expect(decrypted).toBe(false);
     });
   });
 
   it('encrypt/decrypt bool', async () => {
     const buffer = encryptBool(true, publicKey);
-    const compactList = CompactFheUint4List.deserialize(buffer);
+    const compactList = CompactFheBoolList.deserialize(buffer);
     let encryptedList = compactList.expand();
     encryptedList.forEach((v: FheBool) => {
       const decrypted = v.decrypt(clientKey);
-      expect(decrypted).toBe(1);
+      expect(decrypted).toBe(true);
     });
   });
 

@@ -8,7 +8,7 @@ import {
   encrypt64,
   encryptAddress,
   encryptBool,
-} from './encrypt';
+} from './tfheEncrypt';
 import {
   EIP712,
   GeneratePublicKeyParams,
@@ -67,6 +67,15 @@ export const getPublicKeyCallParams = () => ({
   to: '0x000000000000000000000000000000000000005d',
   data: '0xd9d47bb001',
 });
+
+export const getCiphertextCallParams = (handle: BigInt) => {
+  let hex = handle.toString(16);
+  hex = hex.padStart(64, '0');
+  return {
+    to: '0x000000000000000000000000000000000000005d',
+    data: '0xff627e77' + hex,
+  };
+};
 
 export const createInstance = async (
   params: FhevmInstanceParams,
