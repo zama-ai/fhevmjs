@@ -1,4 +1,14 @@
 import { toBigIntBE, toBufferBE } from 'bigint-buffer';
+import {
+  FheBool,
+  FheUint4,
+  FheUint8,
+  FheUint16,
+  FheUint32,
+  FheUint64,
+  FheUint160,
+  TfheClientKey,
+} from 'node-tfhe';
 
 export const fromHexString = (hexString: string): Uint8Array => {
   const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
@@ -38,4 +48,31 @@ export const isAddress = function (address: string) {
     return true;
   }
   return false;
+};
+
+export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
+  const clientKey = TfheClientKey.deserialize(clientKeySer);
+  return {
+    decryptBool: (ciphertext: string) =>
+      FheBool.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decrypt4: (ciphertext: string) =>
+      FheUint4.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decrypt8: (ciphertext: string) =>
+      FheUint8.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decrypt16: (ciphertext: string) =>
+      FheUint16.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decrypt32: (ciphertext: string) =>
+      FheUint32.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decrypt64: (ciphertext: string) =>
+      FheUint64.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+    decryptAddress: (ciphertext: string) => {
+      let hex = FheUint160.deserialize(fromHexString(ciphertext))
+        .decrypt(clientKey)
+        .toString(16);
+      while (hex.length < 40) {
+        hex = '0' + hex;
+      }
+      return '0x' + hex;
+    },
+  };
 };

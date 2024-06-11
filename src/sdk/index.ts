@@ -68,6 +68,15 @@ export const getPublicKeyCallParams = () => ({
   data: '0xd9d47bb001',
 });
 
+export const getCiphertextCallParams = (handle: bigint) => {
+  let hex = handle.toString(16);
+  hex = hex.padStart(64, '0');
+  return {
+    to: '0x000000000000000000000000000000000000005d',
+    data: '0xff627e77' + hex,
+  };
+};
+
 export const createInstance = async (
   params: FhevmInstanceParams,
 ): Promise<FhevmInstance> => {
