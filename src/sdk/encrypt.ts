@@ -148,7 +148,7 @@ export const createEncryptedInput =
         const inputs = bits.map((v, i) => {
           const dataInput = new Uint8Array(32);
           dataInput.set(hash, 0);
-          dataInput.set([i, bits[v]], 30);
+          dataInput.set([i, bits[v], 0], 29);
           return createKeccakHash('keccak256')
             .update(toHexString(dataInput))
             .digest('hex');
