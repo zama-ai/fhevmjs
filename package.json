@@ -43,10 +43,12 @@
   },
   "homepage": "https://github.com/zama-ai/fhevmjs#readme",
   "dependencies": {
+    "@types/keccak": "^3.0.4",
     "bigint-buffer": "^1.1.5",
     "commander": "^11.0.0",
     "crypto-js": "^4.1.1",
     "ethers": "^6.6.4",
+    "keccak": "^3.0.4",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
     "node-fetch": "^3.3.2",
