@@ -142,10 +142,13 @@ export const createEncryptedInput =
         //   ZkComputeLoad.Proof,
         // );
         const data = encrypted.serialize();
-        const hash = createKeccakHash('keccak256')
-          .update(toHexString(data))
-          .digest();
         const inputs = bits.map((v, i) => {
+          const dataWithIndex = new Uint8Array(data.length + 1);
+          dataWithIndex.set(data, 0);
+          dataWithIndex.set([i], data.length);
+          const hash = createKeccakHash('keccak256')
+            .update(Buffer.from(dataWithIndex))
+            .digest();
           const dataInput = new Uint8Array(32);
           dataInput.set(hash, 0);
           dataInput.set([i, bits[v], 0], 29);
