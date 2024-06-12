@@ -173,7 +173,7 @@ export const createEncryptedInput =
 
         const payload = {
           jsonrpc: '2.0',
-          method: 'eth_call',
+          method: 'eth_addUserCiphertext',
           params: [toHexString(data), 'latest'],
           id: 1,
         };
