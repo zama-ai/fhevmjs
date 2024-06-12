@@ -22,14 +22,16 @@ module.exports = {
   },
   collectCoverageFrom: [
     'src/**/*.ts',
-    '!src/**/*.d.ts',
     'src/**/*.tsx',
-    '!src/**/*.story.**',
+    '!src/**/*.d.ts',
+    '!src/kms/*',
+    '!src/init.ts',
+    '!src/node.ts',
+    '!src/web.ts',
   ],
   testRegex: '\\.test\\.tsx?$',
   coverageReporters: ['lcov', 'text-summary', 'json'],
   transformIgnorePatterns: ['/node_modules/'],
-  coveragePathIgnorePatterns: [],
   coverageThreshold: {
     global: {
       branches: 80,

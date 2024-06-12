@@ -1,3 +1,4 @@
+import { isAddress } from 'web3-validator';
 import { toHexString } from '../utils';
 import {
   cryptobox_keygen,
@@ -16,7 +17,8 @@ export type EIP712 = {
     version: string;
   };
   message: {
-    [key: string]: any;
+    publicKey: string;
+    delegatedAccount?: string;
   };
   primaryType: string;
   types: {
@@ -25,7 +27,12 @@ export type EIP712 = {
 };
 
 export const createEIP712 =
-  (chainId: number) => (publicKey: string, verifyingContract: string) => {
+  (chainId: number) =>
+  (publicKey: string, verifyingContract: string, delegatedAccount?: string) => {
+    if (!isAddress(verifyingContract))
+      throw new Error('Invalid contract address.');
+    if (delegatedAccount && !isAddress(delegatedAccount))
+      throw new Error('Invalid delegated account.');
     const msgParams: EIP712 = {
       types: {
         // This refers to the domain the contract is hosted on.
@@ -49,7 +56,7 @@ export const createEIP712 =
         // This identifies the latest version.
         version: '1',
         // This defines the network, in this case, Mainnet.
-        chainId: chainId,
+        chainId,
         // // Add a verifying contract to make sure you're establishing contracts with the proper entity.
         verifyingContract,
       },
@@ -57,6 +64,14 @@ export const createEIP712 =
         publicKey: `0x${publicKey}`,
       },
     };
+
+    if (delegatedAccount) {
+      msgParams.message.delegatedAccount = delegatedAccount;
+      msgParams.types.Reencrypt.push({
+        name: 'delegatedAccount',
+        type: 'address',
+      });
+    }
     return msgParams;
   };
 

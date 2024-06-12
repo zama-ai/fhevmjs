@@ -8,11 +8,13 @@ import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
 
-export type FhevmInstanceParams = {
-  chainId?: number;
+export { getPublicKeyCallParams } from './network';
+
+type FhevmInstanceConfig = {
+  chainId: number;
   publicKey?: string;
-  networkUrl?: string;
   reencryptionUrl?: string;
+  networkUrl?: string;
 };
 
 export type FhevmInstance = {
@@ -21,7 +23,11 @@ export type FhevmInstance = {
     userAddress: string,
   ) => ZKInput;
   generateKeypair: () => { publicKey: string; privateKey: string };
-  createEIP712: (publicKey: string, contractAddress: string) => EIP712;
+  createEIP712: (
+    publicKey: string,
+    contractAddress: string,
+    userAddress?: string,
+  ) => EIP712;
   reencrypt: (
     handle: bigint,
     privateKey: string,
@@ -32,28 +38,15 @@ export type FhevmInstance = {
   ) => Promise<bigint>;
 };
 
-export const getCiphertextCallParams = (handle: bigint) => {
-  let hex = handle.toString(16);
-  hex = hex.padStart(64, '0');
-  return {
-    to: '0x000000000000000000000000000000000000005d',
-    data: '0xff627e77' + hex,
-  };
-};
-
 export const createInstance = async (
-  params: FhevmInstanceParams,
+  config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
   await sodium.ready;
 
-  const { chainId, networkUrl } = params;
+  const { chainId, networkUrl, reencryptionUrl } = config;
 
-  let publicKey: string | undefined = params.publicKey;
+  let publicKey: string | undefined = config.publicKey;
   let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
-
-  if (networkUrl && !chainId) {
-    publicKey = await getChainIdFromNetwork(networkUrl);
-  }
 
   if (typeof chainId !== 'number') throw new Error('chainId must be a number');
 
@@ -66,13 +59,17 @@ export const createInstance = async (
 
   if (publicKey) {
     const buff = fromHexString(publicKey);
-    tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
+    try {
+      tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
+    } catch (e) {
+      throw new Error('Invalid public key (deserialization failed)');
+    }
   }
 
   return {
     createEncryptedInput: createEncryptedInput(tfheCompactPublicKey),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(networkUrl),
+    reencrypt: reencryptRequest(reencryptionUrl),
   };
 };

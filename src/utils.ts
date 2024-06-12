@@ -42,14 +42,6 @@ export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
   return result;
 };
 
-export const isAddress = function (address: string) {
-  if (address.match(/^0x[0-9a-fA-F]{40}$/)) {
-    // check if it has the basic requirements of an address
-    return true;
-  }
-  return false;
-};
-
 export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
   const clientKey = TfheClientKey.deserialize(clientKeySer);
   return {

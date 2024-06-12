@@ -43,7 +43,7 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
 
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
-  (contractAddress: string, userAddress: string, callerAddress?: string) => {
+  (contractAddress: string, userAddress: string) => {
     if (!tfheCompactPublicKey)
       throw new Error(
         'Your instance has been created without the public blockchain key.',
@@ -53,23 +53,27 @@ export const createEncryptedInput =
       throw new Error('Contract address is not a valid address.');
     }
 
+    if (!isAddress(userAddress)) {
+      throw new Error('User address is not a valid address.');
+    }
+
     const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
     const values: bigint[] = [];
     const bits: number[] = [];
     return {
-      addBool(value: boolean) {
+      addBool(value: boolean | number | bigint) {
         if (value == null) throw new Error('Missing value');
         if (
           typeof value !== 'boolean' &&
           typeof value !== 'number' &&
           typeof value !== 'bigint'
         )
-          throw new Error('Value must be a boolean, a number or a bigint.');
+          throw new Error('The value must be a boolean, a number or a bigint.');
         if (
           (typeof value !== 'bigint' || typeof value !== 'number') &&
           Number(value) > 1
         )
-          throw new Error('Value must be 1 or 0.');
+          throw new Error('The value must be 1 or 0.');
         values.push(BigInt(value));
         bits.push(ENCRYPTION_TYPES[1]);
         return this;
@@ -112,9 +116,8 @@ export const createEncryptedInput =
       },
       addAddress(value: string) {
         if (!isAddress(value)) {
-          throw new Error('Value must be a valid address.');
+          throw new Error('The value must be a valid address.');
         }
-        checkEncryptedValue(BigInt(value), 160);
         values.push(BigInt(value));
         bits.push(ENCRYPTION_TYPES[160]);
         return this;
