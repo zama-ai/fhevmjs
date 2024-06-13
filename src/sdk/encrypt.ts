@@ -1,8 +1,12 @@
 import { isAddress } from 'web3-validator';
 import createKeccakHash from 'keccak';
-import { TfheCompactPublicKey, CompactFheUint160List } from 'node-tfhe';
+import {
+  TfheCompactPublicKey,
+  CompactFheUint160List,
+  CompactFheUint2048List,
+} from 'node-tfhe';
 
-import { toHexString } from '../utils';
+import { bytesToBigInt, toHexString } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 import { fetchJSONRPC } from '../ethCall';
 
@@ -29,14 +33,19 @@ export type ZKInput = {
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
   if (value == null) throw new Error('Missing value');
-  const limit = BigInt(Math.pow(2, bits));
+  let limit;
+  if (bits >= 8) {
+    limit = BigInt(
+      `0x${new Array(bits / 8).fill(null).reduce((v) => `${v}ff`, '')}`,
+    );
+  } else {
+    limit = BigInt(2 ** bits - 1);
+  }
   if (typeof value !== 'number' && typeof value !== 'bigint')
     throw new Error('Value must be a number or a bigint.');
-  if (value >= limit) {
+  if (value > limit) {
     throw new Error(
-      `The value exceeds the limit for ${bits}bits integer (${(
-        limit - BigInt(1)
-      ).toString()}).`,
+      `The value exceeds the limit for ${bits}bits integer (${limit.toString()}).`,
     );
   }
 };
@@ -59,7 +68,7 @@ export const createEncryptedInput =
 
     const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
     const values: bigint[] = [];
-    const bits: number[] = [];
+    const bits: (keyof typeof ENCRYPTION_TYPES)[] = [];
     return {
       addBool(value: boolean | number | bigint) {
         if (value == null) throw new Error('Missing value');
@@ -75,43 +84,43 @@ export const createEncryptedInput =
         )
           throw new Error('The value must be 1 or 0.');
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[1]);
+        bits.push(1);
         return this;
       },
       add4(value: number | bigint) {
         checkEncryptedValue(value, 4);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[4]);
+        bits.push(4);
         return this;
       },
       add8(value: number | bigint) {
         checkEncryptedValue(value, 8);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[8]);
+        bits.push(8);
         return this;
       },
       add16(value: number | bigint) {
         checkEncryptedValue(value, 16);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[16]);
+        bits.push(16);
         return this;
       },
       add32(value: number | bigint) {
         checkEncryptedValue(value, 32);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[32]);
+        bits.push(32);
         return this;
       },
       add64(value: number | bigint) {
         checkEncryptedValue(value, 64);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[64]);
+        bits.push(64);
         return this;
       },
       add128(value: number | bigint) {
         checkEncryptedValue(value, 128);
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[128]);
+        bits.push(128);
         return this;
       },
       addAddress(value: string) {
@@ -119,7 +128,14 @@ export const createEncryptedInput =
           throw new Error('The value must be a valid address.');
         }
         values.push(BigInt(value));
-        bits.push(ENCRYPTION_TYPES[160]);
+        bits.push(160);
+        return this;
+      },
+      addBytes256(value: Uint8Array) {
+        const bigIntValue = bytesToBigInt(value);
+        checkEncryptedValue(bigIntValue, 2048);
+        values.push(bigIntValue);
+        bits.push(2048);
         return this;
       },
       getValues() {
@@ -134,10 +150,22 @@ export const createEncryptedInput =
         return this;
       },
       encrypt() {
-        const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
-          values,
-          publicKey,
-        );
+        if (bits.reduce((total, v) => total + v, 0) > 2048) {
+          throw new Error('Too many bits in provided values. Maximum is 2048.');
+        }
+        let encrypted;
+        if (bits.some((v) => v === 2048)) {
+          encrypted = CompactFheUint2048List.encrypt_with_compact_public_key(
+            values,
+            publicKey,
+          );
+        } else {
+          encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
+            values,
+            publicKey,
+          );
+        }
+
         const data = encrypted.serialize();
         const hash = createKeccakHash('keccak256')
           .update(Buffer.from(data))
@@ -157,7 +185,7 @@ export const createEncryptedInput =
             .digest();
           const dataInput = new Uint8Array(32);
           dataInput.set(finalHash, 0);
-          dataInput.set([i, bits[v], 0], 29);
+          dataInput.set([i, ENCRYPTION_TYPES[v], 0], 29);
           return dataInput;
         });
         return {
