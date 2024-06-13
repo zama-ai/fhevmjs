@@ -1,0 +1,14 @@
+{
+  "name": "kms",
+  "version": "0.1.0",
+  "files": [
+    "kms_lib_bg.wasm",
+    "kms_lib.js",
+    "kms_lib.d.ts"
+  ],
+  "module": "kms_lib.js",
+  "types": "kms_lib.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

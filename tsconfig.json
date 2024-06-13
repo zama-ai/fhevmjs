@@ -14,7 +14,8 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["*"]
+      "*": ["*"],
+      "node-kms": ["src/kms/node/index.js"]
     }
   },
   "include": ["src", "types"],

@@ -13,7 +13,8 @@
     "baseUrl": ".",
     "resolveJsonModule": false,
     "paths": {
-      "*": ["*"]
+      "*": ["*"],
+      "node-kms": ["src/kms/node/index.js"]
     }
   },
   "include": ["src"],

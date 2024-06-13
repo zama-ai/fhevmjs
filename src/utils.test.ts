@@ -1,7 +1,9 @@
 import {
   bigIntToBytes,
   bytesToBigInt,
+  bytesToHex,
   clientKeyDecryptor,
+  fromHexString,
   toHexString,
 } from './utils';
 import { createTfheKeypair } from './tfhe';
@@ -24,6 +26,23 @@ describe('decrypt', () => {
     const { clientKey, publicKey } = createTfheKeypair();
     clientKeySer = clientKey.serialize();
     compactPublicKey = publicKey;
+  });
+
+  it('converts a hex to bytes', async () => {
+    const value = '0xff';
+    const bytes = fromHexString(value);
+    expect(bytes).toEqual(new Uint8Array([255]));
+
+    const bytes2 = fromHexString('0x');
+    expect(bytes2).toEqual(new Uint8Array([]));
+  });
+
+  it('converts a bytes to hex', async () => {
+    const bytes = bytesToHex(new Uint8Array([255]));
+    expect(bytes).toEqual('0xff');
+
+    const bytes2 = bytesToHex(new Uint8Array());
+    expect(bytes2).toEqual('0x0');
   });
 
   it('converts a number to bytes', async () => {
