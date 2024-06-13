@@ -79,7 +79,10 @@ export const createInstance = async (
   }
 
   return {
-    createEncryptedInput: createEncryptedInput(tfheCompactPublicKey),
+    createEncryptedInput: createEncryptedInput(
+      tfheCompactPublicKey,
+      coprocessorUrl,
+    ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
     reencrypt: reencryptRequest(reencryptionUrl),
