@@ -43,7 +43,7 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
 
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
-  (contractAddress: string, userAddress: string) => {
+  (contractAddress: string, callerAddress: string) => {
     if (!tfheCompactPublicKey)
       throw new Error(
         'Your instance has been created without the public blockchain key.',
@@ -53,7 +53,7 @@ export const createEncryptedInput =
       throw new Error('Contract address is not a valid address.');
     }
 
-    if (!isAddress(userAddress)) {
+    if (!isAddress(callerAddress)) {
       throw new Error('User address is not a valid address.');
     }
 
@@ -155,9 +155,7 @@ export const createEncryptedInput =
           const dataInput = new Uint8Array(32);
           dataInput.set(hash, 0);
           dataInput.set([i, bits[v], 0], 29);
-          return createKeccakHash('keccak256')
-            .update(toHexString(dataInput))
-            .digest('hex');
+          return toHexString(dataInput);
         });
         return {
           inputs,
@@ -180,7 +178,7 @@ export const createEncryptedInput =
         const payload = {
           jsonrpc: '2.0',
           method: 'eth_addUserCiphertext',
-          params: [toHexString(data), 'latest'],
+          params: [toHexString(data), contractAddress, callerAddress],
           id: 1,
         };
 
