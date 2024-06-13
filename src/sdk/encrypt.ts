@@ -21,7 +21,7 @@ export type ZKInput = {
   getBits: () => number[];
   resetValues: () => ZKInput;
   encrypt: () => {
-    inputs: string[];
+    inputs: Uint8Array[];
     data: Uint8Array;
   };
   send: () => Promise<{ inputs: string[]; signature: string }>;
@@ -138,24 +138,27 @@ export const createEncryptedInput =
           values,
           publicKey,
         );
+        const data = encrypted.serialize();
+        const hash = createKeccakHash('keccak256')
+          .update(Buffer.from(data))
+          .digest();
         // const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
         //   values,
         //   publicZkParams,
         //   publicKey,
         //   ZkComputeLoad.Proof,
         // );
-        const data = encrypted.serialize();
         const inputs = bits.map((v, i) => {
-          const dataWithIndex = new Uint8Array(data.length + 1);
-          dataWithIndex.set(data, 0);
-          dataWithIndex.set([i], data.length);
-          const hash = createKeccakHash('keccak256')
+          const dataWithIndex = new Uint8Array(hash.length + 1);
+          dataWithIndex.set(hash, 0);
+          dataWithIndex.set([i], hash.length);
+          const finalHash = createKeccakHash('keccak256')
             .update(Buffer.from(dataWithIndex))
             .digest();
           const dataInput = new Uint8Array(32);
-          dataInput.set(hash, 0);
+          dataInput.set(finalHash, 0);
           dataInput.set([i, bits[v], 0], 29);
-          return toHexString(dataInput);
+          return dataInput;
         });
         return {
           inputs,
