@@ -3,7 +3,11 @@ import { TfheCompactPublicKey } from 'node-tfhe';
 
 import { fromHexString } from '../utils';
 import { ZKInput } from './encrypt';
-import { getPublicKeyFromNetwork, getChainIdFromNetwork } from './network';
+import {
+  getPublicKeyFromNetwork,
+  getPublicKeyFromCoprocessor,
+  getChainIdFromNetwork,
+} from './network';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
@@ -15,6 +19,7 @@ type FhevmInstanceConfig = {
   publicKey?: string;
   reencryptionUrl?: string;
   networkUrl?: string;
+  coprocessorUrl?: string;
 };
 
 export type FhevmInstance = {
@@ -43,15 +48,22 @@ export const createInstance = async (
 ): Promise<FhevmInstance> => {
   await sodium.ready;
 
-  const { chainId, networkUrl, reencryptionUrl } = config;
+  const { networkUrl, reencryptionUrl, coprocessorUrl } = config;
 
+  let chainId: number | undefined = config.chainId;
   let publicKey: string | undefined = config.publicKey;
   let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
 
-  if (typeof chainId !== 'number') throw new Error('chainId must be a number');
+  if (typeof chainId !== 'number') throw new Error('chainId must be a number.');
 
-  if (networkUrl && !publicKey) {
+  if (coprocessorUrl && !publicKey) {
+    publicKey = await getPublicKeyFromCoprocessor(coprocessorUrl);
+  } else if (networkUrl && !publicKey) {
     publicKey = await getPublicKeyFromNetwork(networkUrl);
+  }
+
+  if (networkUrl && !chainId) {
+    chainId = await getChainIdFromNetwork(networkUrl);
   }
 
   if (publicKey && typeof publicKey !== 'string')

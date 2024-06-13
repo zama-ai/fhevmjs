@@ -20,7 +20,7 @@ export const getChainIdFromNetwork = async (url: string) => {
     },
     body: JSON.stringify(payload),
   };
-  return fetchJSONRPC(url, options);
+  return Number(fetchJSONRPC(url, options));
 };
 
 // Define the function to perform the eth_call
@@ -30,6 +30,28 @@ export const getPublicKeyFromNetwork = async (url: string) => {
     jsonrpc: '2.0',
     method: 'eth_call',
     params: [getPublicKeyCallParams(), 'latest'],
+    id: 1,
+  };
+
+  // Set up the fetch request options
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  };
+
+  return fetchJSONRPC(url, options);
+};
+
+// Define the function to perform the eth_call
+export const getPublicKeyFromCoprocessor = async (url: string) => {
+  // Create the JSON-RPC request payload
+  const payload = {
+    jsonrpc: '2.0',
+    method: 'eth_getPublicFhevmKey',
+    params: [],
     id: 1,
   };
 
