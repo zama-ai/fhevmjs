@@ -1,6 +1,6 @@
 {
   "name": "fhevmjs",
-  "version": "0.5.0-2",
+  "version": "0.5.0-3",
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.cjs",
   "types": "lib/node.d.ts",
@@ -52,8 +52,8 @@
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
     "node-fetch": "^3.3.2",
-    "node-tfhe": "^0.6.1",
-    "tfhe": "^0.6.1",
+    "node-tfhe": "^0.6.2",
+    "tfhe": "^0.6.2",
     "web3-validator": "^2.0.6"
   },
   "devDependencies": {

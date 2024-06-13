@@ -3,6 +3,8 @@ import {
   CompactFheUint160List,
   TfheCompactPublicKey,
   TfheClientKey,
+  CompactFheUint2048List,
+  FheUint2048,
 } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
 import { createEncryptedInput } from './encrypt';
@@ -90,6 +92,28 @@ describe('encrypt', () => {
     });
   });
 
+  it('encrypt/decrypt one 2048 value', async () => {
+    const input = createEncryptedInput(publicKey)(
+      '0x8ba1f109551bd432803012645ac136ddd64dba72',
+      '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
+    );
+    const data = new Uint8Array(64);
+    data.set([255], 63);
+    input.addBytes256(data);
+    const buffer = input.encrypt();
+    const compactList = CompactFheUint2048List.deserialize(buffer.data);
+    let encryptedList = compactList.expand();
+    expect(encryptedList.length).toBe(1);
+    encryptedList.forEach((v: FheUint2048, i: number) => {
+      const decrypted = v.decrypt(clientKey);
+      switch (i) {
+        case 0:
+          expect(decrypted.toString()).toBe('255');
+          break;
+      }
+    });
+  });
+
   it('throws errors', async () => {
     expect(() =>
       createEncryptedInput()(
@@ -151,5 +175,15 @@ describe('encrypt', () => {
 
     expect(input.getBits().length).toBe(0);
     expect(input.getValues().length).toBe(0);
+
+    const input2 = createEncryptedInput(publicKey)(
+      '0x8ba1f109551bd432803012645ac136ddd64dba72',
+      '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
+    );
+    input2.addBytes256(new Uint8Array(64));
+    input2.addBool(false);
+    expect(() => input2.encrypt()).toThrow(
+      'Too many bits in provided values. Maximum is 2048.',
+    );
   });
 });
