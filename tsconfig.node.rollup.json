@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/node",
+    "declaration": true,
+    "target": "ES2020",
+    "lib": ["es5", "DOM"],
+    "module": "esnext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "strict": true,
+    "baseUrl": ".",
+    "resolveJsonModule": false,
+    "paths": {
+      "*": ["*"],
+      "node-kms": ["src/kms/node/index.js"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "src/*.test.ts"]
+}

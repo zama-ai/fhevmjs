@@ -1,26 +1,26 @@
 {
   "name": "fhevmjs",
-  "version": "0.5.0-3",
+  "version": "0.5.0-4",
   "description": "fhEVM SDK for blockchain using TFHE",
-  "main": "lib/node.cjs",
-  "types": "lib/node.d.ts",
-  "browser": "lib/web.js",
+  "main": "lib/node/index.js",
+  "types": "lib/node/node.d.ts",
+  "browser": "lib/web/index.js",
   "type": "module",
   "bin": {
     "fhevm": "./bin/fhevm.js"
   },
   "exports": {
     ".": {
-      "import": "./lib/web.js",
-      "require": "./lib/node.cjs"
+      "import": "./lib/web/index.js",
+      "require": "./lib/node/index.cjs"
     },
     "./web": {
-      "import": "./lib/web.js",
-      "require": "./lib/web.js"
+      "import": "./lib/web/index.js",
+      "require": "./lib/web/index.js"
     },
     "./node": {
-      "import": "./lib/node.cjs",
-      "require": "./lib/node.cjs"
+      "import": "./lib/node/index.js",
+      "require": "./lib/node/index.cjs"
     }
   },
   "scripts": {
@@ -51,13 +51,13 @@
     "keccak": "^3.0.4",
     "libsodium": "^0.7.11",
     "libsodium-wrappers": "^0.7.11",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "node-tfhe": "^0.6.2",
     "tfhe": "^0.6.2",
     "web3-validator": "^2.0.6"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "^5.0.0",
+    "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-replace": "^5.0.2",
@@ -73,6 +73,7 @@
     "jest-raw-loader": "^1.0.1",
     "path-browserify": "^1.0.1",
     "prettier": "^3.0.0",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-node-builtins": "^2.0.0",
     "rollup-plugin-polyfill-node": "^0.12.0",
     "stream-browserify": "^3.0.0",

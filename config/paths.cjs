@@ -3,7 +3,7 @@
 const path = require('path');
 
 const PATHS = {
-  web: path.resolve(__dirname, '../lib/web.js'),
+  web: path.resolve(__dirname, '../lib/web/index.js'),
   build: path.resolve(__dirname, '../bundle'),
 };
 
