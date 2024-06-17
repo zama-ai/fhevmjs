@@ -12,7 +12,11 @@ import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
 
-export { getPublicKeyCallParams } from './network';
+export {
+  getPublicKeyCallParams,
+  getPublicKeyFromCoprocessor,
+  getPublicKeyFromNetwork,
+} from './network';
 
 type FhevmInstanceConfig = {
   chainId: number;
@@ -41,6 +45,7 @@ export type FhevmInstance = {
     contractAddress: string,
     userAddress: string,
   ) => Promise<bigint>;
+  getPublicKey: () => string | null;
 };
 
 export const createInstance = async (
@@ -57,7 +62,8 @@ export const createInstance = async (
   if (typeof chainId !== 'number') throw new Error('chainId must be a number.');
 
   if (coprocessorUrl && !publicKey) {
-    publicKey = await getPublicKeyFromCoprocessor(coprocessorUrl);
+    const data = await getPublicKeyFromCoprocessor(coprocessorUrl);
+    publicKey = data.publicKey;
   } else if (networkUrl && !publicKey) {
     publicKey = await getPublicKeyFromNetwork(networkUrl);
   }
@@ -86,5 +92,6 @@ export const createInstance = async (
     generateKeypair,
     createEIP712: createEIP712(chainId),
     reencrypt: reencryptRequest(reencryptionUrl),
+    getPublicKey: () => publicKey || null,
   };
 };
