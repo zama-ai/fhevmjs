@@ -8,6 +8,8 @@ import {
 } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
 import { createEncryptedInput } from './encrypt';
+import { fetchJSONRPC } from '../ethCall';
+import { fromHexString } from '../utils';
 
 describe('encrypt', () => {
   let clientKey: TfheClientKey;
@@ -187,3 +189,55 @@ describe('encrypt', () => {
     );
   });
 });
+
+// describe('encryptWithCoprocessor', () => {
+//   let publicKey: TfheCompactPublicKey;
+//   const coprocessorNode = 'http://127.0.0.1:8745';
+
+//   beforeAll(async () => {
+//     const pkeyOptions = {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         method: "eth_getPublicFhevmKey",
+//         params: [],
+//         id: 1,
+//         jsonrpc: "2.0",
+//       }),
+//     };
+//     const pkeyRes = await fetchJSONRPC(
+//       coprocessorNode,
+//       pkeyOptions,
+//     );
+
+//     publicKey = TfheCompactPublicKey.deserialize(fromHexString(pkeyRes.publicKey));
+//   });
+
+//   it('encrypt with coprocessor', async () => {
+//     // encrypted inputs, we pass coprocessor node url
+//     const input = createEncryptedInput(publicKey, coprocessorNode)(
+//       '0x8ba1f109551bd432803012645ac136ddd64dba72',
+//       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
+//     );
+//     // add inputs
+//     input.addBool(BigInt(0));
+//     input.add4(2);
+//     input.add8(BigInt(43));
+//     input.add16(BigInt(87));
+//     input.add32(BigInt(2339389323));
+//     input.add64(BigInt(23393893233));
+//     //input.add128(BigInt(233938932390)); // 128 bits not supported yet in coprocessor
+//     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
+
+//     // send to the coprocessor
+//     const res = await input.send();
+//     // receive handlesList, callerAddress, contractAddress and EIP712 signature
+//     expect(res.handlesList).toBeDefined();
+//     expect(res.handlesList.length).toBe(7);
+//     expect(res.callerAddress).toBe('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
+//     expect(res.contractAddress).toBe('0x8ba1f109551bD432803012645Ac136ddd64DBA72');
+//     expect(res.signature).toBeDefined();
+//   });
+// });

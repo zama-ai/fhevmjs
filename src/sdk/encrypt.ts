@@ -202,14 +202,16 @@ export const createEncryptedInput =
         const ciphertext = encrypted.serialize();
 
         const data = new Uint8Array(1 + bits.length + ciphertext.length);
-        data.set([data.length], 0);
-        data.set(bits, 1);
-        data.set(ciphertext, data.length + 1);
+        data.set([bits.length], 0);
+        bits.forEach((value, index) => {
+          data.set([ENCRYPTION_TYPES[value] & 0xff], 1 + index);
+        });
+        data.set(ciphertext, bits.length + 1);
 
         const payload = {
           jsonrpc: '2.0',
           method: 'eth_addUserCiphertext',
-          params: [toHexString(data), contractAddress, callerAddress],
+          params: ['0x' + toHexString(data), contractAddress, callerAddress],
           id: 1,
         };
 
@@ -221,9 +223,7 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-        const response = await fetchJSONRPC(coprocessorUrl, options);
-        if (!response) throw new Error('Invalid input');
-        return JSON.parse(response);
+        return await fetchJSONRPC(coprocessorUrl, options);
       },
     };
   };
