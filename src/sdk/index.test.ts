@@ -1,7 +1,6 @@
 import sodium from 'libsodium-wrappers';
 import { createInstance } from './index';
 import { createTfhePublicKey } from '../tfhe';
-import { fromHexString, bigIntToBytes } from '../utils';
 
 describe('index', () => {
   let tfhePublicKey: string;
@@ -20,6 +19,7 @@ describe('index', () => {
     expect(instance.createEIP712).toBeDefined();
     expect(instance.generateKeypair).toBeDefined();
     expect(instance.createEncryptedInput).toBeDefined();
+    expect(instance.getPublicKey()).toBe(tfhePublicKey);
   });
 
   it('creates an instance for mock', async () => {

@@ -10,4 +10,4 @@ if (!global.fetch) {
 
 export * from './sdk';
 export * from './tfhe';
-export { clientKeyDecryptor } from './utils';
+export { clientKeyDecryptor, getCiphertextCallParams } from './utils';

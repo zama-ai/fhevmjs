@@ -1,7 +1,11 @@
 import { TfheCompactPublicKey, TfheClientKey } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
 import { createEncryptedInput } from './encrypt';
-import { getPublicKeyCallParams, getPublicKeyFromNetwork } from './network';
+import {
+  getPublicKeyCallParams,
+  getPublicKeyFromCoprocessor,
+  getPublicKeyFromNetwork,
+} from './network';
 import { fromHexString } from '../utils';
 
 describe('network', () => {
@@ -18,7 +22,7 @@ describe('network', () => {
   });
 
   it('get public key params', async () => {
-    const params = await getPublicKeyCallParams();
+    const params = getPublicKeyCallParams();
     expect(params.to).toBe('0x000000000000000000000000000000000000005d');
     expect(params.data).toBe('0xd9d47bb001');
   });

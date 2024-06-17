@@ -4,6 +4,7 @@ import {
   bytesToHex,
   clientKeyDecryptor,
   fromHexString,
+  getCiphertextCallParams,
   toHexString,
 } from './utils';
 import { createTfheKeypair } from './tfhe';
@@ -137,5 +138,13 @@ describe('decrypt', () => {
     ).serialize();
     const v = await d.decryptAddress(toHexString(c));
     expect(v).toBe('0x8ba1f109551bd432803012645ac136ddd64dba72');
+  });
+
+  it('returns ciphertext call params', async () => {
+    const params = getCiphertextCallParams(BigInt(23));
+    expect(params.data).toBe(
+      '0xff627e770000000000000000000000000000000000000000000000000000000000000017',
+    );
+    expect(params.to).toBe('0x000000000000000000000000000000000000005d');
   });
 });
