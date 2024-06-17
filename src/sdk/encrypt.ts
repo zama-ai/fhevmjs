@@ -50,21 +50,6 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
-const encTypeToCoprocessorType: Record<keyof typeof ENCRYPTION_TYPES, number> = {
-  [1]: 0,
-  [4]: 1,
-  [8]: 2,
-  [16]: 3,
-  [32]: 4,
-  [64]: 5,
-  [128]: 6,
-  [160]: 7,
-  [256]: 8,
-  [512]: 9,
-  [1024]: 10,
-  [2048]: 11,
-};
-
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
   (contractAddress: string, callerAddress: string) => {
@@ -219,7 +204,7 @@ export const createEncryptedInput =
         const data = new Uint8Array(1 + bits.length + ciphertext.length);
         data.set([bits.length], 0);
         bits.forEach((value, index) => {
-          data.set([encTypeToCoprocessorType[value] & 0xff], 1 + index);
+          data.set([ENCRYPTION_TYPES[value] & 0xff], 1 + index);
         });
         data.set(ciphertext, bits.length + 1);
 
