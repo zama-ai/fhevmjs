@@ -68,3 +68,12 @@ export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
     },
   };
 };
+
+export const getCiphertextCallParams = (handle: bigint) => {
+  let hex = handle.toString(16);
+  hex = hex.padStart(64, '0');
+  return {
+    to: '0x000000000000000000000000000000000000005d',
+    data: '0xff627e77' + hex,
+  };
+};
