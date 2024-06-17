@@ -1,7 +1,6 @@
 *
 !bundle/*
-!lib/*
-!lib/sdk/*
+!lib/**/*
 !web.d.ts
 !web.js
 !package.json
