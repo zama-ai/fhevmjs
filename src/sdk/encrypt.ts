@@ -50,6 +50,21 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
+const encTypeToCoprocessorType: Record<keyof typeof ENCRYPTION_TYPES, number> = {
+  [1]: 0,
+  [4]: 1,
+  [8]: 2,
+  [16]: 3,
+  [32]: 4,
+  [64]: 5,
+  [128]: 6,
+  [160]: 7,
+  [256]: 8,
+  [512]: 9,
+  [1024]: 10,
+  [2048]: 11,
+};
+
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
   (contractAddress: string, callerAddress: string) => {
@@ -202,14 +217,16 @@ export const createEncryptedInput =
         const ciphertext = encrypted.serialize();
 
         const data = new Uint8Array(1 + bits.length + ciphertext.length);
-        data.set([data.length], 0);
-        data.set(bits, 1);
-        data.set(ciphertext, data.length + 1);
+        data.set([bits.length], 0);
+        bits.forEach((value, index) => {
+          data.set([encTypeToCoprocessorType[value] & 0xff], 1 + index);
+        });
+        data.set(ciphertext, bits.length + 1);
 
         const payload = {
           jsonrpc: '2.0',
           method: 'eth_addUserCiphertext',
-          params: [toHexString(data), contractAddress, callerAddress],
+          params: ['0x' + toHexString(data), contractAddress, callerAddress],
           id: 1,
         };
 
@@ -221,9 +238,7 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-        const response = await fetchJSONRPC(coprocessorUrl, options);
-        if (!response) throw new Error('Invalid input');
-        return JSON.parse(response);
+        return await fetchJSONRPC(coprocessorUrl, options);
       },
     };
   };

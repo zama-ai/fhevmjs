@@ -33,6 +33,9 @@ export const fetchJSONRPC = async (url: string, options: RequestInit) => {
     if (data && data.result) {
       // The result is usually prefixed with '0x' and is in hex format
       const hexResult = data.result;
+      if (typeof hexResult == 'object') {
+        return hexResult;
+      }
       const decodedBytes = decodeAbiBytes(hexResult);
       return `0x${toHexString(decodedBytes)}`;
     } else {
