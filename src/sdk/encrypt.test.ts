@@ -216,10 +216,12 @@ describe('encryptWithCoprocessor', () => {
   });
 
   it('encrypt with coprocessor', async () => {
+    // encrypted inputs, we pass coprocessor node url
     const input = createEncryptedInput(publicKey, coprocessorNode)(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
+    // add inputs
     input.addBool(BigInt(0));
     input.add4(2);
     input.add8(BigInt(43));
@@ -229,7 +231,9 @@ describe('encryptWithCoprocessor', () => {
     //input.add128(BigInt(233938932390)); // 128 bits not supported yet in coprocessor
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
 
+    // send to the coprocessor
     const res = await input.send();
+    // receive handlesList, callerAddress, contractAddress and EIP712 signature
     expect(res.handlesList).toBeDefined();
     expect(res.handlesList.length).toBe(7);
     expect(res.callerAddress).toBe('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
