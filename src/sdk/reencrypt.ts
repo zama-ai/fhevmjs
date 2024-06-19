@@ -7,7 +7,7 @@ import {
 } from '../kms/node';
 
 export const reencryptRequest =
-  (reencryptionUrl?: string) =>
+  (gatewayUrl?: string) =>
   async (
     handle: bigint,
     privateKey: string,
@@ -16,8 +16,7 @@ export const reencryptRequest =
     contractAddress: string,
     userAddress: string,
   ) => {
-    if (!reencryptionUrl)
-      throw new Error('You must provide a reencryption URL.');
+    if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
     const data = {
       publicKey,
       handle,
