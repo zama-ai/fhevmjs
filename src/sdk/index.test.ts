@@ -1,4 +1,3 @@
-import sodium from 'libsodium-wrappers';
 import { createInstance } from './index';
 import { createTfhePublicKey } from '../tfhe';
 
@@ -6,7 +5,6 @@ describe('index', () => {
   let tfhePublicKey: string;
 
   beforeAll(async () => {
-    await sodium.ready;
     tfhePublicKey = createTfhePublicKey();
   });
 

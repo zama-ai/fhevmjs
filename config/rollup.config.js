@@ -12,42 +12,27 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 const require = createRequire(import.meta.url);
 
 const nodePlugins = [
-  alias({
-    entries: [
-      {
-        find: 'node-kms',
-        replacement: require.resolve('../src/kms/node/index.js'),
-      },
-    ],
-  }),
   copy({
     targets: [
       {
-        src: require.resolve('../src/kms/node/kms_lib_bg.wasm'),
-        dest: 'lib/node/',
+        src: './src/kms/node/*',
+        dest: 'lib/kms/node',
       },
     ],
   }),
+  wasm(),
   commonjs(),
   typescript({
-    tsconfig: './tsconfig.node.rollup.json',
+    tsconfig: './tsconfig.rollup.json',
   }),
 ];
 
 const webPlugins = [
-  alias({
-    entries: [
-      {
-        find: 'node-kms',
-        replacement: require.resolve('../src/kms/web/kms_lib.js'),
-      },
-    ],
-  }),
   copy({
     targets: [
       {
-        src: require.resolve('../src/kms/web/kms_lib_bg.wasm'),
-        dest: 'lib/web',
+        src: './src/kms/web/*',
+        dest: 'lib/kms/web',
       },
     ],
   }),
@@ -55,29 +40,29 @@ const webPlugins = [
   replace({
     preventAssignment: true,
     'node-tfhe': 'tfhe',
-    'kms/node/': 'kms/web/',
+    'kms/node': 'kms/web',
   }),
   typescript({
-    tsconfig: './tsconfig.web.rollup.json',
+    tsconfig: './tsconfig.rollup.json',
     exclude: 'node_modules/**',
   }),
   wasm({
     targetEnv: 'browser',
     maxFileSize: 10000000,
   }),
+  commonjs(),
   resolve({
     browser: true,
     resolveOnly: ['tfhe'],
     extensions: ['.js', '.ts', '.wasm'],
   }),
-  commonjs(),
 ];
 
 export default [
   {
     input: 'src/web.ts',
     output: {
-      file: 'lib/web/index.js',
+      file: 'lib/web.js',
       name: 'fhevm',
       format: 'es',
     },
@@ -86,7 +71,7 @@ export default [
   {
     input: 'src/node.ts',
     output: {
-      file: 'lib/node/index.cjs',
+      file: 'lib/node.cjs',
       name: 'fhevm',
       format: 'cjs',
     },

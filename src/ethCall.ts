@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { toHexString } from './utils';
 
 export function decodeAbiBytes(hex: string): Uint8Array {

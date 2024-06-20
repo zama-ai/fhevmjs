@@ -62,7 +62,6 @@ const web = {
       'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
       'node-tfhe': require.resolve('tfhe/tfhe'),
       'kms_lib_bg.wasm': require.resolve('../src/kms/web/kms_lib_bg.wasm'),
-      'node-kms': require.resolve('../src/kms/web/kms_lib.js'),
       buffer: require.resolve('buffer/'),
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
