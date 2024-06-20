@@ -1,4 +1,3 @@
-import sodium from 'libsodium-wrappers';
 import { fromHexString } from '../utils';
 import { generateKeypair, createEIP712 } from './keypair';
 import {
@@ -9,9 +8,7 @@ import {
 } from '../kms/node/kms_lib';
 
 describe('token', () => {
-  beforeAll(async () => {
-    await sodium.ready;
-  });
+  beforeAll(async () => {});
 
   it('generate a valid keypair', async () => {
     const keypair = generateKeypair();

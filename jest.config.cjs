@@ -17,9 +17,6 @@ module.exports = {
   },
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  moduleNameMapper: {
-    '^node-kms$': '<rootDir>/src/kms/node',
-  },
   collectCoverageFrom: [
     'src/**/*.ts',
     'src/**/*.tsx',

@@ -1,4 +1,3 @@
-import sodium from 'libsodium-wrappers';
 import { TfheCompactPublicKey } from 'node-tfhe';
 
 import { fromHexString } from '../utils';
@@ -51,8 +50,6 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  await sodium.ready;
-
   const { networkUrl, gatewayUrl, coprocessorUrl } = config;
 
   let chainId: number | undefined = config.chainId;
