@@ -21,7 +21,7 @@ export {
 type FhevmInstanceConfig = {
   chainId: number;
   publicKey?: string;
-  reencryptionUrl?: string;
+  gatewayUrl?: string;
   networkUrl?: string;
   coprocessorUrl?: string;
 };
@@ -53,7 +53,7 @@ export const createInstance = async (
 ): Promise<FhevmInstance> => {
   await sodium.ready;
 
-  const { networkUrl, reencryptionUrl, coprocessorUrl } = config;
+  const { networkUrl, gatewayUrl, coprocessorUrl } = config;
 
   let chainId: number | undefined = config.chainId;
   let publicKey: string | undefined = config.publicKey;
@@ -91,7 +91,7 @@ export const createInstance = async (
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(reencryptionUrl),
+    reencrypt: reencryptRequest(gatewayUrl),
     getPublicKey: () => publicKey || null,
   };
 };
