@@ -3,17 +3,13 @@
 </p>
 <hr/>
 <p align="center">
-  <a href="https://docs.zama.ai/fhevm"> 📃 Read white paper</a> |<a href="https://docs.zama.ai/fhevm"> 📒 Read documentation</a> | <a href="https://zama.ai/community"> 💛 Community support</a>
+  <a href="https://docs.zama.ai/fhevm">📃 Read white paper</a> | <a href="https://docs.zama.ai/fhevm">📒 Read documentation</a> | <a href="https://zama.ai/community">💛 Community support</a>
 </p>
 <p align="center">
 <!-- Version badge using shields.io -->
-  <a href="https://github.com/zama-ai/fhevmjs/releases">
-    <img src="https://img.shields.io/github/v/release/zama-ai/fhevmjs?style=flat-square">
-  </a>
+  <a href="https://github.com/zama-ai/fhevmjs/releases"><img src="https://img.shields.io/github/v/release/zama-ai/fhevmjs?style=flat-square"/></a>
 <!-- Zama Bounty Program -->
-  <a href="https://github.com/zama-ai/bounty-program">
-    <img src="https://img.shields.io/badge/Contribute-Zama%20Bounty%20Program-yellow?style=flat-square">
-  </a>
+  <a href="https://github.com/zama-ai/bounty-program"><img src="https://img.shields.io/badge/Contribute-Zama%20Bounty%20Program-yellow?style=flat-square"/></a>
 </p>
 <hr/>
 
