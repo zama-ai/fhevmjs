@@ -25,10 +25,10 @@ export type ZKInput = {
   getBits: () => number[];
   resetValues: () => ZKInput;
   encrypt: () => {
-    inputs: Uint8Array[];
-    data: Uint8Array;
+    handles: Uint8Array[];
+    inputProof: Uint8Array;
   };
-  send: () => Promise<{ inputs: string[]; signature: string; data: string }>;
+  send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -166,9 +166,9 @@ export const createEncryptedInput =
           );
         }
 
-        const data = encrypted.serialize();
+        const inputProof = encrypted.serialize();
         const hash = createKeccakHash('keccak256')
-          .update(Buffer.from(data))
+          .update(Buffer.from(inputProof))
           .digest();
         // const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
         //   values,
@@ -176,7 +176,7 @@ export const createEncryptedInput =
         //   publicKey,
         //   ZkComputeLoad.Proof,
         // );
-        const inputs = bits.map((v, i) => {
+        const handles = bits.map((v, i) => {
           const dataWithIndex = new Uint8Array(hash.length + 1);
           dataWithIndex.set(hash, 0);
           dataWithIndex.set([i], hash.length);
@@ -189,8 +189,8 @@ export const createEncryptedInput =
           return dataInput;
         });
         return {
-          inputs,
-          data,
+          handles,
+          inputProof,
         };
       },
       async send() {
@@ -224,17 +224,42 @@ export const createEncryptedInput =
           body: JSON.stringify(payload),
         };
         const resJson = await fetchJSONRPC(coprocessorUrl, options);
-        resJson.data = convertToInputProof(resJson);
-        return resJson;
+        const inputProof = convertToInputProof(resJson);
+        return {
+          handles: resJson.handles.map((handle: string) =>
+            hexStringToUint8Array(handle),
+          ),
+          inputProof: hexStringToUint8Array(inputProof),
+        };
       },
     };
   };
 
-function convertToInputProof(data: { handlesList: string[]; signature: string }) {
+function convertToInputProof(data: {
+  handlesList: string[];
+  signature: string;
+}) {
   const { handlesList, signature } = data;
   const lengthByte = handlesList.length.toString(16).padStart(2, '0');
-  const handlesString = handlesList.map((handle: string) => handle.slice(2)).join('');
+  const handlesString = handlesList
+    .map((handle: string) => handle.slice(2))
+    .join('');
   const signatureString = signature.slice(2);
   const inputProof = `0x${lengthByte}${handlesString}${signatureString}`;
   return inputProof;
+}
+
+function hexStringToUint8Array(hexString: string): Uint8Array {
+  if (hexString.startsWith('0x')) {
+    hexString = hexString.slice(2);
+  }
+  if (hexString.length % 2 !== 0) {
+    throw Error('Invalid hex string');
+  }
+  const length = hexString.length / 2;
+  const uintArray = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    uintArray[i] = parseInt(hexString.substring(i * 2, 2), 16);
+  }
+  return uintArray;
 }

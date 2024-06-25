@@ -35,7 +35,7 @@ describe('encrypt', () => {
     input.add128(BigInt(233938932390));
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
     const buffer = input.encrypt();
-    const compactList = CompactFheUint160List.deserialize(buffer.data);
+    const compactList = CompactFheUint160List.deserialize(buffer.inputProof);
     let encryptedList = compactList.expand();
     expect(encryptedList.length).toBe(8);
     encryptedList.forEach((v: FheUint160, i: number) => {
@@ -81,7 +81,7 @@ describe('encrypt', () => {
     );
     input.add128(BigInt(0));
     const buffer = input.encrypt();
-    const compactList = CompactFheUint160List.deserialize(buffer.data);
+    const compactList = CompactFheUint160List.deserialize(buffer.inputProof);
     let encryptedList = compactList.expand();
     expect(encryptedList.length).toBe(1);
     encryptedList.forEach((v: FheUint160, i: number) => {
@@ -103,7 +103,7 @@ describe('encrypt', () => {
     data.set([255], 63);
     input.addBytes256(data);
     const buffer = input.encrypt();
-    const compactList = CompactFheUint2048List.deserialize(buffer.data);
+    const compactList = CompactFheUint2048List.deserialize(buffer.inputProof);
     let encryptedList = compactList.expand();
     expect(encryptedList.length).toBe(1);
     encryptedList.forEach((v: FheUint2048, i: number) => {
