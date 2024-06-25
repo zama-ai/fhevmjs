@@ -49,8 +49,8 @@
     "ethers": "^6.6.4",
     "keccak": "^3.0.4",
     "node-fetch": "^2.7.0",
-    "node-tfhe": "^0.6.2",
-    "tfhe": "^0.6.2",
+    "node-tfhe": "^0.6.3",
+    "tfhe": "^0.6.3",
     "web3-validator": "^2.0.6"
   },
   "devDependencies": {
