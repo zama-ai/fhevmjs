@@ -1,25 +1,5 @@
 let wasm;
 
-const heap = new Array(128).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-function getObject(idx) { return heap[idx]; }
-
-let heap_next = heap.length;
-
-function dropObject(idx) {
-    if (idx < 132) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
 const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
 
 if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
@@ -38,6 +18,12 @@ function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
+const heap = new Array(128).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+let heap_next = heap.length;
+
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -47,13 +33,18 @@ function addHeapObject(obj) {
     return idx;
 }
 
-let cachedInt32Memory0 = null;
+function getObject(idx) { return heap[idx]; }
 
-function getInt32Memory0() {
-    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
-        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32Memory0;
+function dropObject(idx) {
+    if (idx < 132) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
 }
 
 let WASM_VECTOR_LEN = 0;
@@ -112,6 +103,93 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+
+let cachedInt32Memory0 = null;
+
+function getInt32Memory0() {
+    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
+    }
+    return cachedInt32Memory0;
+}
+
+let cachedFloat64Memory0 = null;
+
+function getFloat64Memory0() {
+    if (cachedFloat64Memory0 === null || cachedFloat64Memory0.byteLength === 0) {
+        cachedFloat64Memory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64Memory0;
+}
+
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
+    }
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
+}
+
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
@@ -124,15 +202,83 @@ function passArray8ToWasm0(arg, malloc) {
     return ptr;
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
     }
     return instance.ptr;
+}
+/**
+* @param {PublicSigKey} pk
+* @returns {Uint8Array}
+*/
+export function public_sig_key_to_u8vec(pk) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(pk, PublicSigKey);
+        wasm.public_sig_key_to_u8vec(retptr, pk.__wbg_ptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var v1 = getArrayU8FromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 1, 1);
+        return v1;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
+* @param {Uint8Array} v
+* @returns {PublicSigKey}
+*/
+export function u8vec_to_public_sig_key(v) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passArray8ToWasm0(v, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.u8vec_to_public_sig_key(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return PublicSigKey.__wrap(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
+* Instantiate a new client for use with the centralized KMS.
+*
+* * `client_pk` - the client (wallet) public key,
+* which can parsed using [u8vec_to_public_sig_key] also.
+*
+* * `param_choice` - the parameter choice, which can be either `"test"` or `"default"`.
+* The "default" parameter choice is selected if no matching string is found.
+* @param {PublicSigKey} client_pk
+* @param {string} param_choice
+* @returns {Client}
+*/
+export function default_client_for_centralized_kms(client_pk, param_choice) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(client_pk, PublicSigKey);
+        var ptr0 = client_pk.__destroy_into_raw();
+        const ptr1 = passStringToWasm0(param_choice, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        wasm.default_client_for_centralized_kms(retptr, ptr0, ptr1, len1);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return Client.__wrap(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
 }
 
 let cachedUint32Memory0 = null;
@@ -154,21 +300,81 @@ function passArrayJsValueToWasm0(array, malloc) {
     return ptr;
 }
 /**
+* Instantiate a new client.
+*
+* * `server_pks` - a list of KMS server signature public keys,
+* which can parsed using [u8vec_to_public_sig_key].
+*
+* * `server_pks_ids` - a list of the IDs that are associated to the
+* server public keys. If None is given, then the IDs default to
+* 1..n, where n is the length of `server_pks`.
+*
+* * `client_pk` - the client (wallet) public key,
+* which can parsed using [u8vec_to_public_sig_key] also.
+*
+* * `shares_needed` - number of shares needed for reconstruction.
+* In the centralized setting this is 1.
+*
+* * `param_choice` - the parameter choice, which can be either `"test"` or `"default"`.
+* The "default" parameter choice is selected if no matching string is found.
 * @param {(PublicSigKey)[]} server_pks
+* @param {Uint8Array | undefined} server_pks_ids
 * @param {PublicSigKey} client_pk
 * @param {number} shares_needed
-* @param {string} params_json
+* @param {string} param_choice
 * @returns {Client}
 */
-export function new_client(server_pks, client_pk, shares_needed, params_json) {
-    const ptr0 = passArrayJsValueToWasm0(server_pks, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    _assertClass(client_pk, PublicSigKey);
-    var ptr1 = client_pk.__destroy_into_raw();
-    const ptr2 = passStringToWasm0(params_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ret = wasm.new_client(ptr0, len0, ptr1, shares_needed, ptr2, len2);
-    return Client.__wrap(ret);
+export function new_client(server_pks, server_pks_ids, client_pk, shares_needed, param_choice) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passArrayJsValueToWasm0(server_pks, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        var ptr1 = isLikeNone(server_pks_ids) ? 0 : passArray8ToWasm0(server_pks_ids, wasm.__wbindgen_malloc);
+        var len1 = WASM_VECTOR_LEN;
+        _assertClass(client_pk, PublicSigKey);
+        var ptr2 = client_pk.__destroy_into_raw();
+        const ptr3 = passStringToWasm0(param_choice, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        wasm.new_client(retptr, ptr0, len0, ptr1, len1, ptr2, shares_needed, ptr3, len3);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return Client.__wrap(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+function getArrayJsValueFromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    const mem = getUint32Memory0();
+    const slice = mem.subarray(ptr / 4, ptr / 4 + len);
+    const result = [];
+    for (let i = 0; i < slice.length; i++) {
+        result.push(takeObject(slice[i]));
+    }
+    return result;
+}
+/**
+* @param {Client} client
+* @returns {(PublicSigKey)[]}
+*/
+export function get_server_public_keys(client) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(client, Client);
+        wasm.get_server_public_keys(retptr, client.__wbg_ptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var v1 = getArrayJsValueFromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 4, 4);
+        return v1;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
 }
 
 /**
@@ -221,7 +427,7 @@ export function cryptobox_sk_to_u8vec(sk) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         _assertClass(sk, PrivateEncKey);
-        wasm.cryptobox_sk_to_u8vec(retptr, sk.__wbg_ptr);
+        wasm.cryptobox_pk_to_u8vec(retptr, sk.__wbg_ptr);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -320,21 +526,90 @@ export function cryptobox_decrypt(ct, my_sk, their_pk) {
 }
 
 /**
-* This function assembles [ReencryptionRequest]
+* @param {string} name
+* @param {string} version
+* @param {Uint8Array} chain_id
+* @param {string} verifying_contract
+* @param {Uint8Array} salt
+* @returns {Eip712DomainMsg}
+*/
+export function new_eip712_domain(name, version, chain_id, verifying_contract, salt) {
+    const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(version, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(chain_id, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(verifying_contract, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ptr4 = passArray8ToWasm0(salt, wasm.__wbindgen_malloc);
+    const len4 = WASM_VECTOR_LEN;
+    const ret = wasm.new_eip712_domain(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
+    return Eip712DomainMsg.__wrap(ret);
+}
+
+/**
+* @param {string} request_id
+* @returns {RequestId}
+*/
+export function new_request_id(request_id) {
+    const ptr0 = passStringToWasm0(request_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.new_request_id(ptr0, len0);
+    return RequestId.__wrap(ret);
+}
+
+/**
+* @param {string} type_str
+* @returns {FheType}
+*/
+export function new_fhe_type(type_str) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(type_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.new_fhe_type(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return r0;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
+* This function assembles a reencryption request
 * from a signature and other metadata.
 * The signature is on the ephemeral public key
 * signed by the client's private key
 * following the EIP712 standard.
+*
+* The result value needs to convert to the following JSON
+* for the gateway.
+* ```
+* { "signature": "010203",                  // HEX
+*   "verification_key": "010203",           // HEX
+*   "enc_key": "010203",                    // HEX
+*   "ciphertext_digest": "010203",          // HEX
+*   "eip712_verifying_contract": "0x1234",  // String
+* }
+* ```
+* This can be done using [reencryption_request_to_flat_json_string].
 * @param {Client} client
 * @param {Uint8Array} signature
 * @param {PublicEncKey} enc_pk
 * @param {FheType} fhe_type
 * @param {RequestId} key_id
+* @param {Uint8Array | undefined} ciphertext
 * @param {Uint8Array} ciphertext_digest
 * @param {Eip712DomainMsg} domain
 * @returns {ReencryptionRequest}
 */
-export function make_reencryption_req(client, signature, enc_pk, fhe_type, key_id, ciphertext_digest, domain) {
+export function make_reencryption_req(client, signature, enc_pk, fhe_type, key_id, ciphertext, ciphertext_digest, domain) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         _assertClass(client, Client);
@@ -344,11 +619,13 @@ export function make_reencryption_req(client, signature, enc_pk, fhe_type, key_i
         var ptr1 = enc_pk.__destroy_into_raw();
         _assertClass(key_id, RequestId);
         var ptr2 = key_id.__destroy_into_raw();
-        const ptr3 = passArray8ToWasm0(ciphertext_digest, wasm.__wbindgen_malloc);
-        const len3 = WASM_VECTOR_LEN;
+        var ptr3 = isLikeNone(ciphertext) ? 0 : passArray8ToWasm0(ciphertext, wasm.__wbindgen_malloc);
+        var len3 = WASM_VECTOR_LEN;
+        const ptr4 = passArray8ToWasm0(ciphertext_digest, wasm.__wbindgen_malloc);
+        const len4 = WASM_VECTOR_LEN;
         _assertClass(domain, Eip712DomainMsg);
-        var ptr4 = domain.__destroy_into_raw();
-        wasm.make_reencryption_req(retptr, client.__wbg_ptr, ptr0, len0, ptr1, fhe_type, ptr2, ptr3, len3, ptr4);
+        var ptr5 = domain.__destroy_into_raw();
+        wasm.make_reencryption_req(retptr, client.__wbg_ptr, ptr0, len0, ptr1, fhe_type, ptr2, ptr3, len3, ptr4, len4, ptr5);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -361,6 +638,28 @@ export function make_reencryption_req(client, signature, enc_pk, fhe_type, key_i
     }
 }
 
+/**
+* @param {ReencryptionRequest} req
+* @returns {string}
+*/
+export function reencryption_request_to_flat_json_string(req) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(req, ReencryptionRequest);
+        wasm.reencryption_request_to_flat_json_string(retptr, req.__wbg_ptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        deferred1_0 = r0;
+        deferred1_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
 function passArray32ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 4, 4) >>> 0;
     getUint32Memory0().set(arg, ptr / 4);
@@ -368,18 +667,93 @@ function passArray32ToWasm0(arg, malloc) {
     return ptr;
 }
 /**
-* This function takes [AggregatedReencryptionResponse] normally
-* but wasm does not support HashMap so we need to take two parameters:
-* `agg_resp` and `agg_resp_id`.
+* Process the reencryption response from a JSON object.
+* The result is a byte array representing a plaintext of any length.
+*
+* * `client` - client that wants to perform reencryption.
+*
+* * `request` - the initial reencryption request.
+*
+* * `agg_resp - the response JSON object from the gateway.
+*
+* * `agg_resp_ids - the KMS server identities that correspond to each request.
+* If this is not given, the initial configuration is used
+* from when the client is instantiated.
+*
+* * `enc_pk` - The ephemeral public key.
+*
+* * `enc_sk` - The ephemeral secret key.
+*
+* * `verify` - Whether to perform signature verification for the response.
+* It is insecure if `verify = false`!
+* @param {Client} client
+* @param {ReencryptionRequest | undefined} request
+* @param {any} agg_resp
+* @param {Uint32Array | undefined} agg_resp_ids
+* @param {PublicEncKey} enc_pk
+* @param {PrivateEncKey} enc_sk
+* @param {boolean} verify
+* @returns {Uint8Array}
+*/
+export function process_reencryption_resp_from_json(client, request, agg_resp, agg_resp_ids, enc_pk, enc_sk, verify) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        _assertClass(client, Client);
+        let ptr0 = 0;
+        if (!isLikeNone(request)) {
+            _assertClass(request, ReencryptionRequest);
+            ptr0 = request.__destroy_into_raw();
+        }
+        var ptr1 = isLikeNone(agg_resp_ids) ? 0 : passArray32ToWasm0(agg_resp_ids, wasm.__wbindgen_malloc);
+        var len1 = WASM_VECTOR_LEN;
+        _assertClass(enc_pk, PublicEncKey);
+        _assertClass(enc_sk, PrivateEncKey);
+        wasm.process_reencryption_resp_from_json(retptr, client.__wbg_ptr, ptr0, addHeapObject(agg_resp), ptr1, len1, enc_pk.__wbg_ptr, enc_sk.__wbg_ptr, verify);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        if (r3) {
+            throw takeObject(r2);
+        }
+        var v3 = getArrayU8FromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 1, 1);
+        return v3;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
+* Process the reencryption response from a JSON object.
+* The result is a byte array representing a plaintext of any length.
+*
+* * `client` - client that wants to perform reencryption.
+*
+* * `request` - the initial reencryption request.
+*
+* * `agg_resp - the vector of reencryption responses.
+*
+* * `agg_resp_ids - the KMS server identities that correspond to each request.
+* If this is not given, the initial configuration is used
+* from when the client is instantiated.
+*
+* * `enc_pk` - The ephemeral public key.
+*
+* * `enc_sk` - The ephemeral secret key.
+*
+* * `verify` - Whether to perform signature verification for the response.
+* It is insecure if `verify = false`!
 * @param {Client} client
 * @param {ReencryptionRequest | undefined} request
 * @param {(ReencryptionResponse)[]} agg_resp
-* @param {Uint32Array} agg_resp_ids
+* @param {Uint32Array | undefined} agg_resp_ids
 * @param {PublicEncKey} enc_pk
 * @param {PrivateEncKey} enc_sk
-* @returns {number}
+* @param {boolean} verify
+* @returns {Uint8Array}
 */
-export function process_reencryption_resp(client, request, agg_resp, agg_resp_ids, enc_pk, enc_sk) {
+export function process_reencryption_resp(client, request, agg_resp, agg_resp_ids, enc_pk, enc_sk, verify) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         _assertClass(client, Client);
@@ -390,18 +764,21 @@ export function process_reencryption_resp(client, request, agg_resp, agg_resp_id
         }
         const ptr1 = passArrayJsValueToWasm0(agg_resp, wasm.__wbindgen_malloc);
         const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passArray32ToWasm0(agg_resp_ids, wasm.__wbindgen_malloc);
-        const len2 = WASM_VECTOR_LEN;
+        var ptr2 = isLikeNone(agg_resp_ids) ? 0 : passArray32ToWasm0(agg_resp_ids, wasm.__wbindgen_malloc);
+        var len2 = WASM_VECTOR_LEN;
         _assertClass(enc_pk, PublicEncKey);
         _assertClass(enc_sk, PrivateEncKey);
-        wasm.process_reencryption_resp(retptr, client.__wbg_ptr, ptr0, ptr1, len1, ptr2, len2, enc_pk.__wbg_ptr, enc_sk.__wbg_ptr);
+        wasm.process_reencryption_resp(retptr, client.__wbg_ptr, ptr0, ptr1, len1, ptr2, len2, enc_pk.__wbg_ptr, enc_sk.__wbg_ptr, verify);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        if (r3) {
+            throw takeObject(r2);
         }
-        return r0;
+        var v4 = getArrayU8FromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 1, 1);
+        return v4;
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
@@ -417,7 +794,7 @@ function handleError(f, args) {
 /**
 * The plaintext types that can be encrypted in a fhevm ciphertext.
 */
-export const FheType = Object.freeze({ Bool:0,"0":"Bool",Euint4:1,"1":"Euint4",Euint8:2,"2":"Euint8",Euint16:3,"3":"Euint16",Euint32:4,"4":"Euint32",Euint64:5,"5":"Euint64",Euint128:6,"6":"Euint128",Euint160:7,"7":"Euint160", });
+export const FheType = Object.freeze({ Ebool:0,"0":"Ebool",Euint4:1,"1":"Euint4",Euint8:2,"2":"Euint8",Euint16:3,"3":"Euint16",Euint32:4,"4":"Euint32",Euint64:5,"5":"Euint64",Euint128:6,"6":"Euint128",Euint160:7,"7":"Euint160",Euint256:8,"8":"Euint256",Euint512:9,"9":"Euint512",Euint1024:10,"10":"Euint1024",Euint2048:11,"11":"Euint2048", });
 
 const ClientFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
@@ -662,43 +1039,28 @@ export class Plaintext {
         wasm.__wbg_plaintext_free(ptr);
     }
     /**
-    * @returns {bigint}
+    * @returns {Uint8Array}
     */
-    get lowest_bits() {
-        const ret = wasm.__wbg_get_plaintext_lowest_bits(this.__wbg_ptr);
-        return BigInt.asUintN(64, ret);
+    get bytes() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.__wbg_get_plaintext_bytes(retptr, this.__wbg_ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_free(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @param {bigint} arg0
+    * @param {Uint8Array} arg0
     */
-    set lowest_bits(arg0) {
-        wasm.__wbg_set_plaintext_lowest_bits(this.__wbg_ptr, arg0);
-    }
-    /**
-    * @returns {bigint}
-    */
-    get middle_bits() {
-        const ret = wasm.__wbg_get_plaintext_middle_bits(this.__wbg_ptr);
-        return BigInt.asUintN(64, ret);
-    }
-    /**
-    * @param {bigint} arg0
-    */
-    set middle_bits(arg0) {
-        wasm.__wbg_set_plaintext_middle_bits(this.__wbg_ptr, arg0);
-    }
-    /**
-    * @returns {number}
-    */
-    get higest_bits() {
-        const ret = wasm.__wbg_get_plaintext_higest_bits(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-    * @param {number} arg0
-    */
-    set higest_bits(arg0) {
-        wasm.__wbg_set_plaintext_higest_bits(this.__wbg_ptr, arg0);
+    set bytes(arg0) {
+        const ptr0 = passArray8ToWasm0(arg0, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.__wbg_set_plaintext_bytes(this.__wbg_ptr, ptr0, len0);
     }
 }
 
@@ -785,6 +1147,14 @@ const PublicSigKeyFinalization = (typeof FinalizationRegistry === 'undefined')
 */
 export class PublicSigKey {
 
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(PublicSigKey.prototype);
+        obj.__wbg_ptr = ptr;
+        PublicSigKeyFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
     static __unwrap(jsValue) {
         if (!(jsValue instanceof PublicSigKey)) {
             return 0;
@@ -832,7 +1202,7 @@ export class ReencryptionRequest {
         wasm.__wbg_reencryptionrequest_free(ptr);
     }
     /**
-    * Signature of the ASN1 DER serialization of \[ReencryptionRequestPayload\].
+    * Signature of the serialization of \[ReencryptionRequestPayload\].
     * @returns {Uint8Array}
     */
     get signature() {
@@ -849,7 +1219,7 @@ export class ReencryptionRequest {
         }
     }
     /**
-    * Signature of the ASN1 DER serialization of \[ReencryptionRequestPayload\].
+    * Signature of the serialization of \[ReencryptionRequestPayload\].
     * @param {Uint8Array} arg0
     */
     set signature(arg0) {
@@ -1431,20 +1801,83 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbg_reencryptionresponse_unwrap = function(arg0) {
-        const ret = ReencryptionResponse.__unwrap(takeObject(arg0));
-        return ret;
-    };
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
-    };
-    imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
-        const ret = new Error(getStringFromWasm0(arg0, arg1));
+    imports.wbg.__wbg_publicsigkey_new = function(arg0) {
+        const ret = PublicSigKey.__wrap(arg0);
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_publicsigkey_unwrap = function(arg0) {
         const ret = PublicSigKey.__unwrap(takeObject(arg0));
         return ret;
+    };
+    imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
+        const ret = new Error(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
+    };
+    imports.wbg.__wbindgen_string_get = function(arg0, arg1) {
+        const obj = getObject(arg1);
+        const ret = typeof(obj) === 'string' ? obj : undefined;
+        var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        getInt32Memory0()[arg0 / 4 + 1] = len1;
+        getInt32Memory0()[arg0 / 4 + 0] = ptr1;
+    };
+    imports.wbg.__wbindgen_is_object = function(arg0) {
+        const val = getObject(arg0);
+        const ret = typeof(val) === 'object' && val !== null;
+        return ret;
+    };
+    imports.wbg.__wbindgen_is_undefined = function(arg0) {
+        const ret = getObject(arg0) === undefined;
+        return ret;
+    };
+    imports.wbg.__wbindgen_in = function(arg0, arg1) {
+        const ret = getObject(arg0) in getObject(arg1);
+        return ret;
+    };
+    imports.wbg.__wbg_reencryptionresponse_unwrap = function(arg0) {
+        const ret = ReencryptionResponse.__unwrap(takeObject(arg0));
+        return ret;
+    };
+    imports.wbg.__wbindgen_number_get = function(arg0, arg1) {
+        const obj = getObject(arg1);
+        const ret = typeof(obj) === 'number' ? obj : undefined;
+        getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
+        getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
+    };
+    imports.wbg.__wbindgen_jsval_loose_eq = function(arg0, arg1) {
+        const ret = getObject(arg0) == getObject(arg1);
+        return ret;
+    };
+    imports.wbg.__wbindgen_boolean_get = function(arg0) {
+        const v = getObject(arg0);
+        const ret = typeof(v) === 'boolean' ? (v ? 1 : 0) : 2;
+        return ret;
+    };
+    imports.wbg.__wbindgen_as_number = function(arg0) {
+        const ret = +getObject(arg0);
+        return ret;
+    };
+    imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
+        const ret = getObject(arg0);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
+        const ret = getStringFromWasm0(arg0, arg1);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_getwithrefkey_edc2c8960f0f1191 = function(arg0, arg1) {
+        const ret = getObject(arg0)[getObject(arg1)];
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_String_b9412f8799faab3e = function(arg0, arg1) {
+        const ret = String(getObject(arg1));
+        const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        getInt32Memory0()[arg0 / 4 + 1] = len1;
+        getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     };
     imports.wbg.__wbg_new_abda76e883ba8a5f = function() {
         const ret = new Error();
@@ -1472,11 +1905,6 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).crypto;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_is_object = function(arg0) {
-        const val = getObject(arg0);
-        const ret = typeof(val) === 'object' && val !== null;
-        return ret;
-    };
     imports.wbg.__wbg_process_4a72847cc503995b = function(arg0) {
         const ret = getObject(arg0).process;
         return addHeapObject(ret);
@@ -1493,10 +1921,6 @@ function __wbg_get_imports() {
         const ret = typeof(getObject(arg0)) === 'string';
         return ret;
     };
-    imports.wbg.__wbg_msCrypto_eb05e62b530a1508 = function(arg0) {
-        const ret = getObject(arg0).msCrypto;
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbg_require_cca90b1a94a0255b = function() { return handleError(function () {
         const ret = module.require;
         return addHeapObject(ret);
@@ -1505,8 +1929,8 @@ function __wbg_get_imports() {
         const ret = typeof(getObject(arg0)) === 'function';
         return ret;
     };
-    imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
-        const ret = getStringFromWasm0(arg0, arg1);
+    imports.wbg.__wbg_msCrypto_eb05e62b530a1508 = function(arg0) {
+        const ret = getObject(arg0).msCrypto;
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_randomFillSync_5c9c955aa56b6049 = function() { return handleError(function (arg0, arg1) {
@@ -1515,18 +1939,46 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_getRandomValues_3aa56aa6edec874c = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).getRandomValues(getObject(arg1));
     }, arguments) };
+    imports.wbg.__wbg_get_bd8e338fbd5f5cc8 = function(arg0, arg1) {
+        const ret = getObject(arg0)[arg1 >>> 0];
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_length_cd7af8117672b8b8 = function(arg0) {
+        const ret = getObject(arg0).length;
+        return ret;
+    };
     imports.wbg.__wbg_newnoargs_e258087cd0daa0ea = function(arg0, arg1) {
         const ret = new Function(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_next_40fc327bfc8770e6 = function(arg0) {
+        const ret = getObject(arg0).next;
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_next_196c84450b364254 = function() { return handleError(function (arg0) {
+        const ret = getObject(arg0).next();
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_done_298b57d23c0fc80c = function(arg0) {
+        const ret = getObject(arg0).done;
+        return ret;
+    };
+    imports.wbg.__wbg_value_d93c65011f51a456 = function(arg0) {
+        const ret = getObject(arg0).value;
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_iterator_2cee6dadfd956dfa = function() {
+        const ret = Symbol.iterator;
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_get_e3c254076557e348 = function() { return handleError(function (arg0, arg1) {
+        const ret = Reflect.get(getObject(arg0), getObject(arg1));
+        return addHeapObject(ret);
+    }, arguments) };
     imports.wbg.__wbg_call_27c0f87801dedf93 = function() { return handleError(function (arg0, arg1) {
         const ret = getObject(arg0).call(getObject(arg1));
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
-        const ret = getObject(arg0);
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbg_self_ce0dbfc45cf2f5be = function() { return handleError(function () {
         const ret = self.self;
         return addHeapObject(ret);
@@ -1543,14 +1995,28 @@ function __wbg_get_imports() {
         const ret = global.global;
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_is_undefined = function(arg0) {
-        const ret = getObject(arg0) === undefined;
+    imports.wbg.__wbg_isArray_2ab64d95e09ea0ae = function(arg0) {
+        const ret = Array.isArray(getObject(arg0));
+        return ret;
+    };
+    imports.wbg.__wbg_instanceof_ArrayBuffer_836825be07d4c9d2 = function(arg0) {
+        let result;
+        try {
+            result = getObject(arg0) instanceof ArrayBuffer;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
         return ret;
     };
     imports.wbg.__wbg_call_b3ca7c6051f9bec1 = function() { return handleError(function (arg0, arg1, arg2) {
         const ret = getObject(arg0).call(getObject(arg1), getObject(arg2));
         return addHeapObject(ret);
     }, arguments) };
+    imports.wbg.__wbg_isSafeInteger_f7b04ef02296c4d2 = function(arg0) {
+        const ret = Number.isSafeInteger(getObject(arg0));
+        return ret;
+    };
     imports.wbg.__wbg_buffer_12d079cc21e14bdb = function(arg0) {
         const ret = getObject(arg0).buffer;
         return addHeapObject(ret);
@@ -1566,6 +2032,20 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_a47bac70306a19a7 = function(arg0, arg1, arg2) {
         getObject(arg0).set(getObject(arg1), arg2 >>> 0);
     };
+    imports.wbg.__wbg_length_c20a40f15020d68a = function(arg0) {
+        const ret = getObject(arg0).length;
+        return ret;
+    };
+    imports.wbg.__wbg_instanceof_Uint8Array_2b3bbecd033d19f6 = function(arg0) {
+        let result;
+        try {
+            result = getObject(arg0) instanceof Uint8Array;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
     imports.wbg.__wbg_newwithlength_e9b4878cebadb3d3 = function(arg0) {
         const ret = new Uint8Array(arg0 >>> 0);
         return addHeapObject(ret);
@@ -1573,6 +2053,13 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_subarray_a1f73cd4b5b42fe1 = function(arg0, arg1, arg2) {
         const ret = getObject(arg0).subarray(arg1 >>> 0, arg2 >>> 0);
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_debug_string = function(arg0, arg1) {
+        const ret = debugString(getObject(arg1));
+        const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        getInt32Memory0()[arg0 / 4 + 1] = len1;
+        getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
@@ -1592,6 +2079,7 @@ function __wbg_init_memory(imports, maybe_memory) {
 function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
+    cachedFloat64Memory0 = null;
     cachedInt32Memory0 = null;
     cachedUint32Memory0 = null;
     cachedUint8Memory0 = null;
