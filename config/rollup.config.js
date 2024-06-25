@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 
 import { wasm } from '@rollup/plugin-wasm';
-import alias from '@rollup/plugin-alias';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
@@ -17,6 +16,10 @@ const nodePlugins = [
       {
         src: './src/kms/node/*',
         dest: 'lib/kms/node',
+      },
+      {
+        src: './src/kms/node/kms_lib_bg.wasm',
+        dest: 'lib/',
       },
     ],
   }),
