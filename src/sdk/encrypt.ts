@@ -6,7 +6,7 @@ import {
   CompactFheUint2048List,
 } from 'node-tfhe';
 
-import { bytesToBigInt, toHexString } from '../utils';
+import { bytesToBigInt, fromHexString, toHexString } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 import { fetchJSONRPC } from '../ethCall';
 
@@ -227,18 +227,18 @@ export const createEncryptedInput =
         const inputProof = convertToInputProof(resJson);
         return {
           handles: resJson.handles.map((handle: string) =>
-            hexStringToUint8Array(handle),
+            fromHexString(handle),
           ),
-          inputProof: hexStringToUint8Array(inputProof),
+          inputProof: fromHexString(inputProof),
         };
       },
     };
   };
 
-function convertToInputProof(data: {
+const convertToInputProof = (data: {
   handlesList: string[];
   signature: string;
-}) {
+}) => {
   const { handlesList, signature } = data;
   const lengthByte = handlesList.length.toString(16).padStart(2, '0');
   const handlesString = handlesList
@@ -247,19 +247,4 @@ function convertToInputProof(data: {
   const signatureString = signature.slice(2);
   const inputProof = `0x${lengthByte}${handlesString}${signatureString}`;
   return inputProof;
-}
-
-function hexStringToUint8Array(hexString: string): Uint8Array {
-  if (hexString.startsWith('0x')) {
-    hexString = hexString.slice(2);
-  }
-  if (hexString.length % 2 !== 0) {
-    throw Error('Invalid hex string');
-  }
-  const length = hexString.length / 2;
-  const uintArray = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    uintArray[i] = parseInt(hexString.substring(i * 2, 2), 16);
-  }
-  return uintArray;
-}
+};
