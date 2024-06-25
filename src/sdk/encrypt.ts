@@ -6,7 +6,7 @@ import {
   CompactFheUint2048List,
 } from 'node-tfhe';
 
-import { bytesToBigInt, toHexString } from '../utils';
+import { bytesToBigInt, fromHexString, toHexString } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 import { fetchJSONRPC } from '../ethCall';
 
@@ -25,10 +25,10 @@ export type ZKInput = {
   getBits: () => number[];
   resetValues: () => ZKInput;
   encrypt: () => {
-    inputs: Uint8Array[];
-    data: Uint8Array;
+    handles: Uint8Array[];
+    inputProof: Uint8Array;
   };
-  send: () => Promise<{ inputs: string[]; signature: string }>;
+  send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -166,9 +166,9 @@ export const createEncryptedInput =
           );
         }
 
-        const data = encrypted.serialize();
+        const inputProof = encrypted.serialize();
         const hash = createKeccakHash('keccak256')
-          .update(Buffer.from(data))
+          .update(Buffer.from(inputProof))
           .digest();
         // const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
         //   values,
@@ -176,7 +176,7 @@ export const createEncryptedInput =
         //   publicKey,
         //   ZkComputeLoad.Proof,
         // );
-        const inputs = bits.map((v, i) => {
+        const handles = bits.map((v, i) => {
           const dataWithIndex = new Uint8Array(hash.length + 1);
           dataWithIndex.set(hash, 0);
           dataWithIndex.set([i], hash.length);
@@ -189,8 +189,8 @@ export const createEncryptedInput =
           return dataInput;
         });
         return {
-          inputs,
-          data,
+          handles,
+          inputProof,
         };
       },
       async send() {
@@ -223,7 +223,28 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-        return await fetchJSONRPC(coprocessorUrl, options);
+        const resJson = await fetchJSONRPC(coprocessorUrl, options);
+        const inputProof = convertToInputProof(resJson);
+        return {
+          handles: resJson.handles.map((handle: string) =>
+            fromHexString(handle),
+          ),
+          inputProof: fromHexString(inputProof),
+        };
       },
     };
   };
+
+const convertToInputProof = (data: {
+  handlesList: string[];
+  signature: string;
+}) => {
+  const { handlesList, signature } = data;
+  const lengthByte = handlesList.length.toString(16).padStart(2, '0');
+  const handlesString = handlesList
+    .map((handle: string) => handle.slice(2))
+    .join('');
+  const signatureString = signature.slice(2);
+  const inputProof = `0x${lengthByte}${handlesString}${signatureString}`;
+  return inputProof;
+};
