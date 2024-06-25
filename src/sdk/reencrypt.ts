@@ -1,11 +1,11 @@
-import { bytesToBigInt, fromHexString, toHexString } from '../utils';
+import { bytesToBigInt, fromHexString } from '../utils';
 import {
   u8vec_to_public_sig_key,
   u8vec_to_cryptobox_pk,
   default_client_for_centralized_kms,
   process_reencryption_resp_from_json,
   u8vec_to_cryptobox_sk,
-} from '../kms/node';
+} from '../kms/node/kms_lib.js';
 
 export const reencryptRequest =
   (gatewayUrl?: string) =>
