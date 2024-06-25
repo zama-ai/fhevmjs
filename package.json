@@ -51,6 +51,7 @@
     "node-tfhe": "^0.6.3",
     "sha3": "^2.1.4",
     "tfhe": "^0.6.3",
+    "url": "^0.11.3",
     "web3-validator": "^2.0.6"
   },
   "devDependencies": {

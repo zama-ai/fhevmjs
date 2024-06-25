@@ -1,5 +1,5 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
-
+import { URL } from 'url';
 import { fromHexString } from '../utils';
 import { ZKInput } from './encrypt';
 import {
@@ -50,7 +50,19 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  const { networkUrl, gatewayUrl, coprocessorUrl } = config;
+  let { networkUrl, gatewayUrl, coprocessorUrl } = config;
+
+  if (gatewayUrl) {
+    gatewayUrl = new URL(gatewayUrl).href;
+  }
+
+  if (networkUrl) {
+    networkUrl = new URL(networkUrl).href;
+  }
+
+  if (coprocessorUrl) {
+    coprocessorUrl = new URL(coprocessorUrl).href;
+  }
 
   let chainId: number | undefined = config.chainId;
   let publicKey: string | undefined = config.publicKey;
