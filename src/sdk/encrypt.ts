@@ -28,7 +28,7 @@ export type ZKInput = {
     inputs: Uint8Array[];
     data: Uint8Array;
   };
-  send: () => Promise<{ inputs: string[]; signature: string }>;
+  send: () => Promise<{ inputs: string[]; signature: string; data: string }>;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -223,7 +223,18 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-        return await fetchJSONRPC(coprocessorUrl, options);
+        const resJson = await fetchJSONRPC(coprocessorUrl, options);
+        resJson.data = convertToInputProof(resJson);
+        return resJson;
       },
     };
   };
+
+function convertToInputProof(data: { handlesList: string[]; signature: string }) {
+  const { handlesList, signature } = data;
+  const lengthByte = handlesList.length.toString(16).padStart(2, '0');
+  const handlesString = handlesList.map((handle: string) => handle.slice(2)).join('');
+  const signatureString = signature.slice(2);
+  const inputProof = `0x${lengthByte}${handlesString}${signatureString}`;
+  return inputProof;
+}
