@@ -38,7 +38,14 @@ program
       encryptedInput[`add${suffix}`](parseInt(values[i], 10));
     });
     const result = await encryptedInput.encrypt();
-    console.log(`0x${toHexString(result)}`);
+
+    console.log('Input proof:');
+    console.log(`0x${toHexString(result.inputProof)}`);
+    console.log('Handles:');
+    result.handles.forEach((handle, i) => {
+      console.log(`Handle ${i}`);
+      console.log(`0x${toHexString(handle)}`);
+    });
   })
   .requiredOption('-n, --node <url>', 'url of the blockchain');
 
