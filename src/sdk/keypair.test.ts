@@ -42,7 +42,7 @@ describe('token', () => {
     expect(eip712.primaryType).toBe('Reencrypt');
     expect(eip712.types.Reencrypt.length).toBe(1);
     expect(eip712.types.Reencrypt[0].name).toBe('publicKey');
-    expect(eip712.types.Reencrypt[0].type).toBe('bytes32');
+    expect(eip712.types.Reencrypt[0].type).toBe('bytes');
   });
 
   it('create a valid EIP712 with delegated accunt', async () => {
@@ -64,7 +64,7 @@ describe('token', () => {
     expect(eip712.primaryType).toBe('Reencrypt');
     expect(eip712.types.Reencrypt.length).toBe(2);
     expect(eip712.types.Reencrypt[0].name).toBe('publicKey');
-    expect(eip712.types.Reencrypt[0].type).toBe('bytes32');
+    expect(eip712.types.Reencrypt[0].type).toBe('bytes');
     expect(eip712.types.Reencrypt[1].name).toBe('delegatedAccount');
     expect(eip712.types.Reencrypt[1].type).toBe('address');
   });
