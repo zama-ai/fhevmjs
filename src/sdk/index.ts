@@ -15,10 +15,11 @@ export {
   getPublicKeyCallParams,
   getPublicKeyFromCoprocessor,
   getPublicKeyFromNetwork,
+  getChainIdFromNetwork,
 } from './network';
 
 type FhevmInstanceConfig = {
-  chainId: number;
+  chainId?: number;
   publicKey?: string;
   gatewayUrl?: string;
   networkUrl?: string;
@@ -50,7 +51,7 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  let { networkUrl, gatewayUrl, coprocessorUrl } = config;
+  let { publicKey, networkUrl, gatewayUrl, coprocessorUrl } = config;
 
   if (gatewayUrl) {
     gatewayUrl = new URL(gatewayUrl).href;
@@ -64,11 +65,18 @@ export const createInstance = async (
     coprocessorUrl = new URL(coprocessorUrl).href;
   }
 
-  let chainId: number | undefined = config.chainId;
-  let publicKey: string | undefined = config.publicKey;
-  let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
-
-  if (typeof chainId !== 'number') throw new Error('chainId must be a number.');
+  let chainId: number;
+  if (config.chainId && typeof config.chainId === 'number') {
+    chainId = config.chainId;
+  } else if (config.chainId && typeof config.chainId !== 'number') {
+    throw new Error('chainId must be a number.');
+  } else if (networkUrl) {
+    chainId = await getChainIdFromNetwork(networkUrl);
+  } else {
+    throw new Error(
+      "You didn't provide the chainId nor the network url to get it.",
+    );
+  }
 
   if (coprocessorUrl && !publicKey) {
     const data = await getPublicKeyFromCoprocessor(coprocessorUrl);
@@ -83,6 +91,8 @@ export const createInstance = async (
 
   if (publicKey && typeof publicKey !== 'string')
     throw new Error('publicKey must be a string');
+
+  let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
 
   if (publicKey) {
     const buff = fromHexString(publicKey);
