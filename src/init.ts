@@ -1,13 +1,25 @@
-import initSDK, { InitOutput } from 'tfhe';
-import wasm from 'tfhe/tfhe_bg.wasm';
+import initTFHE, { InitInput as TFHEInput } from 'tfhe';
+import wasmTFHE from 'tfhe/tfhe_bg.wasm';
 
-let initialized: InitOutput;
+import initKMS, { InitInput as KMSInput } from './kms/web/kms_lib.js';
+import wasmKMS from './kms/web/kms_lib_bg.wasm';
 
-type InitFhevm = typeof initSDK;
+let initialized = false;
 
-export const initFhevm: InitFhevm = async (params) => {
+export const initFhevm = async ({
+  tfheParams,
+  kmsParams,
+}: {
+  tfheParams?: TFHEInput;
+  kmsParams?: KMSInput;
+} = {}) => {
   if (!initialized) {
-    initialized = await initSDK(params || wasm());
+    await initTFHE(tfheParams || wasmTFHE());
+    await initKMS(
+      kmsParams ||
+        (wasmKMS as unknown as () => Promise<WebAssembly.Instance>)(),
+    );
+    initialized = true;
   }
-  return initialized;
+  return true;
 };

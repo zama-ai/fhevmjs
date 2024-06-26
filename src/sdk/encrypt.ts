@@ -1,5 +1,5 @@
 import { isAddress } from 'web3-validator';
-import createKeccakHash from 'keccak';
+import { Keccak } from 'sha3';
 import {
   TfheCompactPublicKey,
   CompactFheUint160List,
@@ -167,9 +167,7 @@ export const createEncryptedInput =
         }
 
         const inputProof = encrypted.serialize();
-        const hash = createKeccakHash('keccak256')
-          .update(Buffer.from(inputProof))
-          .digest();
+        const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
         // const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
         //   values,
         //   publicZkParams,
@@ -180,7 +178,7 @@ export const createEncryptedInput =
           const dataWithIndex = new Uint8Array(hash.length + 1);
           dataWithIndex.set(hash, 0);
           dataWithIndex.set([i], hash.length);
-          const finalHash = createKeccakHash('keccak256')
+          const finalHash = new Keccak(256)
             .update(Buffer.from(dataWithIndex))
             .digest();
           const dataInput = new Uint8Array(32);
