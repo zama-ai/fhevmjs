@@ -1,10 +1,10 @@
-import { toHexString } from '../utils';
+import { bytesToBigInt, fromHexString } from '../utils';
 import {
   u8vec_to_cryptobox_pk,
-  cryptobox_encrypt,
-  cryptobox_decrypt,
-  cryptobox_pk_to_u8vec,
-} from '../kms/node';
+  default_client_for_centralized_kms,
+  process_reencryption_resp_from_json,
+  u8vec_to_cryptobox_sk,
+} from '../kms/node/kms_lib.js';
 
 export const reencryptRequest =
   (gatewayUrl?: string) =>
@@ -17,14 +17,34 @@ export const reencryptRequest =
     userAddress: string,
   ) => {
     if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
-    const data = {
-      publicKey,
-      handle,
-      signature,
-      contractAddress,
-      userAddress,
-    };
-    // const response = await fetch(`${reencryptUrl}`);
 
-    return BigInt(10);
+    const payload = {
+      signature,
+      user_address: userAddress,
+      enc_key: publicKey,
+      ciphertext_handle: handle.toString(),
+      eip712_verifying_contract: contractAddress,
+    };
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+    const response = await fetch(`${gatewayUrl}/reencrypt`, options);
+    const json = await response.json();
+    const client = default_client_for_centralized_kms();
+    const pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
+    const privKey = u8vec_to_cryptobox_sk(fromHexString(privateKey));
+    const decryption = process_reencryption_resp_from_json(
+      client,
+      undefined,
+      json.response,
+      undefined,
+      pubKey,
+      privKey,
+      false,
+    );
+    return bytesToBigInt(decryption);
   };

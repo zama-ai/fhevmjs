@@ -13,18 +13,18 @@ describe('token', () => {
   it('generate a valid keypair', async () => {
     const keypair = generateKeypair();
 
-    expect(keypair.publicKey.length).toBe(68);
-    expect(keypair.privateKey.length).toBe(68);
+    expect(keypair.publicKey.length).toBe(80);
+    expect(keypair.privateKey.length).toBe(80);
 
     let pkBuf = cryptobox_pk_to_u8vec(
       u8vec_to_cryptobox_pk(fromHexString(keypair.publicKey)),
     );
-    expect(34).toBe(pkBuf.length);
+    expect(40).toBe(pkBuf.length);
 
     let skBuf = cryptobox_sk_to_u8vec(
       u8vec_to_cryptobox_sk(fromHexString(keypair.privateKey)),
     );
-    expect(34).toBe(skBuf.length);
+    expect(40).toBe(skBuf.length);
   });
 
   it('create a valid EIP712', async () => {
