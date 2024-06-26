@@ -43,7 +43,7 @@ export const createEIP712 =
           { name: 'verifyingContract', type: 'address' },
         ],
         // Refer to primaryType.
-        Reencrypt: [{ name: 'publicKey', type: 'bytes32' }],
+        Reencrypt: [{ name: 'publicKey', type: 'bytes' }],
       },
       // This defines the message you're proposing the user to sign, is dapp-specific, and contains
       // anything you want. There are no required fields. Be as explicit as possible when building out
