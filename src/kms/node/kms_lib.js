@@ -38,6 +38,28 @@ function addHeapObject(obj) {
 
 function getObject(idx) { return heap[idx]; }
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+
+let cachedFloat64Memory0 = null;
+
+function getFloat64Memory0() {
+    if (cachedFloat64Memory0 === null || cachedFloat64Memory0.byteLength === 0) {
+        cachedFloat64Memory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64Memory0;
+}
+
+let cachedInt32Memory0 = null;
+
+function getInt32Memory0() {
+    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
+    }
+    return cachedInt32Memory0;
+}
+
 function dropObject(idx) {
     if (idx < 132) return;
     heap[idx] = heap_next;
@@ -106,28 +128,6 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-let cachedInt32Memory0 = null;
-
-function getInt32Memory0() {
-    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
-        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32Memory0;
-}
-
-let cachedFloat64Memory0 = null;
-
-function getFloat64Memory0() {
-    if (cachedFloat64Memory0 === null || cachedFloat64Memory0.byteLength === 0) {
-        cachedFloat64Memory0 = new Float64Array(wasm.memory.buffer);
-    }
-    return cachedFloat64Memory0;
-}
-
 function debugString(val) {
     // primitive types
     const type = typeof val;
@@ -193,23 +193,16 @@ function debugString(val) {
     return className;
 }
 
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
-}
-
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8Memory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
     }
     return instance.ptr;
+}
+
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 /**
 * @param {PublicSigKey} pk
@@ -230,6 +223,12 @@ module.exports.public_sig_key_to_u8vec = function(pk) {
     }
 };
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8Memory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
 /**
 * @param {Uint8Array} v
 * @returns {PublicSigKey}
@@ -253,25 +252,59 @@ module.exports.u8vec_to_public_sig_key = function(v) {
 };
 
 /**
-* Instantiate a new client for use with the centralized KMS.
-*
-* * `client_pk` - the client (wallet) public key,
-* which can parsed using [u8vec_to_public_sig_key] also.
-*
-* * `param_choice` - the parameter choice, which can be either `"test"` or `"default"`.
-* The "default" parameter choice is selected if no matching string is found.
-* @param {PublicSigKey} client_pk
-* @param {string} param_choice
-* @returns {Client}
+* @param {PrivateSigKey} sk
+* @returns {Uint8Array}
 */
-module.exports.default_client_for_centralized_kms = function(client_pk, param_choice) {
+module.exports.private_sig_key_to_u8vec = function(sk) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        _assertClass(client_pk, PublicSigKey);
-        var ptr0 = client_pk.__destroy_into_raw();
-        const ptr1 = passStringToWasm0(param_choice, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        wasm.default_client_for_centralized_kms(retptr, ptr0, ptr1, len1);
+        _assertClass(sk, PrivateSigKey);
+        wasm.private_sig_key_to_u8vec(retptr, sk.__wbg_ptr);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        if (r3) {
+            throw takeObject(r2);
+        }
+        var v1 = getArrayU8FromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 1, 1);
+        return v1;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+};
+
+/**
+* @param {Uint8Array} v
+* @returns {PrivateSigKey}
+*/
+module.exports.u8vec_to_private_sig_key = function(v) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passArray8ToWasm0(v, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.u8vec_to_private_sig_key(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return PrivateSigKey.__wrap(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+};
+
+/**
+* Instantiate a new client for use with the centralized KMS.
+* @returns {Client}
+*/
+module.exports.default_client_for_centralized_kms = function() {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.default_client_for_centralized_kms(retptr);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -378,6 +411,26 @@ module.exports.get_server_public_keys = function(client) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
+};
+
+/**
+* @param {Client} client
+* @returns {PublicSigKey}
+*/
+module.exports.get_client_public_key = function(client) {
+    _assertClass(client, Client);
+    const ret = wasm.get_client_public_key(client.__wbg_ptr);
+    return PublicSigKey.__wrap(ret);
+};
+
+/**
+* @param {Client} client
+* @returns {PrivateSigKey | undefined}
+*/
+module.exports.get_client_secret_key = function(client) {
+    _assertClass(client, Client);
+    const ret = wasm.get_client_secret_key(client.__wbg_ptr);
+    return ret === 0 ? undefined : PrivateSigKey.__wrap(ret);
 };
 
 /**
@@ -1107,6 +1160,14 @@ const PrivateSigKeyFinalization = (typeof FinalizationRegistry === 'undefined')
 */
 class PrivateSigKey {
 
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(PrivateSigKey.prototype);
+        obj.__wbg_ptr = ptr;
+        PrivateSigKeyFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
@@ -1782,8 +1843,8 @@ class RequestId {
 }
 module.exports.RequestId = RequestId;
 
-module.exports.__wbg_publicsigkey_new = function(arg0) {
-    const ret = PublicSigKey.__wrap(arg0);
+module.exports.__wbindgen_error_new = function(arg0, arg1) {
+    const ret = new Error(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
@@ -1792,13 +1853,25 @@ module.exports.__wbg_publicsigkey_unwrap = function(arg0) {
     return ret;
 };
 
-module.exports.__wbindgen_error_new = function(arg0, arg1) {
-    const ret = new Error(getStringFromWasm0(arg0, arg1));
+module.exports.__wbg_publicsigkey_new = function(arg0) {
+    const ret = PublicSigKey.__wrap(arg0);
     return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_number_get = function(arg0, arg1) {
+    const obj = getObject(arg1);
+    const ret = typeof(obj) === 'number' ? obj : undefined;
+    getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
+    getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
 };
 
 module.exports.__wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
+};
+
+module.exports.__wbg_reencryptionresponse_unwrap = function(arg0) {
+    const ret = ReencryptionResponse.__unwrap(takeObject(arg0));
+    return ret;
 };
 
 module.exports.__wbindgen_string_get = function(arg0, arg1) {
@@ -1824,18 +1897,6 @@ module.exports.__wbindgen_is_undefined = function(arg0) {
 module.exports.__wbindgen_in = function(arg0, arg1) {
     const ret = getObject(arg0) in getObject(arg1);
     return ret;
-};
-
-module.exports.__wbg_reencryptionresponse_unwrap = function(arg0) {
-    const ret = ReencryptionResponse.__unwrap(takeObject(arg0));
-    return ret;
-};
-
-module.exports.__wbindgen_number_get = function(arg0, arg1) {
-    const obj = getObject(arg1);
-    const ret = typeof(obj) === 'number' ? obj : undefined;
-    getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
-    getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
 };
 
 module.exports.__wbindgen_jsval_loose_eq = function(arg0, arg1) {

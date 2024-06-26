@@ -11,18 +11,20 @@ export function public_sig_key_to_u8vec(pk: PublicSigKey): Uint8Array;
 */
 export function u8vec_to_public_sig_key(v: Uint8Array): PublicSigKey;
 /**
+* @param {PrivateSigKey} sk
+* @returns {Uint8Array}
+*/
+export function private_sig_key_to_u8vec(sk: PrivateSigKey): Uint8Array;
+/**
+* @param {Uint8Array} v
+* @returns {PrivateSigKey}
+*/
+export function u8vec_to_private_sig_key(v: Uint8Array): PrivateSigKey;
+/**
 * Instantiate a new client for use with the centralized KMS.
-*
-* * `client_pk` - the client (wallet) public key,
-* which can parsed using [u8vec_to_public_sig_key] also.
-*
-* * `param_choice` - the parameter choice, which can be either `"test"` or `"default"`.
-* The "default" parameter choice is selected if no matching string is found.
-* @param {PublicSigKey} client_pk
-* @param {string} param_choice
 * @returns {Client}
 */
-export function default_client_for_centralized_kms(client_pk: PublicSigKey, param_choice: string): Client;
+export function default_client_for_centralized_kms(): Client;
 /**
 * Instantiate a new client.
 *
@@ -54,6 +56,16 @@ export function new_client(server_pks: (PublicSigKey)[], server_pks_ids: Uint8Ar
 * @returns {(PublicSigKey)[]}
 */
 export function get_server_public_keys(client: Client): (PublicSigKey)[];
+/**
+* @param {Client} client
+* @returns {PublicSigKey}
+*/
+export function get_client_public_key(client: Client): PublicSigKey;
+/**
+* @param {Client} client
+* @returns {PrivateSigKey | undefined}
+*/
+export function get_client_secret_key(client: Client): PrivateSigKey | undefined;
 /**
 * @returns {PrivateEncKey}
 */
@@ -429,6 +441,31 @@ export interface InitOutput {
   readonly __wbg_privateenckey_free: (a: number) => void;
   readonly __wbg_publicsigkey_free: (a: number) => void;
   readonly __wbg_privatesigkey_free: (a: number) => void;
+  readonly public_sig_key_to_u8vec: (a: number, b: number) => void;
+  readonly u8vec_to_public_sig_key: (a: number, b: number, c: number) => void;
+  readonly private_sig_key_to_u8vec: (a: number, b: number) => void;
+  readonly u8vec_to_private_sig_key: (a: number, b: number, c: number) => void;
+  readonly default_client_for_centralized_kms: (a: number) => void;
+  readonly new_client: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
+  readonly get_server_public_keys: (a: number, b: number) => void;
+  readonly get_client_public_key: (a: number) => number;
+  readonly get_client_secret_key: (a: number) => number;
+  readonly __wbg_cryptoboxct_free: (a: number) => void;
+  readonly cryptobox_keygen: () => number;
+  readonly cryptobox_get_pk: (a: number) => number;
+  readonly cryptobox_pk_to_u8vec: (a: number, b: number) => void;
+  readonly u8vec_to_cryptobox_pk: (a: number, b: number, c: number) => void;
+  readonly u8vec_to_cryptobox_sk: (a: number, b: number, c: number) => void;
+  readonly cryptobox_encrypt: (a: number, b: number, c: number, d: number) => number;
+  readonly cryptobox_decrypt: (a: number, b: number, c: number, d: number) => void;
+  readonly new_eip712_domain: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => number;
+  readonly new_request_id: (a: number, b: number) => number;
+  readonly new_fhe_type: (a: number, b: number, c: number) => void;
+  readonly make_reencryption_req: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
+  readonly reencryption_request_to_flat_json_string: (a: number, b: number) => void;
+  readonly process_reencryption_resp_from_json: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
+  readonly process_reencryption_resp: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => void;
+  readonly cryptobox_sk_to_u8vec: (a: number, b: number) => void;
   readonly __wbg_plaintext_free: (a: number) => void;
   readonly __wbg_get_plaintext_bytes: (a: number, b: number) => void;
   readonly __wbg_set_plaintext_bytes: (a: number, b: number, c: number) => void;
@@ -487,27 +524,6 @@ export interface InitOutput {
   readonly __wbg_get_reencryptionresponse_verification_key: (a: number, b: number) => void;
   readonly __wbg_get_reencryptionresponse_digest: (a: number, b: number) => void;
   readonly __wbg_get_reencryptionresponse_signcrypted_ciphertext: (a: number, b: number) => void;
-  readonly public_sig_key_to_u8vec: (a: number, b: number) => void;
-  readonly u8vec_to_public_sig_key: (a: number, b: number, c: number) => void;
-  readonly default_client_for_centralized_kms: (a: number, b: number, c: number, d: number) => void;
-  readonly new_client: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
-  readonly get_server_public_keys: (a: number, b: number) => void;
-  readonly __wbg_cryptoboxct_free: (a: number) => void;
-  readonly cryptobox_keygen: () => number;
-  readonly cryptobox_get_pk: (a: number) => number;
-  readonly cryptobox_pk_to_u8vec: (a: number, b: number) => void;
-  readonly u8vec_to_cryptobox_pk: (a: number, b: number, c: number) => void;
-  readonly u8vec_to_cryptobox_sk: (a: number, b: number, c: number) => void;
-  readonly cryptobox_encrypt: (a: number, b: number, c: number, d: number) => number;
-  readonly cryptobox_decrypt: (a: number, b: number, c: number, d: number) => void;
-  readonly new_eip712_domain: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => number;
-  readonly new_request_id: (a: number, b: number) => number;
-  readonly new_fhe_type: (a: number, b: number, c: number) => void;
-  readonly make_reencryption_req: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
-  readonly reencryption_request_to_flat_json_string: (a: number, b: number) => void;
-  readonly process_reencryption_resp_from_json: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
-  readonly process_reencryption_resp: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => void;
-  readonly cryptobox_sk_to_u8vec: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

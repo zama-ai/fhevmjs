@@ -21,7 +21,7 @@ export const reencryptRequest =
 
     const payload = {
       signature,
-      verification_key: userAddress,
+      user_address: userAddress,
       enc_key: publicKey,
       ciphertext_handle: handle.toString(),
       eip712_verifying_contract: contractAddress,
@@ -36,7 +36,7 @@ export const reencryptRequest =
     const response = await fetch(`${gatewayUrl}/reencrypt`, options);
     const json = await response.json();
     const sigKey = u8vec_to_public_sig_key(fromHexString(userAddress));
-    const client = default_client_for_centralized_kms(sigKey, 'default');
+    const client = default_client_for_centralized_kms();
     const pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
     const privKey = u8vec_to_cryptobox_sk(fromHexString(privateKey));
     const decryption = process_reencryption_resp_from_json(

@@ -11,18 +11,20 @@ export function public_sig_key_to_u8vec(pk: PublicSigKey): Uint8Array;
 */
 export function u8vec_to_public_sig_key(v: Uint8Array): PublicSigKey;
 /**
+* @param {PrivateSigKey} sk
+* @returns {Uint8Array}
+*/
+export function private_sig_key_to_u8vec(sk: PrivateSigKey): Uint8Array;
+/**
+* @param {Uint8Array} v
+* @returns {PrivateSigKey}
+*/
+export function u8vec_to_private_sig_key(v: Uint8Array): PrivateSigKey;
+/**
 * Instantiate a new client for use with the centralized KMS.
-*
-* * `client_pk` - the client (wallet) public key,
-* which can parsed using [u8vec_to_public_sig_key] also.
-*
-* * `param_choice` - the parameter choice, which can be either `"test"` or `"default"`.
-* The "default" parameter choice is selected if no matching string is found.
-* @param {PublicSigKey} client_pk
-* @param {string} param_choice
 * @returns {Client}
 */
-export function default_client_for_centralized_kms(client_pk: PublicSigKey, param_choice: string): Client;
+export function default_client_for_centralized_kms(): Client;
 /**
 * Instantiate a new client.
 *
@@ -54,6 +56,16 @@ export function new_client(server_pks: (PublicSigKey)[], server_pks_ids: Uint8Ar
 * @returns {(PublicSigKey)[]}
 */
 export function get_server_public_keys(client: Client): (PublicSigKey)[];
+/**
+* @param {Client} client
+* @returns {PublicSigKey}
+*/
+export function get_client_public_key(client: Client): PublicSigKey;
+/**
+* @param {Client} client
+* @returns {PrivateSigKey | undefined}
+*/
+export function get_client_secret_key(client: Client): PrivateSigKey | undefined;
 /**
 * @returns {PrivateEncKey}
 */
