@@ -224,7 +224,7 @@ export const createEncryptedInput =
         const resJson = await fetchJSONRPC(coprocessorUrl, options);
         const inputProof = convertToInputProof(resJson);
         return {
-          handles: resJson.handles.map((handle: string) =>
+          handles: resJson.handlesList.map((handle: string) =>
             fromHexString(handle),
           ),
           inputProof: fromHexString(inputProof),
