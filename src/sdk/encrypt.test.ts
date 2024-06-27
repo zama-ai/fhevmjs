@@ -177,7 +177,9 @@ describe('encrypt', () => {
 
     expect(input.getBits().length).toBe(0);
     expect(input.getValues().length).toBe(0);
+  });
 
+  it('throws if total bits is above 2048', async () => {
     const input2 = createEncryptedInput(publicKey)(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
@@ -186,6 +188,20 @@ describe('encrypt', () => {
     input2.addBool(false);
     expect(() => input2.encrypt()).toThrow(
       'Too many bits in provided values. Maximum is 2048.',
+    );
+  });
+
+  it('throws if more than 12 values', async () => {
+    const input2 = createEncryptedInput(publicKey)(
+      '0x8ba1f109551bd432803012645ac136ddd64dba72',
+      '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
+    );
+    for (let i = 0; i < 13; i++) {
+      input2.addBool(false);
+    }
+
+    expect(() => input2.encrypt()).toThrow(
+      "You can't pack more than 12 values.",
     );
   });
 });

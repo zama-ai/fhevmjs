@@ -50,6 +50,23 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
+const getListType = (bits: (keyof typeof ENCRYPTION_TYPES)[]) => {
+  // We limit to 12 items because for now we are using FheUint160List
+  if (bits.length > 12) {
+    throw new Error("You can't pack more than 12 values.");
+  }
+
+  if (bits.reduce((total, v) => total + v, 0) > 2048) {
+    throw new Error('Too many bits in provided values. Maximum is 2048.');
+  }
+
+  if (bits.some((v) => v === 2048)) {
+    return 2048;
+  } else {
+    return 160;
+  }
+};
+
 export const createEncryptedInput =
   (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
   (contractAddress: string, callerAddress: string) => {
@@ -150,20 +167,25 @@ export const createEncryptedInput =
         return this;
       },
       encrypt() {
-        if (bits.reduce((total, v) => total + v, 0) > 2048) {
-          throw new Error('Too many bits in provided values. Maximum is 2048.');
-        }
+        const listType = getListType(bits);
+
         let encrypted;
-        if (bits.some((v) => v === 2048)) {
-          encrypted = CompactFheUint2048List.encrypt_with_compact_public_key(
-            values,
-            publicKey,
-          );
-        } else {
-          encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
-            values,
-            publicKey,
-          );
+
+        switch (listType) {
+          case 160: {
+            encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
+              values,
+              publicKey,
+            );
+            break;
+          }
+          case 2048: {
+            encrypted = CompactFheUint2048List.encrypt_with_compact_public_key(
+              values,
+              publicKey,
+            );
+            break;
+          }
         }
 
         const inputProof = encrypted.serialize();
