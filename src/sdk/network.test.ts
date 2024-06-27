@@ -2,6 +2,7 @@ import { TfheCompactPublicKey, TfheClientKey } from 'node-tfhe';
 import { createTfheKeypair } from '../tfhe';
 import { createEncryptedInput } from './encrypt';
 import {
+  getChainIdFromNetwork,
   getPublicKeyCallParams,
   getPublicKeyFromCoprocessor,
   getPublicKeyFromNetwork,
@@ -14,6 +15,11 @@ describe('network', () => {
 
   beforeAll(async () => {
     const keypair = createTfheKeypair();
+  });
+
+  it('get chainId', async () => {
+    const chainId = await getChainIdFromNetwork('https://devnet.zama.ai');
+    expect(chainId).toBe(8009);
   });
 
   it('get network key', async () => {

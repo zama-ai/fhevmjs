@@ -20,7 +20,7 @@ export const getChainIdFromNetwork = async (url: string) => {
     },
     body: JSON.stringify(payload),
   };
-  return Number(fetchJSONRPC(url, options));
+  return Number(await fetchJSONRPC(url, options));
 };
 
 // Define the function to perform the eth_call

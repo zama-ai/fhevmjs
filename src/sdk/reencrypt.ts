@@ -18,7 +18,7 @@ export const reencryptRequest =
   ) => {
     if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
 
-    const payload = {
+    const payload: { [key: string]: string } = {
       signature,
       user_address: userAddress,
       enc_key: publicKey,
@@ -32,7 +32,7 @@ export const reencryptRequest =
       },
       body: JSON.stringify(payload),
     };
-    const response = await fetch(`${gatewayUrl}/reencrypt`, options);
+    const response = await fetch(`${gatewayUrl}reencrypt`, options);
     const json = await response.json();
     const client = default_client_for_centralized_kms();
     const pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
