@@ -27,7 +27,7 @@ export const reencryptRequest =
       signature: signature.replace(/^(0x)/, ''),
       user_address: userAddress.replace(/^(0x)/, ''),
       enc_key: publicKey.replace(/^(0x)/, ''),
-      ciphertext_handle: toHexString(bigIntToBytes(handle)),
+      ciphertext_handle: handle.toString(16),
       eip712_verifying_contract: contractAddress,
     };
     const options = {
