@@ -110,7 +110,9 @@ describe('encrypt', () => {
       const decrypted = v.decrypt(clientKey);
       switch (i) {
         case 0:
-          expect(decrypted.toString()).toBe('255');
+          expect(decrypted.toString()).toBe(
+            '13355433680216258829653813963056604541043899547855704341091828781832225889331072183923741976689688961175617671240445089717606406707212403657580392564654080',
+          );
           break;
       }
     });
