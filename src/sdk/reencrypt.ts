@@ -1,4 +1,9 @@
-import { bytesToBigInt, fromHexString } from '../utils';
+import {
+  bytesToBigInt,
+  bigIntToBytes,
+  toHexString,
+  fromHexString,
+} from '../utils';
 import {
   u8vec_to_cryptobox_pk,
   default_client_for_centralized_kms,
@@ -18,11 +23,11 @@ export const reencryptRequest =
   ) => {
     if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
 
-    const payload: { [key: string]: string } = {
-      signature,
-      user_address: userAddress,
-      enc_key: publicKey,
-      ciphertext_handle: handle.toString(),
+    const payload = {
+      signature: signature.replace(/^(0x)/, ''),
+      user_address: userAddress.replace(/^(0x)/, ''),
+      enc_key: publicKey.replace(/^(0x)/, ''),
+      ciphertext_handle: toHexString(bigIntToBytes(handle)),
       eip712_verifying_contract: contractAddress,
     };
     const options = {
