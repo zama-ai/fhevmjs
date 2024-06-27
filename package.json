@@ -7,7 +7,7 @@
   "browser": "lib/web.js",
   "type": "module",
   "bin": {
-    "fhevm": "./bin/fhevm.js"
+    "fhevm": "bin/fhevm.js"
   },
   "exports": {
     ".": {
