@@ -20,7 +20,13 @@ export const getChainIdFromNetwork = async (url: string) => {
     },
     body: JSON.stringify(payload),
   };
-  return Number(await fetchJSONRPC(url, options));
+  let chainId;
+  try {
+    chainId = await fetchJSONRPC(url, options);
+  } catch (e) {
+    throw new Error('Impossible to fetch chain id (wrong networkUrl?)');
+  }
+  return Number(chainId);
 };
 
 // Define the function to perform the eth_call
@@ -41,8 +47,14 @@ export const getPublicKeyFromNetwork = async (url: string) => {
     },
     body: JSON.stringify(payload),
   };
+  let publicKey;
+  try {
+    publicKey = await fetchJSONRPC(url, options);
+  } catch (e) {
+    throw new Error('Impossible to fetch public key from network (wrong url?)');
+  }
 
-  return fetchJSONRPC(url, options);
+  return publicKey;
 };
 
 // Define the function to perform the eth_call
@@ -64,5 +76,14 @@ export const getPublicKeyFromCoprocessor = async (url: string) => {
     body: JSON.stringify(payload),
   };
 
-  return fetchJSONRPC(url, options);
+  let publicKey;
+  try {
+    publicKey = await fetchJSONRPC(url, options);
+  } catch (e) {
+    throw new Error(
+      'Impossible to fetch public key from coprocessor (wrong url?)',
+    );
+  }
+
+  return publicKey;
 };

@@ -243,7 +243,14 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-        const resJson = await fetchJSONRPC(coprocessorUrl, options);
+        let resJson;
+        try {
+          resJson = await fetchJSONRPC(coprocessorUrl, options);
+        } catch (e) {
+          throw new Error(
+            'Impossible to send input to coprocessor (wrong url?)',
+          );
+        }
         const inputProof = convertToInputProof(resJson);
         return {
           handles: resJson.handlesList.map((handle: string) =>
