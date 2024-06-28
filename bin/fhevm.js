@@ -28,10 +28,7 @@ program
   .command('encrypt')
   .argument('<contractAddress>', 'address of the contract')
   .argument('<userAddress>', 'address of the account')
-  .argument(
-    '<values:bits...>',
-    'values with number of bits eg: 1|1 3324242|64]',
-  )
+  .argument('<values:bits...>', 'values with number of bits eg: 1:1 3324242:64')
   .action(async (contractAddress, userAddress, valuesArr, options) => {
     const host = prependHttps(options.node);
     const instance = await getInstance(host);
