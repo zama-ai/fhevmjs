@@ -37,19 +37,37 @@ export const reencryptRequest =
       },
       body: JSON.stringify(payload),
     };
-    const response = await fetch(`${gatewayUrl}reencrypt`, options);
-    const json = await response.json();
+    let pubKey;
+    let privKey;
+    try {
+      pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
+      privKey = u8vec_to_cryptobox_sk(fromHexString(privateKey));
+    } catch (e) {
+      throw new Error('Invalid public or private key');
+    }
+
+    let json;
+    try {
+      const response = await fetch(`${gatewayUrl}reencrypt`, options);
+      json = await response.json();
+    } catch (e) {
+      throw new Error("Gateway didn't response correctly");
+    }
+
     const client = default_client_for_centralized_kms();
-    const pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
-    const privKey = u8vec_to_cryptobox_sk(fromHexString(privateKey));
-    const decryption = process_reencryption_resp_from_json(
-      client,
-      undefined,
-      json.response,
-      undefined,
-      pubKey,
-      privKey,
-      false,
-    );
-    return bytesToBigInt(decryption);
+
+    try {
+      const decryption = process_reencryption_resp_from_json(
+        client,
+        undefined,
+        json.response,
+        undefined,
+        pubKey,
+        privKey,
+        false,
+      );
+      return bytesToBigInt(decryption);
+    } catch (e) {
+      throw new Error('An error occured during decryption');
+    }
   };
