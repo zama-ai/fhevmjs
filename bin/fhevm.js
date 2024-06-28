@@ -3,9 +3,9 @@
 
 import { program } from 'commander';
 import { toHexString, prependHttps, throwError } from './utils.js';
-import { createInstance, getChainIdFromNetwork } from '../lib/node.cjs';
+import { createInstance } from '../lib/node.cjs';
 
-const allowedBits = [8, 16, 32, 64];
+const allowedBits = [1, 4, 8, 16, 32, 64];
 
 const FHE_LIB_ADDRESS = '0x000000000000000000000000000000000000005d';
 
@@ -18,7 +18,7 @@ const getInstance = async (networkUrl) => {
     _instance = await createInstance({ networkUrl });
   } catch (e) {
     return throwError(
-      "This network doesn't seem to use fhEVM or use an incompatible version.",
+      `This network (${networkUrl}) doesn't seem to use fhEVM or use an incompatible version.`,
     );
   }
   return _instance;
@@ -26,16 +26,28 @@ const getInstance = async (networkUrl) => {
 
 program
   .command('encrypt')
-  .argument('[bits]', 'numbers of bits for values eg: [1,64]')
-  .argument('[values]', 'integers to encrypt eg: [1,39320]')
-  .action(async (bitsArr, valuesArr, options) => {
+  .argument('<contractAddress>', 'address of the contract')
+  .argument('<userAddress>', 'address of the account')
+  .argument(
+    '<values:bits...>',
+    'values with number of bits eg: 1|1 3324242|64]',
+  )
+  .action(async (contractAddress, userAddress, valuesArr, options) => {
     const host = prependHttps(options.node);
     const instance = await getInstance(host);
-    const encryptedInput = instance.createEncryptedInput();
-    bitsArr.forEach((bits, i) => {
+    const encryptedInput = instance.createEncryptedInput(
+      contractAddress,
+      userAddress,
+    );
+    valuesArr.forEach((str, i) => {
+      const [value, bits] = str.split(':');
       if (!allowedBits.includes(+bits)) throwError('Invalid number of bits');
-      const suffix = bits === 1 ? 'Bool' : bits === '160' ? 'Address' : bits;
-      encryptedInput[`add${suffix}`](parseInt(values[i], 10));
+      const suffix = +bits === 1 ? 'Bool' : bits === '160' ? 'Address' : bits;
+      try {
+        encryptedInput[`add${suffix}`](parseInt(value, 10));
+      } catch (e) {
+        return throwError(e.message);
+      }
     });
     const result = await encryptedInput.encrypt();
 

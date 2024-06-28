@@ -40,9 +40,9 @@ export const fetchJSONRPC = async (url: string, options: RequestInit) => {
       const decodedBytes = decodeAbiBytes(hexResult);
       return `0x${toHexString(decodedBytes)}`;
     } else {
-      console.error('No result from blockchain call');
+      throw new Error('No result from blockchain call');
     }
   } catch (error) {
-    console.error('Error performing eth_call:', error);
+    throw new Error('Error performing eth_call');
   }
 };
