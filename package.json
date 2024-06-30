@@ -1,6 +1,9 @@
 {
   "name": "fhevmjs",
   "version": "0.5.0-12",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.js",
   "types": "lib/node/node.d.ts",
@@ -23,6 +26,7 @@
     }
   },
   "scripts": {
+    "preinstall": "node src/checkNodeVersion.js",
     "lint": "eslint src/",
     "build": "npm run build:lib && npm run build:bundle",
     "build:lib": "rollup -c config/rollup.config.js",
