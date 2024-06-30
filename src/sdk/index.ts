@@ -1,4 +1,5 @@
 import { TfheCompactPublicKey } from 'node-tfhe';
+import type { Eip1193Provider } from 'ethers';
 import { URL } from 'url';
 import { fromHexString } from '../utils';
 import { ZKInput } from './encrypt';
@@ -6,6 +7,8 @@ import {
   getPublicKeyFromNetwork,
   getPublicKeyFromCoprocessor,
   getChainIdFromNetwork,
+  getChainIdFromEip1193,
+  getPublicKeyFromEip1193,
 } from './network';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
@@ -22,6 +25,7 @@ type FhevmInstanceConfig = {
   chainId?: number;
   publicKey?: string;
   gatewayUrl?: string;
+  network?: Eip1193Provider;
   networkUrl?: string;
   coprocessorUrl?: string;
 };
@@ -51,7 +55,7 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  let { publicKey, networkUrl, gatewayUrl, coprocessorUrl } = config;
+  let { publicKey, networkUrl, network, gatewayUrl, coprocessorUrl } = config;
 
   if (gatewayUrl) {
     gatewayUrl = new URL(gatewayUrl).href;
@@ -72,6 +76,8 @@ export const createInstance = async (
     throw new Error('chainId must be a number.');
   } else if (networkUrl) {
     chainId = await getChainIdFromNetwork(networkUrl);
+  } else if (network) {
+    chainId = await getChainIdFromEip1193(network);
   } else {
     throw new Error(
       "You didn't provide the chainId nor the network url to get it.",
@@ -83,10 +89,8 @@ export const createInstance = async (
     publicKey = data.publicKey;
   } else if (networkUrl && !publicKey) {
     publicKey = await getPublicKeyFromNetwork(networkUrl);
-  }
-
-  if (networkUrl && !chainId) {
-    chainId = await getChainIdFromNetwork(networkUrl);
+  } else if (network && !publicKey) {
+    publicKey = await getPublicKeyFromEip1193(network);
   }
 
   if (publicKey && typeof publicKey !== 'string')
