@@ -1,6 +1,6 @@
 import type { Eip1193Provider } from 'ethers';
 import { decodeAbiBytes, fetchJSONRPC } from '../ethCall';
-import { toHexString } from 'src/utils';
+import { toHexString } from '../utils';
 
 export const getPublicKeyCallParams = () => ({
   to: '0x000000000000000000000000000000000000005d',
