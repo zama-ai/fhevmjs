@@ -2,15 +2,16 @@ import { isAddress } from 'web3-validator';
 import { Keccak } from 'sha3';
 import {
   TfheCompactPublicKey,
-  CompactFheUint160List,
-  CompactFheUint2048List,
+  CompactCiphertextList,
+  CompactPkePublicParams,
+  ZkComputeLoad,
 } from 'node-tfhe';
 
-import { bytesToBigInt, fromHexString, toHexString } from '../utils';
+import { bytesToBigInt } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
-import { fetchJSONRPC } from '../ethCall';
 
 // const publicZkParams = CompactPkePublicParams.deserialize(crsBuffer);
+type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 
 export type ZKInput = {
   addBool: (value: boolean) => ZKInput;
@@ -20,15 +21,16 @@ export type ZKInput = {
   add32: (value: number | bigint) => ZKInput;
   add64: (value: number | bigint) => ZKInput;
   add128: (value: number | bigint) => ZKInput;
+  add256: (value: number | bigint) => ZKInput;
+  addBytes64: (value: Uint8Array) => ZKInput;
+  addBytes128: (value: Uint8Array) => ZKInput;
+  addBytes256: (value: Uint8Array) => ZKInput;
   addAddress: (value: string) => ZKInput;
-  getValues: () => bigint[];
-  getBits: () => number[];
-  resetValues: () => ZKInput;
   encrypt: () => {
     handles: Uint8Array[];
     inputProof: Uint8Array;
   };
-  send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
+  // send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
 };
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
@@ -50,27 +52,14 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
-const getListType = (bits: (keyof typeof ENCRYPTION_TYPES)[]) => {
-  // We limit to 12 items because for now we are using FheUint160List
-  if (bits.length > 12) {
-    throw new Error("You can't pack more than 12 values.");
-  }
-
-  if (bits.reduce((total, v) => total + v, 0) > 2048) {
-    throw new Error('Too many bits in provided values. Maximum is 2048.');
-  }
-
-  if (bits.some((v) => v === 2048)) {
-    return 2048;
-  } else {
-    return 160;
-  }
+export type PublicParams = {
+  [key in EncryptionTypes]?: CompactPkePublicParams;
 };
 
 export const createEncryptedInput =
-  (tfheCompactPublicKey?: TfheCompactPublicKey, coprocessorUrl?: string) =>
-  (contractAddress: string, callerAddress: string) => {
-    if (!tfheCompactPublicKey)
+  (tfheCompactPublicKey?: TfheCompactPublicKey, publicParams?: PublicParams) =>
+  (contractAddress: string, callerAddress: string): ZKInput => {
+    if (!tfheCompactPublicKey || !publicParams)
       throw new Error(
         'Your instance has been created without the public blockchain key.',
       );
@@ -82,10 +71,9 @@ export const createEncryptedInput =
     if (!isAddress(callerAddress)) {
       throw new Error('User address is not a valid address.');
     }
-
     const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
-    const values: bigint[] = [];
-    const bits: (keyof typeof ENCRYPTION_TYPES)[] = [];
+    const bits: EncryptionTypes[] = [];
+    const builder = CompactCiphertextList.builder(publicKey);
     return {
       addBool(value: boolean | number | bigint) {
         if (value == null) throw new Error('Missing value');
@@ -100,43 +88,44 @@ export const createEncryptedInput =
           Number(value) > 1
         )
           throw new Error('The value must be 1 or 0.');
-        values.push(BigInt(value));
+        checkEncryptedValue(Number(value), 1);
+        builder.push_boolean(!!value);
         bits.push(1);
         return this;
       },
       add4(value: number | bigint) {
         checkEncryptedValue(value, 4);
-        values.push(BigInt(value));
+        builder.push_u4(Number(value));
         bits.push(4);
         return this;
       },
       add8(value: number | bigint) {
         checkEncryptedValue(value, 8);
-        values.push(BigInt(value));
+        builder.push_u8(Number(value));
         bits.push(8);
         return this;
       },
       add16(value: number | bigint) {
         checkEncryptedValue(value, 16);
-        values.push(BigInt(value));
+        builder.push_u16(Number(value));
         bits.push(16);
         return this;
       },
       add32(value: number | bigint) {
         checkEncryptedValue(value, 32);
-        values.push(BigInt(value));
+        builder.push_u32(Number(value));
         bits.push(32);
         return this;
       },
       add64(value: number | bigint) {
         checkEncryptedValue(value, 64);
-        values.push(BigInt(value));
+        builder.push_u64(BigInt(value));
         bits.push(64);
         return this;
       },
       add128(value: number | bigint) {
         checkEncryptedValue(value, 128);
-        values.push(BigInt(value));
+        builder.push_u128(BigInt(value));
         bits.push(128);
         return this;
       },
@@ -144,58 +133,66 @@ export const createEncryptedInput =
         if (!isAddress(value)) {
           throw new Error('The value must be a valid address.');
         }
-        values.push(BigInt(value));
+        builder.push_u160(BigInt(value));
         bits.push(160);
+        return this;
+      },
+      add256(value: number | bigint) {
+        checkEncryptedValue(value, 256);
+        builder.push_u256(BigInt(value));
+        bits.push(256);
+        return this;
+      },
+      addBytes64(value: Uint8Array) {
+        const bigIntValue = bytesToBigInt(value);
+        checkEncryptedValue(bigIntValue, 512);
+        builder.push_u512(bigIntValue);
+        bits.push(512);
+        return this;
+      },
+      addBytes128(value: Uint8Array) {
+        const bigIntValue = bytesToBigInt(value);
+        checkEncryptedValue(bigIntValue, 1024);
+        builder.push_u1024(bigIntValue);
+        bits.push(1024);
         return this;
       },
       addBytes256(value: Uint8Array) {
         const bigIntValue = bytesToBigInt(value);
         checkEncryptedValue(bigIntValue, 2048);
-        values.push(bigIntValue);
+        builder.push_u2048(bigIntValue);
         bits.push(2048);
         return this;
       },
-      getValues() {
-        return values;
-      },
-      getBits() {
-        return bits;
-      },
-      resetValues() {
-        values.length = 0;
-        bits.length = 0;
-        return this;
-      },
       encrypt() {
-        const listType = getListType(bits);
+        const getKeys = <T extends {}>(obj: T) =>
+          Object.keys(obj) as Array<keyof T>;
 
-        let encrypted;
-
-        switch (listType) {
-          case 160: {
-            encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
-              values,
-              publicKey,
-            );
-            break;
-          }
-          case 2048: {
-            encrypted = CompactFheUint2048List.encrypt_with_compact_public_key(
-              values,
-              publicKey,
-            );
-            break;
-          }
+        const totalBits = bits.reduce((total, v) => total + v, 0);
+        const now = Date.now();
+        // const ppTypes = getKeys(publicParams);
+        const ppTypes = getKeys(publicParams);
+        const closestPP: EncryptionTypes | undefined = ppTypes.find(
+          (k) => Number(k) >= totalBits,
+        );
+        if (!closestPP) {
+          throw new Error(
+            `Too many bits in provided values. Maximum is ${
+              ppTypes[ppTypes.length - 1]
+            }.`,
+          );
         }
+        const pp = publicParams[closestPP]!;
+        console.log(`start using ${closestPP} for ${totalBits}`, now);
+        const encrypted = builder.build_with_proof_packed(
+          pp,
+          ZkComputeLoad.Proof,
+        );
+
+        console.log(`It took ${(Date.now() - now) / 1000}s`);
 
         const inputProof = encrypted.serialize();
         const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
-        // const encrypted = ProvenCompactFheUint160List.encrypt_with_compact_public_key(
-        //   values,
-        //   publicZkParams,
-        //   publicKey,
-        //   ZkComputeLoad.Proof,
-        // );
         const handles = bits.map((v, i) => {
           const dataWithIndex = new Uint8Array(hash.length + 1);
           dataWithIndex.set(hash, 0);
@@ -211,52 +208,6 @@ export const createEncryptedInput =
         return {
           handles,
           inputProof,
-        };
-      },
-      async send() {
-        if (!coprocessorUrl) throw new Error('Coprocessor URL not provided');
-        const encrypted = CompactFheUint160List.encrypt_with_compact_public_key(
-          values,
-          publicKey,
-        );
-        const ciphertext = encrypted.serialize();
-
-        const data = new Uint8Array(1 + bits.length + ciphertext.length);
-        data.set([bits.length], 0);
-        bits.forEach((value, index) => {
-          data.set([ENCRYPTION_TYPES[value] & 0xff], 1 + index);
-        });
-        data.set(ciphertext, bits.length + 1);
-
-        const payload = {
-          jsonrpc: '2.0',
-          method: 'eth_addUserCiphertext',
-          params: ['0x' + toHexString(data), contractAddress, callerAddress],
-          id: 1,
-        };
-
-        // Set up the fetch request options
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        };
-        let resJson;
-        try {
-          resJson = await fetchJSONRPC(coprocessorUrl, options);
-        } catch (e) {
-          throw new Error(
-            'Impossible to send input to coprocessor (wrong url?)',
-          );
-        }
-        const inputProof = convertToInputProof(resJson);
-        return {
-          handles: resJson.handlesList.map((handle: string) =>
-            fromHexString(handle),
-          ),
-          inputProof: fromHexString(inputProof),
         };
       },
     };

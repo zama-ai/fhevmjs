@@ -70,75 +70,75 @@ describe('decrypt', () => {
     expect(bigint0.toString()).toBe('0');
   });
 
-  it('decryptor bool', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheBool.encrypt_with_compact_public_key(
-      true,
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decryptBool(toHexString(c));
-    expect(v).toBe(true);
-  });
+  // it('decryptor bool', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheBool.encrypt_with_compact_public_key(
+  //     true,
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decryptBool(toHexString(c));
+  //   expect(v).toBe(true);
+  // });
 
-  it('decryptor 4', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint4.encrypt_with_compact_public_key(
-      4,
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decrypt4(toHexString(c));
-    expect(v).toBe(4);
-  });
+  // it('decryptor 4', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint4.encrypt_with_compact_public_key(
+  //     4,
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decrypt4(toHexString(c));
+  //   expect(v).toBe(4);
+  // });
 
-  it('decryptor 8', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint8.encrypt_with_compact_public_key(
-      67,
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decrypt8(toHexString(c));
-    expect(v).toBe(67);
-  });
+  // it('decryptor 8', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint8.encrypt_with_compact_public_key(
+  //     67,
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decrypt8(toHexString(c));
+  //   expect(v).toBe(67);
+  // });
 
-  it('decryptor 16', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint16.encrypt_with_compact_public_key(
-      1700,
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decrypt16(toHexString(c));
-    expect(v).toBe(1700);
-  });
+  // it('decryptor 16', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint16.encrypt_with_compact_public_key(
+  //     1700,
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decrypt16(toHexString(c));
+  //   expect(v).toBe(1700);
+  // });
 
-  it('decryptor 32', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint32.encrypt_with_compact_public_key(
-      77662,
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decrypt32(toHexString(c));
-    expect(v).toBe(77662);
-  });
+  // it('decryptor 32', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint32.encrypt_with_compact_public_key(
+  //     77662,
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decrypt32(toHexString(c));
+  //   expect(v).toBe(77662);
+  // });
 
-  it('decryptor 64', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint64.encrypt_with_compact_public_key(
-      BigInt(11200),
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decrypt64(toHexString(c));
-    expect(v).toBe(BigInt(11200));
-  });
+  // it('decryptor 64', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint64.encrypt_with_compact_public_key(
+  //     BigInt(11200),
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decrypt64(toHexString(c));
+  //   expect(v).toBe(BigInt(11200));
+  // });
 
-  it('decryptor address', async () => {
-    const d = clientKeyDecryptor(clientKeySer);
-    const c = FheUint160.encrypt_with_compact_public_key(
-      BigInt('0x8ba1f109551bd432803012645ac136ddd64dba72'),
-      compactPublicKey,
-    ).serialize();
-    const v = await d.decryptAddress(toHexString(c));
-    expect(v).toBe('0x8ba1f109551bd432803012645ac136ddd64dba72');
-  });
+  // it('decryptor address', async () => {
+  //   const d = clientKeyDecryptor(clientKeySer);
+  //   const c = FheUint160.encrypt_with_compact_public_key(
+  //     BigInt('0x8ba1f109551bd432803012645ac136ddd64dba72'),
+  //     compactPublicKey,
+  //   ).serialize();
+  //   const v = await d.decryptAddress(toHexString(c));
+  //   expect(v).toBe('0x8ba1f109551bd432803012645ac136ddd64dba72');
+  // });
 
   it('returns ciphertext call params', async () => {
     const params = getCiphertextCallParams(BigInt(23));

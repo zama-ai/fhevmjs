@@ -1,23 +1,21 @@
 import { createInstance } from './index';
-import { createTfhePublicKey } from '../tfhe';
+import { publicKey, publicParams } from '../test';
+import { bytesToHex } from 'src/utils';
 
 describe('index', () => {
-  let tfhePublicKey: string;
-
-  beforeAll(async () => {
-    tfhePublicKey = createTfhePublicKey();
-  });
-
   it('creates an instance', async () => {
+    const serializedPublicKey = bytesToHex(publicKey.serialize());
+    const serializedPublicParams = bytesToHex(publicParams.serialize(false));
     const instance = await createInstance({
       chainId: 1234,
-      publicKey: tfhePublicKey,
+      publicKey: serializedPublicKey,
+      publicParams: serializedPublicParams,
     });
     expect(instance.reencrypt).toBeDefined();
     expect(instance.createEIP712).toBeDefined();
     expect(instance.generateKeypair).toBeDefined();
     expect(instance.createEncryptedInput).toBeDefined();
-    expect(instance.getPublicKey()).toBe(tfhePublicKey);
+    expect(instance.getPublicKey()).toBe(serializedPublicKey);
   });
 
   it('creates an instance for mock', async () => {
@@ -31,10 +29,11 @@ describe('index', () => {
   });
 
   it('fails to create an instance', async () => {
+    const serializedPublicKey = bytesToHex(publicKey.serialize());
     await expect(
       createInstance({
         chainId: BigInt(1234) as any,
-        publicKey: tfhePublicKey,
+        publicKey: serializedPublicKey,
       }),
     ).rejects.toThrow('chainId must be a number');
 

@@ -27,6 +27,7 @@
   },
   "scripts": {
     "lint": "eslint src/",
+    "generateKeys": "./generateKeys.js",
     "build": "npm run build:lib && npm run build:bundle",
     "build:lib": "rollup -c config/rollup.config.js",
     "build:bundle": "webpack --mode=production --config config/webpack.config.cjs",
@@ -49,9 +50,9 @@
     "bigint-buffer": "^1.1.5",
     "commander": "^11.0.0",
     "node-fetch": "^2.7.0",
-    "node-tfhe": "^0.6.3",
+    "node-tfhe": "^0.8.0-alpha.3",
     "sha3": "^2.1.4",
-    "tfhe": "^0.6.3",
+    "tfhe": "^0.8.0-alpha.3",
     "url": "^0.11.3",
     "web3-validator": "^2.0.6"
   },

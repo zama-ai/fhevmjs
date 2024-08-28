@@ -1,33 +1,17 @@
-import { TfheCompactPublicKey } from 'node-tfhe';
-import type { Eip1193Provider } from 'ethers';
+import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { URL } from 'url';
 import { fromHexString } from '../utils';
 import { ZKInput } from './encrypt';
-import {
-  getPublicKeyFromNetwork,
-  getPublicKeyFromCoprocessor,
-  getChainIdFromNetwork,
-  getChainIdFromEip1193,
-  getPublicKeyFromEip1193,
-} from './network';
+import { getPublicKeyFromGateway, getPublicParamsFromGateway } from './network';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
 
-export {
-  getPublicKeyCallParams,
-  getPublicKeyFromCoprocessor,
-  getPublicKeyFromNetwork,
-  getChainIdFromNetwork,
-} from './network';
-
 type FhevmInstanceConfig = {
-  chainId?: number;
+  chainId: number;
   publicKey?: string;
+  publicParams?: string;
   gatewayUrl?: string;
-  network?: Eip1193Provider;
-  networkUrl?: string;
-  coprocessorUrl?: string;
 };
 
 export type FhevmInstance = {
@@ -55,42 +39,11 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  let { publicKey, networkUrl, network, gatewayUrl, coprocessorUrl } = config;
+  const { publicKey, chainId, gatewayUrl, publicParams } = config;
 
+  let gateway: string | undefined;
   if (gatewayUrl) {
-    gatewayUrl = new URL(gatewayUrl).href;
-  }
-
-  if (networkUrl) {
-    networkUrl = new URL(networkUrl).href;
-  }
-
-  if (coprocessorUrl) {
-    coprocessorUrl = new URL(coprocessorUrl).href;
-  }
-
-  let chainId: number;
-  if (config.chainId && typeof config.chainId === 'number') {
-    chainId = config.chainId;
-  } else if (config.chainId && typeof config.chainId !== 'number') {
-    throw new Error('chainId must be a number.');
-  } else if (networkUrl) {
-    chainId = await getChainIdFromNetwork(networkUrl);
-  } else if (network) {
-    chainId = await getChainIdFromEip1193(network);
-  } else {
-    throw new Error(
-      "You didn't provide the chainId nor the network url to get it.",
-    );
-  }
-
-  if (coprocessorUrl && !publicKey) {
-    const data = await getPublicKeyFromCoprocessor(coprocessorUrl);
-    publicKey = data.publicKey;
-  } else if (networkUrl && !publicKey) {
-    publicKey = await getPublicKeyFromNetwork(networkUrl);
-  } else if (network && !publicKey) {
-    publicKey = await getPublicKeyFromEip1193(network);
+    gateway = new URL(gatewayUrl).href;
   }
 
   if (publicKey && typeof publicKey !== 'string')
@@ -98,7 +51,9 @@ export const createInstance = async (
 
   let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
 
-  if (publicKey) {
+  if (gateway && !publicKey) {
+    tfheCompactPublicKey = await getPublicKeyFromGateway(gateway);
+  } else if (publicKey) {
     const buff = fromHexString(publicKey);
     try {
       tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
@@ -107,14 +62,27 @@ export const createInstance = async (
     }
   }
 
+  let pkePublicParams: CompactPkePublicParams | undefined;
+
+  if (gateway && !publicParams) {
+    pkePublicParams = await getPublicParamsFromGateway(gateway);
+  } else if (publicParams) {
+    const buff = fromHexString(publicParams);
+    try {
+      pkePublicParams = CompactPkePublicParams.deserialize(buff, false, false);
+    } catch (e) {
+      throw new Error('Invalid public key (deserialization failed)');
+    }
+  }
+
   return {
     createEncryptedInput: createEncryptedInput(
       tfheCompactPublicKey,
-      coprocessorUrl,
+      pkePublicParams,
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(gatewayUrl),
+    reencrypt: reencryptRequest(gateway),
     getPublicKey: () => publicKey || null,
   };
 };
