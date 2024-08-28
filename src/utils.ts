@@ -1,4 +1,4 @@
-import { toBigIntLE, toBufferLE } from 'bigint-buffer';
+import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 import {
   FheBool,
   FheUint4,
@@ -10,6 +10,15 @@ import {
   TfheClientKey,
 } from 'node-tfhe';
 
+export const SERIALIZED_SIZE_LIMIT_CIPHERTEXT = BigInt(1024 * 1024 * 512);
+export const SERIALIZED_SIZE_LIMIT_PK = BigInt(1024 * 1024 * 512);
+export const SERIALIZED_SIZE_LIMIT_CRS = BigInt(1024 * 1024 * 512);
+
+export const cleanURL = (url: string | undefined) => {
+  if (!url) return '';
+  return new URL(url).href;
+};
+
 export const fromHexString = (hexString: string): Uint8Array => {
   const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
   if (!arr) return new Uint8Array();
@@ -19,9 +28,16 @@ export const fromHexString = (hexString: string): Uint8Array => {
 export const toHexString = (bytes: Uint8Array) =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-export const bigIntToBytes = (value: bigint) => {
-  const byteArrayLength = Math.ceil(value.toString(2).length / 8);
-  return new Uint8Array(toBufferLE(value, byteArrayLength));
+export const bigIntToBytes64 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 64));
+};
+
+export const bigIntToBytes128 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 128));
+};
+
+export const bigIntToBytes256 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 256));
 };
 
 export const bytesToHex = function (byteArray: Uint8Array): string {
@@ -38,7 +54,7 @@ export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
   }
 
   const buffer = Buffer.from(byteArray);
-  const result = toBigIntLE(buffer);
+  const result = toBigIntBE(buffer);
   return result;
 };
 
@@ -46,19 +62,40 @@ export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
   const clientKey = TfheClientKey.deserialize(clientKeySer);
   return {
     decryptBool: (ciphertext: string) =>
-      FheBool.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheBool.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decrypt4: (ciphertext: string) =>
-      FheUint4.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheUint4.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decrypt8: (ciphertext: string) =>
-      FheUint8.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheUint8.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decrypt16: (ciphertext: string) =>
-      FheUint16.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheUint16.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decrypt32: (ciphertext: string) =>
-      FheUint32.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheUint32.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decrypt64: (ciphertext: string) =>
-      FheUint64.deserialize(fromHexString(ciphertext)).decrypt(clientKey),
+      FheUint64.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decryptAddress: (ciphertext: string) => {
-      let hex = FheUint160.deserialize(fromHexString(ciphertext))
+      let hex = FheUint160.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      )
         .decrypt(clientKey)
         .toString(16);
       while (hex.length < 40) {

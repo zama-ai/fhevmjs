@@ -1,18 +1,24 @@
+import { Provider } from 'ethers';
 import {
   bytesToBigInt,
-  bigIntToBytes,
+  bigIntToBytes256,
   toHexString,
   fromHexString,
 } from '../utils';
 import {
   u8vec_to_cryptobox_pk,
-  default_client_for_centralized_kms,
-  process_reencryption_resp_from_json,
+  new_client,
+  process_reencryption_resp_from_js,
   u8vec_to_cryptobox_sk,
-} from '../kms/node/kms_lib.js';
+} from 'node-tkms';
 
 export const reencryptRequest =
-  (gatewayUrl?: string) =>
+  (
+    kmsSignatures: string[],
+    chainId: number,
+    kmsContractAddress: string,
+    gatewayUrl: string,
+  ) =>
   async (
     handle: bigint,
     privateKey: string,
@@ -21,8 +27,6 @@ export const reencryptRequest =
     contractAddress: string,
     userAddress: string,
   ) => {
-    if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
-
     const payload = {
       signature: signature.replace(/^(0x)/, ''),
       user_address: userAddress.replace(/^(0x)/, ''),
@@ -54,18 +58,26 @@ export const reencryptRequest =
       throw new Error("Gateway didn't response correctly");
     }
 
-    const client = default_client_for_centralized_kms();
+    const client = new_client(kmsSignatures, userAddress, 'default');
 
     try {
-      const decryption = process_reencryption_resp_from_json(
+      const eip712Domain = {
+        name: 'Authorization token',
+        version: '1',
+        chain_id: chainId,
+        verifying_contract: kmsContractAddress,
+        salt: [],
+      };
+      const decryption = process_reencryption_resp_from_js(
         client,
-        undefined,
+        payload,
+        eip712Domain,
         json.response,
-        undefined,
         pubKey,
         privKey,
-        false,
+        true,
       );
+
       return bytesToBigInt(decryption);
     } catch (e) {
       throw new Error('An error occured during decryption');

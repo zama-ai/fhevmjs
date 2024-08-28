@@ -1,35 +1,23 @@
-import { TfheCompactPublicKey, TfheClientKey } from 'node-tfhe';
-import { createTfheKeypair } from '../tfhe';
-import { createEncryptedInput } from './encrypt';
-import {
-  getChainIdFromNetwork,
-  getPublicKeyCallParams,
-  getPublicKeyFromCoprocessor,
-  getPublicKeyFromNetwork,
-} from './network';
-import { fromHexString } from '../utils';
+import { getKeysFromGateway } from './network';
+import { publicKey, publicParams } from '../test';
+import { bytesToHex } from '../utils';
+import fetchMock from '@fetch-mock/core';
+
+fetchMock.get('https://test-gateway.net/keys', {
+  publicKey: { url: 'https://dummy-pk' },
+  crs: { 2048: { url: 'https://dummy-2048' } },
+});
+
+fetchMock.get('https://dummy-pk', bytesToHex(publicKey.serialize()));
+fetchMock.get(
+  'https://dummy-2048',
+  bytesToHex(publicParams[2048].serialize(false)),
+);
 
 describe('network', () => {
-  let clientKey: TfheClientKey;
-  let publicKey: TfheCompactPublicKey;
+  it('getInputsFromGateway', async () => {
+    const material = await getKeysFromGateway('https://test-gateway.net/');
 
-  beforeAll(async () => {
-    const keypair = createTfheKeypair();
-  });
-
-  it('get chainId', async () => {
-    const chainId = await getChainIdFromNetwork('https://devnet.zama.ai');
-    expect(chainId).toBe(8009);
-  });
-
-  it('get network key', async () => {
-    const pk = await getPublicKeyFromNetwork('https://devnet.zama.ai');
-    expect(pk!.length).toBe(33106);
-  });
-
-  it('get public key params', async () => {
-    const params = getPublicKeyCallParams();
-    expect(params.to).toBe('0x000000000000000000000000000000000000005d');
-    expect(params.data).toBe('0xd9d47bb001');
+    expect(material.publicKey.serialize()).toStrictEqual(publicKey.serialize());
   });
 });

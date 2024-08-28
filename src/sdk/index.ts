@@ -1,34 +1,17 @@
-import { TfheCompactPublicKey } from 'node-tfhe';
-import type { Eip1193Provider } from 'ethers';
-import { URL } from 'url';
-import { fromHexString } from '../utils';
-import { ZKInput } from './encrypt';
 import {
-  getPublicKeyFromNetwork,
-  getPublicKeyFromCoprocessor,
-  getChainIdFromNetwork,
-  getChainIdFromEip1193,
-  getPublicKeyFromEip1193,
-} from './network';
+  FhevmInstanceConfig,
+  getChainId,
+  getKMSSignatures,
+  getProvider,
+  getPublicParams,
+  getTfheCompactPublicKey,
+} from './config';
+import { cleanURL } from '../utils';
+import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
-
-export {
-  getPublicKeyCallParams,
-  getPublicKeyFromCoprocessor,
-  getPublicKeyFromNetwork,
-  getChainIdFromNetwork,
-} from './network';
-
-type FhevmInstanceConfig = {
-  chainId?: number;
-  publicKey?: string;
-  gatewayUrl?: string;
-  network?: Eip1193Provider;
-  networkUrl?: string;
-  coprocessorUrl?: string;
-};
+import { isAddress } from 'ethers';
 
 export type FhevmInstance = {
   createEncryptedInput: (
@@ -50,71 +33,56 @@ export type FhevmInstance = {
     userAddress: string,
   ) => Promise<bigint>;
   getPublicKey: () => string | null;
+  getPublicParams: () => PublicParams;
 };
 
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  let { publicKey, networkUrl, network, gatewayUrl, coprocessorUrl } = config;
+  const { publicKey, kmsContractAddress, aclContractAddress } = config;
 
-  if (gatewayUrl) {
-    gatewayUrl = new URL(gatewayUrl).href;
+  if (!kmsContractAddress || !isAddress(kmsContractAddress)) {
+    throw new Error('KMS contract address is not valid or empty');
   }
 
-  if (networkUrl) {
-    networkUrl = new URL(networkUrl).href;
-  }
-
-  if (coprocessorUrl) {
-    coprocessorUrl = new URL(coprocessorUrl).href;
-  }
-
-  let chainId: number;
-  if (config.chainId && typeof config.chainId === 'number') {
-    chainId = config.chainId;
-  } else if (config.chainId && typeof config.chainId !== 'number') {
-    throw new Error('chainId must be a number.');
-  } else if (networkUrl) {
-    chainId = await getChainIdFromNetwork(networkUrl);
-  } else if (network) {
-    chainId = await getChainIdFromEip1193(network);
-  } else {
-    throw new Error(
-      "You didn't provide the chainId nor the network url to get it.",
-    );
-  }
-
-  if (coprocessorUrl && !publicKey) {
-    const data = await getPublicKeyFromCoprocessor(coprocessorUrl);
-    publicKey = data.publicKey;
-  } else if (networkUrl && !publicKey) {
-    publicKey = await getPublicKeyFromNetwork(networkUrl);
-  } else if (network && !publicKey) {
-    publicKey = await getPublicKeyFromEip1193(network);
+  if (!aclContractAddress || !isAddress(aclContractAddress)) {
+    throw new Error('ACL contract address is not valid or empty');
   }
 
   if (publicKey && typeof publicKey !== 'string')
     throw new Error('publicKey must be a string');
 
-  let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
+  const provider = getProvider(config);
 
-  if (publicKey) {
-    const buff = fromHexString(publicKey);
-    try {
-      tfheCompactPublicKey = TfheCompactPublicKey.deserialize(buff);
-    } catch (e) {
-      throw new Error('Invalid public key (deserialization failed)');
-    }
+  if (!provider) {
+    throw new Error('No network has been provided!');
   }
+
+  const chainId = await getChainId(provider, config);
+
+  const tfheCompactPublicKey = await getTfheCompactPublicKey(config);
+
+  const pkePublicParams: PublicParams = await getPublicParams(config);
+
+  const kmsSignatures = await getKMSSignatures(provider, config);
 
   return {
     createEncryptedInput: createEncryptedInput(
+      aclContractAddress,
+      chainId,
+      cleanURL(config.gatewayUrl),
       tfheCompactPublicKey,
-      coprocessorUrl,
+      pkePublicParams,
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(gatewayUrl),
+    reencrypt: reencryptRequest(
+      kmsSignatures,
+      chainId,
+      kmsContractAddress,
+      cleanURL(config.gatewayUrl),
+    ),
     getPublicKey: () => publicKey || null,
+    getPublicParams: () => pkePublicParams || null,
   };
 };
