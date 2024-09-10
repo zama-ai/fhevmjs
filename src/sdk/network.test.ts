@@ -1,17 +1,20 @@
-import { getPublicKeyFromGateway, getPublicParamsFromGateway } from './network';
+import { getInputsFromGateway } from './network';
+import { publicKey, publicParams } from '../test';
+import fetchMock from '@fetch-mock/core';
+import { bytesToHex } from '../utils';
+
+fetchMock.mockGlobal();
+
+fetchMock.get('https://test-gateway.net/inputs', {
+  body: {
+    publicKey: bytesToHex(publicKey.serialize()),
+    publicParams: { 2048: bytesToHex(publicParams[2048].serialize(false)) },
+  },
+});
 
 describe('network', () => {
-  // it('get chainId', async () => {
-  //   const chainId = await getChainIdFromNetwork('https://devnet.zama.ai');
-  //   expect(chainId).toBe(8009);
-  // });
-  // it('get network key', async () => {
-  //   const pk = await getPublicKeyFromNetwork('https://devnet.zama.ai');
-  //   expect(pk!.length).toBe(33106);
-  // });
-  // it('get public key params', async () => {
-  //   const params = getPublicKeyCallParams();
-  //   expect(params.to).toBe('0x000000000000000000000000000000000000005d');
-  //   expect(params.data).toBe('0xd9d47bb001');
-  // });
+  it('getInputsFromGateway', async () => {
+    const material = await getInputsFromGateway('https://test-gateway.net');
+    expect(material.publicKey.serialize()).toStrictEqual(publicKey.serialize());
+  });
 });

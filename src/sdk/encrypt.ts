@@ -26,6 +26,7 @@ export type ZKInput = {
   addBytes128: (value: Uint8Array) => ZKInput;
   addBytes256: (value: Uint8Array) => ZKInput;
   addAddress: (value: string) => ZKInput;
+  getBits: () => number[];
   encrypt: () => {
     handles: Uint8Array[];
     inputProof: Uint8Array;
@@ -164,6 +165,9 @@ export const createEncryptedInput =
         bits.push(2048);
         return this;
       },
+      getBits() {
+        return bits;
+      },
       encrypt() {
         const getKeys = <T extends {}>(obj: T) =>
           Object.keys(obj) as Array<keyof T>;
@@ -183,13 +187,10 @@ export const createEncryptedInput =
           );
         }
         const pp = publicParams[closestPP]!;
-        console.log(`start using ${closestPP} for ${totalBits}`, now);
         const encrypted = builder.build_with_proof_packed(
           pp,
-          ZkComputeLoad.Proof,
+          ZkComputeLoad.Verify,
         );
-
-        console.log(`It took ${(Date.now() - now) / 1000}s`);
 
         const inputProof = encrypted.serialize();
         const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();

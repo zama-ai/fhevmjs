@@ -1,40 +1,30 @@
-import { CompactPkePublicParams, TfhePublicKey } from 'node-tfhe';
+import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
+import { fromHexString } from '../utils';
 
-export const getPublicKeyFromGateway = async (url: string) => {
+export const getInputsFromGateway = async (url: string) => {
   try {
-    const response = await fetch(`${url}/inputs/publickey`);
+    const response = await fetch(`${url}/inputs`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.arrayBuffer();
+    const data = await response.json();
     if (data) {
-      return TfhePublicKey.deserialize(new Uint8Array(data));
+      return {
+        publicKey: TfheCompactPublicKey.deserialize(
+          fromHexString(data.publicKey),
+        ),
+        publicParams: {
+          2048: CompactPkePublicParams.deserialize(
+            fromHexString(data.publicParams[2048]),
+            false,
+            false,
+          ),
+        },
+      };
     } else {
       throw new Error('No public key available');
     }
   } catch (error) {
     throw new Error('Impossible to fetch public key: wrong gateway url.');
-  }
-};
-
-// Define the function to perform the eth_call
-export const getPublicParamsFromGateway = async (url: string) => {
-  try {
-    const response = await fetch(`${url}/inputs/crs`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.arrayBuffer();
-    if (data) {
-      return CompactPkePublicParams.deserialize(
-        new Uint8Array(data),
-        false,
-        false,
-      );
-    } else {
-      throw new Error('No public params available');
-    }
-  } catch (error) {
-    throw new Error('Impossible to fetch public params: wrong gateway url.');
   }
 };

@@ -1,11 +1,13 @@
 import { createInstance } from './index';
 import { publicKey, publicParams } from '../test';
-import { bytesToHex } from 'src/utils';
+import { bytesToHex } from '../utils';
 
 describe('index', () => {
   it('creates an instance', async () => {
     const serializedPublicKey = bytesToHex(publicKey.serialize());
-    const serializedPublicParams = bytesToHex(publicParams.serialize(false));
+    const serializedPublicParams = bytesToHex(
+      publicParams[2048].serialize(false),
+    );
     const instance = await createInstance({
       chainId: 1234,
       publicKey: serializedPublicKey,

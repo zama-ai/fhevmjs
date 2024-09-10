@@ -21,50 +21,13 @@ describe('encrypt', () => {
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
-    // let encryptedList = compactList.expand();
 
-    // const values = [
-    //   encryptedList.get_bool(0),
-    //   encryptedList.get_uint4(1),
-    //   encryptedList.get_uint8(2),
-    //   encryptedList.get_uint16(3),
-    //   encryptedList.get_uint32(4),
-    //   encryptedList.get_uint64(5),
-    //   encryptedList.get_uint128(6),
-    //   encryptedList.get_uint160(7),
-    //   encryptedList.get_uint256(8),
-    // ];
-    // values.forEach((val, i) => {
-    //   const decrypted = val.decrypt(clientKey);
-    //   switch (i) {
-    //     case 0:
-    //       expect(decrypted.toString()).toBe('0');
-    //       break;
-    //     case 1:
-    //       expect(decrypted.toString()).toBe('2');
-    //       break;
-    //     case 2:
-    //       expect(decrypted.toString()).toBe('43');
-    //       break;
-    //     case 3:
-    //       expect(decrypted.toString()).toBe('87');
-    //       break;
-    //     case 3:
-    //       expect(decrypted.toString()).toBe('2339389323');
-    //       break;
-    //     case 5:
-    //       expect(decrypted.toString()).toBe('23393893233');
-    //       break;
-    //     case 6:
-    //       expect(decrypted.toString()).toBe('233938932390');
-    //       break;
-    //     case 7:
-    //       expect(decrypted.toString()).toBe(
-    //         '947020569397242089359429103430823793539382463616',
-    //       );
-    //       break;
-    //   }
-    // });
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [0, 2, 4, 8, 9, 10, 11, 12, 13];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
+    });
   });
 
   it('encrypt/decrypt one 0 value', async () => {
@@ -77,10 +40,12 @@ describe('encrypt', () => {
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
-    // const encryptedList = compactList.expand();
-    // const val = encryptedList.get_uint2048(0);
-    // const decrypted = val.decrypt(clientKey);
-    // expect(decrypted.toString()).toBe('0');
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [11];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
+    });
   });
 
   it('encrypt/decrypt one 2048 value', async () => {
@@ -95,12 +60,12 @@ describe('encrypt', () => {
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
-    // let encryptedList = compactList.expand();
-    // const val = encryptedList.get_uint2048(0);
-    // const decrypted = val.decrypt(clientKey);
-    // expect(decrypted.toString()).toBe(
-    //   '13355433680216258829653813963056604541043899547855704341091828781832225889331072183923741976689688961175617671240445089717606406707212403657580392564654080',
-    // );
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [16];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
+    });
   });
 
   it('throws errors', async () => {

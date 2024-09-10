@@ -2,7 +2,7 @@ import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { URL } from 'url';
 import { fromHexString } from '../utils';
 import { ZKInput } from './encrypt';
-import { getPublicKeyFromGateway, getPublicParamsFromGateway } from './network';
+import { getInputsFromGateway } from './network';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
@@ -41,6 +41,10 @@ export const createInstance = async (
 ): Promise<FhevmInstance> => {
   const { publicKey, chainId, gatewayUrl, publicParams } = config;
 
+  if (!chainId || typeof chainId !== 'number' || Number.isNaN(chainId)) {
+    throw new Error('chainId must be a number');
+  }
+
   let gateway: string | undefined;
   if (gatewayUrl) {
     gateway = new URL(gatewayUrl).href;
@@ -52,7 +56,8 @@ export const createInstance = async (
   let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
 
   if (gateway && !publicKey) {
-    tfheCompactPublicKey = await getPublicKeyFromGateway(gateway);
+    const inputs = await getInputsFromGateway(gateway);
+    tfheCompactPublicKey = inputs.publicKey;
   } else if (publicKey) {
     const buff = fromHexString(publicKey);
     try {
@@ -62,10 +67,11 @@ export const createInstance = async (
     }
   }
 
-  let pkePublicParams: CompactPkePublicParams | undefined;
+  let pkePublicParams: CompactPkePublicParams;
 
   if (gateway && !publicParams) {
-    pkePublicParams = await getPublicParamsFromGateway(gateway);
+    const inputs = await getInputsFromGateway(gateway);
+    pkePublicParams = inputs.publicParams[2048];
   } else if (publicParams) {
     const buff = fromHexString(publicParams);
     try {
@@ -76,10 +82,9 @@ export const createInstance = async (
   }
 
   return {
-    createEncryptedInput: createEncryptedInput(
-      tfheCompactPublicKey,
-      pkePublicParams,
-    ),
+    createEncryptedInput: createEncryptedInput(tfheCompactPublicKey, {
+      2048: pkePublicParams!,
+    }),
     generateKeypair,
     createEIP712: createEIP712(chainId),
     reencrypt: reencryptRequest(gateway),

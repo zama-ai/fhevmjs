@@ -2,33 +2,11 @@ import {
   bigIntToBytes,
   bytesToBigInt,
   bytesToHex,
-  clientKeyDecryptor,
   fromHexString,
   getCiphertextCallParams,
-  toHexString,
 } from './utils';
-import { createTfheKeypair } from './tfhe';
-import {
-  FheBool,
-  FheUint4,
-  FheUint8,
-  FheUint16,
-  FheUint32,
-  FheUint64,
-  FheUint160,
-  TfheCompactPublicKey,
-} from 'node-tfhe';
 
 describe('decrypt', () => {
-  let clientKeySer: Uint8Array;
-  let compactPublicKey: TfheCompactPublicKey;
-
-  beforeAll(async () => {
-    const { clientKey, publicKey } = createTfheKeypair();
-    clientKeySer = clientKey.serialize();
-    compactPublicKey = publicKey;
-  });
-
   it('converts a hex to bytes', async () => {
     const value = '0xff';
     const bytes = fromHexString(value);

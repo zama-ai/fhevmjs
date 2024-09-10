@@ -8,10 +8,9 @@ import {
 } from '../kms/node/kms_lib';
 
 describe('token', () => {
-  beforeAll(async () => {});
-
   it('generate a valid keypair', async () => {
     const keypair = generateKeypair();
+    console.log(keypair);
 
     expect(keypair.publicKey.length).toBe(80);
     expect(keypair.privateKey.length).toBe(80);
