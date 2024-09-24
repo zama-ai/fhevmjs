@@ -50,9 +50,11 @@
     "bigint-buffer": "^1.1.5",
     "commander": "^11.0.0",
     "fetch-mock": "^11.1.3",
-    "node-tfhe": "^0.8.0-alpha.4",
+    "node-tfhe": "^0.8.0-alpha.8",
+    "node-tkms": "^0.9.0-rc3",
     "sha3": "^2.1.4",
-    "tfhe": "^0.8.0-alpha.4",
+    "tfhe": "^0.8.0-alpha.8",
+    "tkms": "^0.9.0-rc3",
     "url": "^0.11.3",
     "web3-validator": "^2.0.6"
   },

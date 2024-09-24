@@ -7,7 +7,7 @@ import {
   ZkComputeLoad,
 } from 'node-tfhe';
 
-import { bytesToBigInt } from '../utils';
+import { bytesToBigInt, fromHexString } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 
 // const publicZkParams = CompactPkePublicParams.deserialize(crsBuffer);
@@ -27,10 +27,10 @@ export type ZKInput = {
   addBytes256: (value: Uint8Array) => ZKInput;
   addAddress: (value: string) => ZKInput;
   getBits: () => number[];
-  encrypt: () => {
+  encrypt: () => Promise<{
     handles: Uint8Array[];
     inputProof: Uint8Array;
-  };
+  }>;
   // send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
 };
 
@@ -53,12 +53,16 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
-export type PublicParams = {
-  [key in EncryptionTypes]?: CompactPkePublicParams;
+export type PublicParams<T = CompactPkePublicParams> = {
+  [key in EncryptionTypes]?: T;
 };
 
 export const createEncryptedInput =
-  (tfheCompactPublicKey?: TfheCompactPublicKey, publicParams?: PublicParams) =>
+  (
+    gateway?: string,
+    tfheCompactPublicKey?: TfheCompactPublicKey,
+    publicParams?: PublicParams,
+  ) =>
   (contractAddress: string, callerAddress: string): ZKInput => {
     if (!tfheCompactPublicKey || !publicParams)
       throw new Error(
@@ -168,7 +172,7 @@ export const createEncryptedInput =
       getBits() {
         return bits;
       },
-      encrypt() {
+      async encrypt() {
         const getKeys = <T extends {}>(obj: T) =>
           Object.keys(obj) as Array<keyof T>;
 
@@ -187,10 +191,22 @@ export const createEncryptedInput =
           );
         }
         const pp = publicParams[closestPP]!;
+        const buffContract = fromHexString(contractAddress);
+        const buffUser = fromHexString(callerAddress);
+        const metadata = new Uint8Array(buffContract.length + buffUser.length);
+        metadata.set(buffContract);
+        metadata.set(buffUser);
         const encrypted = builder.build_with_proof_packed(
           pp,
+          metadata,
           ZkComputeLoad.Verify,
         );
+
+        const serialized = encrypted.serialize();
+
+        // TODO Send payload
+
+        // fetch();
 
         const inputProof = encrypted.serialize();
         const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();

@@ -4,7 +4,11 @@ import { publicKey, publicParams } from '../test';
 
 describe('encrypt', () => {
   it('encrypt/decrypt', async () => {
-    const input = createEncryptedInput(publicKey, publicParams)(
+    const input = createEncryptedInput(
+      'http://gateway.com',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
@@ -17,7 +21,7 @@ describe('encrypt', () => {
     input.add128(BigInt(233938932390));
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
     input.add256(BigInt('2339389323922393930'));
-    const buffer = input.encrypt();
+    const buffer = await input.encrypt();
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
@@ -31,12 +35,16 @@ describe('encrypt', () => {
   });
 
   it('encrypt/decrypt one 0 value', async () => {
-    const input = createEncryptedInput(publicKey, publicParams)(
+    const input = createEncryptedInput(
+      'http://gateway.com',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
     input.add128(BigInt(0));
-    const buffer = input.encrypt();
+    const buffer = await input.encrypt();
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
@@ -49,14 +57,18 @@ describe('encrypt', () => {
   });
 
   it('encrypt/decrypt one 2048 value', async () => {
-    const input = createEncryptedInput(publicKey, publicParams)(
+    const input = createEncryptedInput(
+      'http://gateway.com',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
     const data = new Uint8Array(64);
     data.set([255], 63);
     input.addBytes256(data);
-    const buffer = input.encrypt();
+    const buffer = await input.encrypt();
     const compactList = ProvenCompactCiphertextList.deserialize(
       buffer.inputProof,
     );
@@ -78,20 +90,32 @@ describe('encrypt', () => {
       'Your instance has been created without the public blockchain key.',
     );
     expect(() =>
-      createEncryptedInput(publicKey, publicParams)(
+      createEncryptedInput(
+        'http://gateway.com',
+        publicKey,
+        publicParams,
+      )(
         '0x8ba1f109551bd432803012645ac136ddd64dba',
         '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
       ),
     ).toThrow('Contract address is not a valid address.');
 
     expect(() =>
-      createEncryptedInput(publicKey, publicParams)(
+      createEncryptedInput(
+        'http://gateway.com',
+        publicKey,
+        publicParams,
+      )(
         '0x8ba1f109551bd432803012645ac136ddd64dba72',
         '0xa5e1defb98EFe38EBb2D958CEe052410247F4c',
       ),
     ).toThrow('User address is not a valid address.');
 
-    const input = createEncryptedInput(publicKey, publicParams)(
+    const input = createEncryptedInput(
+      'http://gateway.com',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
@@ -131,7 +155,11 @@ describe('encrypt', () => {
   });
 
   it('throws if total bits is above 2048', async () => {
-    const input2 = createEncryptedInput(publicKey, publicParams)(
+    const input2 = createEncryptedInput(
+      'http://gateway.com',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );

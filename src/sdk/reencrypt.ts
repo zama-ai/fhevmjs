@@ -6,10 +6,10 @@ import {
 } from '../utils';
 import {
   u8vec_to_cryptobox_pk,
-  default_client_for_centralized_kms,
-  process_reencryption_resp_from_json,
+  new_client,
+  process_reencryption_resp_from_js,
   u8vec_to_cryptobox_sk,
-} from '../kms/node/kms_lib.js';
+} from 'node-tkms';
 
 export const reencryptRequest =
   (gatewayUrl?: string) =>
@@ -54,18 +54,29 @@ export const reencryptRequest =
       throw new Error("Gateway didn't response correctly");
     }
 
-    const client = default_client_for_centralized_kms();
+    const client = new_client(pubKeys, userAddress, 'default');
 
     try {
-      const decryption = process_reencryption_resp_from_json(
+      const eip712Domain = {
+        name: 'Authorization token',
+        version: '1',
+        chain_id: [
+          70, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ],
+        verifying_contract: '0x66f9664f97F2b50F62D13eA064982f936dE76657',
+        salt: [],
+      };
+      const decryption = process_reencryption_resp_from_js(
         client,
-        undefined,
+        payload,
+        eip712Domain,
         json.response,
-        undefined,
         pubKey,
         privKey,
-        false,
+        true,
       );
+
       return bytesToBigInt(decryption);
     } catch (e) {
       throw new Error('An error occured during decryption');

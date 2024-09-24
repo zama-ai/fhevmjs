@@ -1,17 +1,24 @@
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
+import type { Eip1193Provider } from 'ethers';
 import { URL } from 'url';
 import { fromHexString } from '../utils';
-import { ZKInput } from './encrypt';
-import { getInputsFromGateway } from './network';
+import { PublicParams, ZKInput } from './encrypt';
+import {
+  getChainIdFromNetwork,
+  getChainIdFromEip1193,
+  getKeysFromGateway,
+} from './network';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
 
 type FhevmInstanceConfig = {
-  chainId: number;
+  chainId?: number;
   publicKey?: string;
-  publicParams?: string;
   gatewayUrl?: string;
+  network?: Eip1193Provider;
+  networkUrl?: string;
+  publicParams?: PublicParams<string>;
 };
 
 export type FhevmInstance = {
@@ -34,20 +41,37 @@ export type FhevmInstance = {
     userAddress: string,
   ) => Promise<bigint>;
   getPublicKey: () => string | null;
+  getPublicParams: () => PublicParams;
 };
 
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  const { publicKey, chainId, gatewayUrl, publicParams } = config;
+  const { publicKey, network, publicParams } = config;
 
-  if (!chainId || typeof chainId !== 'number' || Number.isNaN(chainId)) {
-    throw new Error('chainId must be a number');
+  let gatewayUrl: string | undefined;
+  if (config.gatewayUrl) {
+    gatewayUrl = new URL(config.gatewayUrl).href;
   }
 
-  let gateway: string | undefined;
-  if (gatewayUrl) {
-    gateway = new URL(gatewayUrl).href;
+  let networkUrl: string | undefined;
+  if (config.networkUrl) {
+    networkUrl = new URL(config.networkUrl).href;
+  }
+
+  let chainId: number;
+  if (config.chainId && typeof config.chainId === 'number') {
+    chainId = config.chainId;
+  } else if (config.chainId && typeof config.chainId !== 'number') {
+    throw new Error('chainId must be a number.');
+  } else if (networkUrl) {
+    chainId = await getChainIdFromNetwork(networkUrl);
+  } else if (network) {
+    chainId = await getChainIdFromEip1193(network);
+  } else {
+    throw new Error(
+      "You didn't provide the chainId nor the network url to get it.",
+    );
   }
 
   if (publicKey && typeof publicKey !== 'string')
@@ -55,8 +79,8 @@ export const createInstance = async (
 
   let tfheCompactPublicKey: TfheCompactPublicKey | undefined;
 
-  if (gateway && !publicKey) {
-    const inputs = await getInputsFromGateway(gateway);
+  if (gatewayUrl && !publicKey) {
+    const inputs = await getKeysFromGateway(gatewayUrl);
     tfheCompactPublicKey = inputs.publicKey;
   } else if (publicKey) {
     const buff = fromHexString(publicKey);
@@ -67,27 +91,32 @@ export const createInstance = async (
     }
   }
 
-  let pkePublicParams: CompactPkePublicParams;
+  let pkePublicParams: PublicParams = {};
 
-  if (gateway && !publicParams) {
-    const inputs = await getInputsFromGateway(gateway);
-    pkePublicParams = inputs.publicParams[2048];
-  } else if (publicParams) {
-    const buff = fromHexString(publicParams);
+  if (gatewayUrl && !publicParams) {
+    const inputs = await getKeysFromGateway(gatewayUrl);
+    pkePublicParams = inputs.publicParams;
+  } else if (publicParams && publicParams['2048']) {
+    const buff = fromHexString(publicParams['2048']);
     try {
-      pkePublicParams = CompactPkePublicParams.deserialize(buff, false, false);
+      pkePublicParams = {
+        '2048': CompactPkePublicParams.deserialize(buff, false, false),
+      };
     } catch (e) {
       throw new Error('Invalid public key (deserialization failed)');
     }
   }
 
   return {
-    createEncryptedInput: createEncryptedInput(tfheCompactPublicKey, {
-      2048: pkePublicParams!,
-    }),
+    createEncryptedInput: createEncryptedInput(
+      gatewayUrl,
+      tfheCompactPublicKey,
+      pkePublicParams,
+    ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(gateway),
+    reencrypt: reencryptRequest(gatewayUrl),
     getPublicKey: () => publicKey || null,
+    getPublicParams: () => pkePublicParams || null,
   };
 };

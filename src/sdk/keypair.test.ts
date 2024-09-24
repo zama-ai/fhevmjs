@@ -5,12 +5,11 @@ import {
   cryptobox_sk_to_u8vec,
   u8vec_to_cryptobox_pk,
   u8vec_to_cryptobox_sk,
-} from '../kms/node/kms_lib';
+} from 'node-tkms';
 
 describe('token', () => {
   it('generate a valid keypair', async () => {
     const keypair = generateKeypair();
-    console.log(keypair);
 
     expect(keypair.publicKey.length).toBe(80);
     expect(keypair.privateKey.length).toBe(80);

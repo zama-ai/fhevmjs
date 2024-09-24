@@ -1,11 +1,11 @@
-import { getInputsFromGateway } from './network';
+import { getKeysFromGateway } from './network';
 import { publicKey, publicParams } from '../test';
 import fetchMock from '@fetch-mock/core';
 import { bytesToHex } from '../utils';
 
 fetchMock.mockGlobal();
 
-fetchMock.get('https://test-gateway.net/inputs', {
+fetchMock.get('https://test-gateway.net/keys', {
   body: {
     publicKey: bytesToHex(publicKey.serialize()),
     publicParams: { 2048: bytesToHex(publicParams[2048].serialize(false)) },
@@ -14,7 +14,7 @@ fetchMock.get('https://test-gateway.net/inputs', {
 
 describe('network', () => {
   it('getInputsFromGateway', async () => {
-    const material = await getInputsFromGateway('https://test-gateway.net');
+    const material = await getKeysFromGateway('https://test-gateway.net');
     expect(material.publicKey.serialize()).toStrictEqual(publicKey.serialize());
   });
 });

@@ -11,7 +11,7 @@ describe('index', () => {
     const instance = await createInstance({
       chainId: 1234,
       publicKey: serializedPublicKey,
-      publicParams: serializedPublicParams,
+      publicParams: { 2048: serializedPublicParams },
     });
     expect(instance.reencrypt).toBeDefined();
     expect(instance.createEIP712).toBeDefined();
