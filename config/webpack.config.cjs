@@ -59,9 +59,10 @@ const web = {
       'node-tfhe': 'tfhe/tfhe',
     },
     fallback: {
-      'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
       'node-tfhe': require.resolve('tfhe/tfhe'),
-      'kms_lib_bg.wasm': require.resolve('../src/kms/web/kms_lib_bg.wasm'),
+      'tfhe_bg.wasm': require.resolve('tfhe/tfhe_bg.wasm'),
+      'node-tkms': require.resolve('tkms/kms_lib'),
+      'kms_lib_bg.wasm': require.resolve('tkms/kms_lib_bg.wasm'),
       buffer: require.resolve('buffer/'),
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
