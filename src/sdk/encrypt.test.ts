@@ -1,11 +1,19 @@
 import { ProvenCompactCiphertextList } from 'node-tfhe';
 import { createEncryptedInput } from './encrypt';
 import { publicKey, publicParams } from '../test';
+import fetchMock from '@fetch-mock/core';
+
+fetchMock.post('https://test-gateway.net/zkp', {
+  response: {},
+  status: 'success',
+});
 
 describe('encrypt', () => {
   it('encrypt/decrypt', async () => {
     const input = createEncryptedInput(
-      'http://gateway.com',
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
       publicKey,
       publicParams,
     )(
@@ -22,8 +30,9 @@ describe('encrypt', () => {
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
     input.add256(BigInt('2339389323922393930'));
     const buffer = await input.encrypt();
-    const compactList = ProvenCompactCiphertextList.deserialize(
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
       buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
     );
 
     const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
@@ -36,7 +45,9 @@ describe('encrypt', () => {
 
   it('encrypt/decrypt one 0 value', async () => {
     const input = createEncryptedInput(
-      'http://gateway.com',
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
       publicKey,
       publicParams,
     )(
@@ -45,8 +56,9 @@ describe('encrypt', () => {
     );
     input.add128(BigInt(0));
     const buffer = await input.encrypt();
-    const compactList = ProvenCompactCiphertextList.deserialize(
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
       buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
     );
     const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
     const expectedTypes = [11];
@@ -58,7 +70,9 @@ describe('encrypt', () => {
 
   it('encrypt/decrypt one 2048 value', async () => {
     const input = createEncryptedInput(
-      'http://gateway.com',
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
       publicKey,
       publicParams,
     )(
@@ -69,8 +83,9 @@ describe('encrypt', () => {
     data.set([255], 63);
     input.addBytes256(data);
     const buffer = await input.encrypt();
-    const compactList = ProvenCompactCiphertextList.deserialize(
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
       buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
     );
     const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
     const expectedTypes = [16];
@@ -82,27 +97,29 @@ describe('encrypt', () => {
 
   it('throws errors', async () => {
     expect(() =>
-      createEncryptedInput()(
-        '0x8ba1f109551bd432803012645ac136ddd64dba72',
-        '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-      ),
-    ).toThrow(
-      'Your instance has been created without the public blockchain key.',
-    );
-    expect(() =>
       createEncryptedInput(
-        'http://gateway.com',
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
         publicKey,
         publicParams,
-      )(
-        '0x8ba1f109551bd432803012645ac136ddd64dba',
-        '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-      ),
+      )('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80', '0'),
+    ).toThrow('User address is not a valid address.');
+    expect(() =>
+      createEncryptedInput(
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
+        publicKey,
+        publicParams,
+      )('0x0', '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80'),
     ).toThrow('Contract address is not a valid address.');
 
     expect(() =>
       createEncryptedInput(
-        'http://gateway.com',
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
         publicKey,
         publicParams,
       )(
@@ -112,7 +129,9 @@ describe('encrypt', () => {
     ).toThrow('User address is not a valid address.');
 
     const input = createEncryptedInput(
-      'http://gateway.com',
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
       publicKey,
       publicParams,
     )(
@@ -156,7 +175,9 @@ describe('encrypt', () => {
 
   it('throws if total bits is above 2048', async () => {
     const input2 = createEncryptedInput(
-      'http://gateway.com',
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
       publicKey,
       publicParams,
     )(
@@ -165,9 +186,13 @@ describe('encrypt', () => {
     );
     input2.addBytes256(new Uint8Array(64));
     input2.addBool(false);
-    expect(() => input2.encrypt()).toThrow(
-      'Too many bits in provided values. Maximum is 2048.',
-    );
+    input2
+      .encrypt()
+      .catch((err) =>
+        expect(err.message).toBe(
+          'Too many bits in provided values. Maximum is 2048.',
+        ),
+      );
   });
 });
 

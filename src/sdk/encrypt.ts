@@ -1,4 +1,4 @@
-import { isAddress } from 'web3-validator';
+import { isAddress } from 'ethers';
 import { Keccak } from 'sha3';
 import {
   TfheCompactPublicKey,
@@ -7,10 +7,13 @@ import {
   ZkComputeLoad,
 } from 'node-tfhe';
 
-import { bytesToBigInt, fromHexString } from '../utils';
+import {
+  bytesToBigInt,
+  fromHexString,
+  SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+} from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 
-// const publicZkParams = CompactPkePublicParams.deserialize(crsBuffer);
 type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 
 export type ZKInput = {
@@ -59,16 +62,13 @@ export type PublicParams<T = CompactPkePublicParams> = {
 
 export const createEncryptedInput =
   (
-    gateway?: string,
-    tfheCompactPublicKey?: TfheCompactPublicKey,
-    publicParams?: PublicParams,
+    aclContractAddress: string,
+    chainId: number,
+    gateway: string,
+    tfheCompactPublicKey: TfheCompactPublicKey,
+    publicParams: PublicParams,
   ) =>
   (contractAddress: string, callerAddress: string): ZKInput => {
-    if (!tfheCompactPublicKey || !publicParams)
-      throw new Error(
-        'Your instance has been created without the public blockchain key.',
-      );
-
     if (!isAddress(contractAddress)) {
       throw new Error('Contract address is not a valid address.');
     }
@@ -193,22 +193,55 @@ export const createEncryptedInput =
         const pp = publicParams[closestPP]!;
         const buffContract = fromHexString(contractAddress);
         const buffUser = fromHexString(callerAddress);
-        const metadata = new Uint8Array(buffContract.length + buffUser.length);
-        metadata.set(buffContract);
-        metadata.set(buffUser);
+        const buffAcl = fromHexString(aclContractAddress);
+        const buffChainId = fromHexString(chainId.toString(16));
+        const auxData = new Uint8Array(
+          buffContract.length +
+            buffUser.length +
+            buffAcl.length +
+            buffChainId.length,
+        );
+        auxData.set(buffContract);
+        auxData.set(buffUser);
+        auxData.set(buffAcl);
+        auxData.set(buffChainId);
         const encrypted = builder.build_with_proof_packed(
           pp,
-          metadata,
+          auxData,
           ZkComputeLoad.Verify,
         );
 
-        const serialized = encrypted.serialize();
+        const inputProof = encrypted.safe_serialize(
+          SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+        );
+
+        const payload = {
+          client_address: contractAddress,
+          caller_address: callerAddress,
+          ct_proof: inputProof,
+          max_num_bits: 2048,
+        };
 
         // TODO Send payload
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        };
 
-        // fetch();
+        let json;
+        try {
+          const response = await fetch(`${gateway}zkp`, options);
+          json = await response.json();
+        } catch (e) {
+          console.log(`${gateway}zkp`);
+          throw new Error("Gateway didn't response correctly");
+        }
 
-        const inputProof = encrypted.serialize();
+        json.response.handles;
+
         const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
         const handles = bits.map((v, i) => {
           const dataWithIndex = new Uint8Array(hash.length + 1);

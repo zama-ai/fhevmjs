@@ -9,9 +9,12 @@ describe('index', () => {
       publicParams[2048].serialize(false),
     );
     const instance = await createInstance({
+      aclContractAddress: '0x4c102C7cA99d3079fEFF08114d3bad888b9794d9',
+      kmsContractAddress: '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
       chainId: 1234,
       publicKey: serializedPublicKey,
       publicParams: { 2048: serializedPublicParams },
+      networkUrl: 'https://network.com',
     });
     expect(instance.reencrypt).toBeDefined();
     expect(instance.createEIP712).toBeDefined();
@@ -22,7 +25,10 @@ describe('index', () => {
 
   it('creates an instance for mock', async () => {
     const instance = await createInstance({
+      aclContractAddress: '0x4c102C7cA99d3079fEFF08114d3bad888b9794d9',
+      kmsContractAddress: '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
       chainId: 1234,
+      networkUrl: 'https://network.com',
     });
     expect(instance.reencrypt).toBeDefined();
     expect(instance.createEIP712).toBeDefined();
@@ -34,13 +40,20 @@ describe('index', () => {
     const serializedPublicKey = bytesToHex(publicKey.serialize());
     await expect(
       createInstance({
+        aclContractAddress: '0x4c102C7cA99d3079fEFF08114d3bad888b9794d9',
+        kmsContractAddress: '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
         chainId: BigInt(1234) as any,
         publicKey: serializedPublicKey,
       }),
     ).rejects.toThrow('chainId must be a number');
 
     await expect(
-      createInstance({ chainId: 9000, publicKey: 43 as any }),
+      createInstance({
+        aclContractAddress: '0x4c102C7cA99d3079fEFF08114d3bad888b9794d9',
+        kmsContractAddress: '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        chainId: 9000,
+        publicKey: 43 as any,
+      }),
     ).rejects.toThrow('publicKey must be a string');
   });
 });

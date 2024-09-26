@@ -1,3 +1,4 @@
+import { Provider } from 'ethers';
 import {
   bytesToBigInt,
   bigIntToBytes,
@@ -12,7 +13,7 @@ import {
 } from 'node-tkms';
 
 export const reencryptRequest =
-  (gatewayUrl?: string) =>
+  (kmsSignatures: string[], gatewayUrl: string) =>
   async (
     handle: bigint,
     privateKey: string,
@@ -21,8 +22,6 @@ export const reencryptRequest =
     contractAddress: string,
     userAddress: string,
   ) => {
-    if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
-
     const payload = {
       signature: signature.replace(/^(0x)/, ''),
       user_address: userAddress.replace(/^(0x)/, ''),
@@ -54,7 +53,7 @@ export const reencryptRequest =
       throw new Error("Gateway didn't response correctly");
     }
 
-    const client = new_client(pubKeys, userAddress, 'default');
+    const client = new_client(kmsSignatures, userAddress, 'default');
 
     try {
       const eip712Domain = {

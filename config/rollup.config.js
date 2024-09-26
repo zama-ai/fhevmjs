@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 
+import json from '@rollup/plugin-json';
 import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
@@ -11,16 +12,17 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 const require = createRequire(import.meta.url);
 
 const nodePlugins = [
+  json(),
   copy({
     targets: [
-      {
-        src: './src/kms/node/*',
-        dest: 'lib/kms/node',
-      },
-      {
-        src: './src/kms/node/kms_lib_bg.wasm',
-        dest: 'lib/',
-      },
+      // {
+      //   src: './src/kms/node/*',
+      //   dest: 'lib/kms/node',
+      // },
+      // {
+      //   src: './src/kms/node/kms_lib_bg.wasm',
+      //   dest: 'lib/',
+      // },
     ],
   }),
   wasm(),
@@ -31,19 +33,20 @@ const nodePlugins = [
 ];
 
 const webPlugins = [
+  json(),
   copy({
     targets: [
-      {
-        src: './src/kms/web/*',
-        dest: 'lib/kms/web',
-      },
+      // {
+      //   src: './src/kms/web/*',
+      //   dest: 'lib/kms/web',
+      // },
     ],
   }),
   nodePolyfills(),
   replace({
     preventAssignment: true,
     'node-tfhe': 'tfhe',
-    'kms/node': 'kms/web',
+    'node-tkms': 'tkms',
   }),
   typescript({
     tsconfig: './tsconfig.rollup.json',
@@ -56,7 +59,7 @@ const webPlugins = [
   commonjs(),
   resolve({
     browser: true,
-    resolveOnly: ['tfhe'],
+    resolveOnly: ['tfhe', 'tkms'],
     extensions: ['.js', '.ts', '.wasm'],
   }),
 ];
