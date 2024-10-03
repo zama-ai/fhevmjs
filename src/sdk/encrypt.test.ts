@@ -79,7 +79,7 @@ describe('encrypt', () => {
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
-    const data = new Uint8Array(64);
+    const data = new Uint8Array(256);
     data.set([255], 63);
     input.addBytes256(data);
     const buffer = await input.encrypt();
@@ -184,15 +184,10 @@ describe('encrypt', () => {
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
-    input2.addBytes256(new Uint8Array(64));
-    input2.addBool(false);
-    input2
-      .encrypt()
-      .catch((err) =>
-        expect(err.message).toBe(
-          'Too many bits in provided values. Maximum is 2048.',
-        ),
-      );
+    input2.addBytes256(new Uint8Array(256));
+    expect(() => input2.addBool(false)).toThrow(
+      'Packing more than 2048 bits in a single input ciphertext is unsupported',
+    );
   });
 });
 
