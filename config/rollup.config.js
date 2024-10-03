@@ -7,25 +7,12 @@ import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import copy from 'rollup-plugin-copy';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 
 const require = createRequire(import.meta.url);
 
 const nodePlugins = [
   json(),
-  copy({
-    targets: [
-      // {
-      //   src: './src/kms/node/*',
-      //   dest: 'lib/kms/node',
-      // },
-      // {
-      //   src: './src/kms/node/kms_lib_bg.wasm',
-      //   dest: 'lib/',
-      // },
-    ],
-  }),
   wasm(),
   commonjs(),
   typescript({
@@ -35,14 +22,6 @@ const nodePlugins = [
 
 const webPlugins = [
   json(),
-  // copy({
-  //   targets: [
-  //     {
-  //       src: './node_modules/tfhe/snippets/wasm-bindgen-rayon-3e04391371ad0a8e/src/*',
-  //       dest: 'lib/',
-  //     },
-  //   ],
-  // }),
   url(),
   nodePolyfills(),
   replace({
