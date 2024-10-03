@@ -76,7 +76,12 @@ export const createInstance = async (
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(kmsSignatures, cleanURL(config.gatewayUrl)),
+    reencrypt: reencryptRequest(
+      kmsSignatures,
+      chainId,
+      kmsContractAddress,
+      cleanURL(config.gatewayUrl),
+    ),
     getPublicKey: () => publicKey || null,
     getPublicParams: () => pkePublicParams || null,
   };

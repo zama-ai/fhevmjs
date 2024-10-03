@@ -13,7 +13,12 @@ import {
 } from 'node-tkms';
 
 export const reencryptRequest =
-  (kmsSignatures: string[], gatewayUrl: string) =>
+  (
+    kmsSignatures: string[],
+    chainId: number,
+    kmsContractAddress: string,
+    gatewayUrl: string,
+  ) =>
   async (
     handle: bigint,
     privateKey: string,
@@ -59,11 +64,8 @@ export const reencryptRequest =
       const eip712Domain = {
         name: 'Authorization token',
         version: '1',
-        chain_id: [
-          70, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        verifying_contract: '0x66f9664f97F2b50F62D13eA064982f936dE76657',
+        chain_id: chainId,
+        verifying_contract: kmsContractAddress,
         salt: [],
       };
       const decryption = process_reencryption_resp_from_js(

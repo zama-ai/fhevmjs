@@ -34,10 +34,7 @@ export type ZKInput = {
     handles: Uint8Array[];
     inputProof: Uint8Array;
   }>;
-  // send: () => Promise<{ handles: Uint8Array[]; inputProof: Uint8Array }>;
 };
-
-const sum = (arr: number[]) => arr.reduce((acc, val) => acc + val, 0);
 
 const checkEncryptedValue = (value: number | bigint, bits: number) => {
   if (value == null) throw new Error('Missing value');
@@ -81,6 +78,17 @@ export const createEncryptedInput =
     const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
     const bits: EncryptionTypes[] = [];
     const builder = CompactCiphertextList.builder(publicKey);
+    const checkLimit = (added: number) => {
+      if (bits.reduce((acc, val) => acc + Math.max(2, val), 0) + added > 2048) {
+        throw Error(
+          'Packing more than 2048 bits in a single input ciphertext is unsupported',
+        );
+      }
+      if (bits.length + 1 > 256)
+        throw Error(
+          'Packing more than 256 variables in a single input ciphertext is unsupported',
+        );
+    };
     return {
       addBool(value: boolean | number | bigint) {
         if (value == null) throw new Error('Missing value');
@@ -96,130 +104,67 @@ export const createEncryptedInput =
         )
           throw new Error('The value must be 1 or 0.');
         checkEncryptedValue(Number(value), 1);
+        checkLimit(2);
         builder.push_boolean(!!value);
-        bits.push(2); // ebool takes 2 encrypted bits
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
+        bits.push(1); // ebool takes 2 encrypted bits
         return this;
       },
       add4(value: number | bigint) {
         checkEncryptedValue(value, 4);
+        checkLimit(4);
         builder.push_u4(Number(value));
         bits.push(4);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add8(value: number | bigint) {
         checkEncryptedValue(value, 8);
+        checkLimit(8);
         builder.push_u8(Number(value));
         bits.push(8);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add16(value: number | bigint) {
         checkEncryptedValue(value, 16);
+        checkLimit(16);
         builder.push_u16(Number(value));
         bits.push(16);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add32(value: number | bigint) {
         checkEncryptedValue(value, 32);
+        checkLimit(32);
         builder.push_u32(Number(value));
         bits.push(32);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add64(value: number | bigint) {
         checkEncryptedValue(value, 64);
+        checkLimit(64);
         builder.push_u64(BigInt(value));
         bits.push(64);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add128(value: number | bigint) {
         checkEncryptedValue(value, 128);
+        checkLimit(128);
         builder.push_u128(BigInt(value));
         bits.push(128);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       addAddress(value: string) {
         if (!isAddress(value)) {
           throw new Error('The value must be a valid address.');
         }
+        checkLimit(160);
         builder.push_u160(BigInt(value));
         bits.push(160);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       add256(value: number | bigint) {
         checkEncryptedValue(value, 256);
+        checkLimit(256);
         builder.push_u256(BigInt(value));
         bits.push(256);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       addBytes64(value: Uint8Array) {
@@ -229,16 +174,9 @@ export const createEncryptedInput =
           );
         const bigIntValue = bytesToBigInt(value);
         checkEncryptedValue(bigIntValue, 512);
+        checkLimit(512);
         builder.push_u512(bigIntValue);
         bits.push(512);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       addBytes128(value: Uint8Array) {
@@ -248,16 +186,9 @@ export const createEncryptedInput =
           );
         const bigIntValue = bytesToBigInt(value);
         checkEncryptedValue(bigIntValue, 1024);
+        checkLimit(1024);
         builder.push_u1024(bigIntValue);
         bits.push(1024);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       addBytes256(value: Uint8Array) {
@@ -267,16 +198,9 @@ export const createEncryptedInput =
           );
         const bigIntValue = bytesToBigInt(value);
         checkEncryptedValue(bigIntValue, 2048);
+        checkLimit(2048);
         builder.push_u2048(bigIntValue);
         bits.push(2048);
-        if (sum(bits) > 2048)
-          throw Error(
-            'Packing more than 2048 bits in a single input ciphertext is unsupported',
-          );
-        if (bits.length > 256)
-          throw Error(
-            'Packing more than 256 variables in a single input ciphertext is unsupported',
-          );
         return this;
       },
       getBits() {
@@ -311,10 +235,10 @@ export const createEncryptedInput =
             buffAcl.length +
             buffChainId.length,
         );
-        auxData.set(buffContract);
-        auxData.set(buffUser);
-        auxData.set(buffAcl);
-        auxData.set(buffChainId);
+        auxData.set(buffContract, 0);
+        auxData.set(buffUser, 20);
+        auxData.set(buffAcl, 40);
+        auxData.set(buffChainId, 60);
         const encrypted = builder.build_with_proof_packed(
           pp,
           auxData,
@@ -349,22 +273,27 @@ export const createEncryptedInput =
           console.log(`${gateway}zkp`);
           throw new Error("Gateway didn't response correctly");
         }
+        let handles: Uint8Array[] = [];
+        if (json.response.handles && json.response.handles.length > 0) {
+          handles = json.response.handles.map(fromHexString);
+        }
 
-        json.response.handles;
-
-        const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
-        const handles = bits.map((v, i) => {
-          const dataWithIndex = new Uint8Array(hash.length + 1);
-          dataWithIndex.set(hash, 0);
-          dataWithIndex.set([i], hash.length);
-          const finalHash = new Keccak(256)
-            .update(Buffer.from(dataWithIndex))
-            .digest();
-          const dataInput = new Uint8Array(32);
-          dataInput.set(finalHash, 0);
-          dataInput.set([i, ENCRYPTION_TYPES[v], 0], 29);
-          return dataInput;
-        });
+        // if no handles has been returned by the gateway, create them
+        if (!handles.length) {
+          const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
+          handles = bits.map((v, i) => {
+            const dataWithIndex = new Uint8Array(hash.length + 1);
+            dataWithIndex.set(hash, 0);
+            dataWithIndex.set([i], hash.length);
+            const finalHash = new Keccak(256)
+              .update(Buffer.from(dataWithIndex))
+              .digest();
+            const dataInput = new Uint8Array(32);
+            dataInput.set(finalHash, 0);
+            dataInput.set([i, ENCRYPTION_TYPES[v], 0], 29);
+            return dataInput;
+          });
+        }
         return {
           handles,
           inputProof,

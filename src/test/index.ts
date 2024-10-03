@@ -16,9 +16,9 @@ const params2048 = fs.readFileSync(`${__dirname}/keys/crs2048.bin`);
 export const privateKey = TfheClientKey.deserialize(privKey);
 export const publicKey = TfheCompactPublicKey.deserialize(pubKey);
 export const publicParams = {
-  128: CompactPkePublicParams.deserialize(params128, false, false),
-  256: CompactPkePublicParams.deserialize(params256, false, false),
-  512: CompactPkePublicParams.deserialize(params512, false, false),
-  1024: CompactPkePublicParams.deserialize(params1024, false, false),
-  2048: CompactPkePublicParams.deserialize(params2048, false, false),
+  128: CompactPkePublicParams.deserialize(params128),
+  256: CompactPkePublicParams.deserialize(params256),
+  512: CompactPkePublicParams.deserialize(params512),
+  1024: CompactPkePublicParams.deserialize(params1024),
+  2048: CompactPkePublicParams.deserialize(params2048),
 };

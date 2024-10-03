@@ -18,7 +18,7 @@ export type GatewayKeys = {
 
 export const getKeysFromGateway = async (url: string) => {
   try {
-    const response = await fetch(`${url}/keys`);
+    const response = await fetch(`${url}keys`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -29,11 +29,7 @@ export const getKeysFromGateway = async (url: string) => {
       return {
         publicKey: TfheCompactPublicKey.deserialize(fromHexString(publicKey)),
         publicParams: {
-          2048: CompactPkePublicParams.deserialize(
-            fromHexString(crs2048),
-            false,
-            false,
-          ),
+          2048: CompactPkePublicParams.deserialize(fromHexString(crs2048)),
         },
       };
     } else {

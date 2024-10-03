@@ -10,7 +10,6 @@ import { getKeysFromGateway } from './network';
 import { fromHexString, cleanURL } from '../utils';
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { abi } from '../abi/kmsVerifier.json';
-import { PublicSigKey } from 'node-tkms';
 
 export type FhevmInstanceConfig = {
   kmsContractAddress: string;
@@ -72,7 +71,7 @@ export const getPublicParams = async (config: FhevmInstanceConfig) => {
     const buff = fromHexString(config.publicParams['2048']);
     try {
       return {
-        '2048': CompactPkePublicParams.deserialize(buff, false, false),
+        '2048': CompactPkePublicParams.deserialize(buff),
       };
     } catch (e) {
       throw new Error('Invalid public key (deserialization failed)');

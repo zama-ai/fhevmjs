@@ -16,7 +16,7 @@ fetchMock.get(
 
 describe('network', () => {
   it('getInputsFromGateway', async () => {
-    const material = await getKeysFromGateway('https://test-gateway.net');
+    const material = await getKeysFromGateway('https://test-gateway.net/');
 
     expect(material.publicKey.serialize()).toStrictEqual(publicKey.serialize());
   });
