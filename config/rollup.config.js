@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 
 import json from '@rollup/plugin-json';
+import url from '@rollup/plugin-url';
 import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
@@ -34,14 +35,15 @@ const nodePlugins = [
 
 const webPlugins = [
   json(),
-  copy({
-    targets: [
-      // {
-      //   src: './src/kms/web/*',
-      //   dest: 'lib/kms/web',
-      // },
-    ],
-  }),
+  // copy({
+  //   targets: [
+  //     {
+  //       src: './node_modules/tfhe/snippets/wasm-bindgen-rayon-3e04391371ad0a8e/src/*',
+  //       dest: 'lib/',
+  //     },
+  //   ],
+  // }),
+  url(),
   nodePolyfills(),
   replace({
     preventAssignment: true,
@@ -69,6 +71,16 @@ export default [
     input: 'src/web.ts',
     output: {
       file: 'lib/web.js',
+      name: 'fhevm',
+      format: 'es',
+    },
+    plugins: [...webPlugins],
+  },
+  {
+    input:
+      './node_modules/tfhe/snippets/wasm-bindgen-rayon-3e04391371ad0a8e/src/workerHelpers.worker.js',
+    output: {
+      file: 'lib/workerHelpers.worker.js',
       name: 'fhevm',
       format: 'es',
     },
