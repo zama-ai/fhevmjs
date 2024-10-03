@@ -1,5 +1,5 @@
 import {
-  bigIntToBytes,
+  bigIntToBytes256,
   bytesToBigInt,
   bytesToHex,
   fromHexString,
@@ -26,11 +26,11 @@ describe('decrypt', () => {
 
   it('converts a number to bytes', async () => {
     const value = BigInt(28482);
-    const bytes = bigIntToBytes(value);
+    const bytes = bigIntToBytes256(value);
     expect(bytes).toEqual(new Uint8Array([66, 111]));
 
     const value2 = BigInt(255);
-    const bytes2 = bigIntToBytes(value2);
+    const bytes2 = bigIntToBytes256(value2);
     expect(bytes2).toEqual(new Uint8Array([255]));
   });
 

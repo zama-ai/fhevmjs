@@ -1,7 +1,7 @@
 import { Provider } from 'ethers';
 import {
   bytesToBigInt,
-  bigIntToBytes,
+  bigIntToBytes256,
   toHexString,
   fromHexString,
 } from '../utils';

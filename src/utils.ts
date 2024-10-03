@@ -1,4 +1,4 @@
-import { toBigIntLE, toBufferLE } from 'bigint-buffer';
+import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 import {
   FheBool,
   FheUint4,
@@ -28,9 +28,16 @@ export const fromHexString = (hexString: string): Uint8Array => {
 export const toHexString = (bytes: Uint8Array) =>
   bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-export const bigIntToBytes = (value: bigint) => {
-  const byteArrayLength = Math.ceil(value.toString(2).length / 8);
-  return new Uint8Array(toBufferLE(value, byteArrayLength));
+export const bigIntToBytes64 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 64));
+};
+
+export const bigIntToBytes128 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 128));
+};
+
+export const bigIntToBytes256 = (value: bigint) => {
+  return new Uint8Array(toBufferBE(value, 256));
 };
 
 export const bytesToHex = function (byteArray: Uint8Array): string {
@@ -47,7 +54,7 @@ export const bytesToBigInt = function (byteArray: Uint8Array): bigint {
   }
 
   const buffer = Buffer.from(byteArray);
-  const result = toBigIntLE(buffer);
+  const result = toBigIntBE(buffer);
   return result;
 };
 
