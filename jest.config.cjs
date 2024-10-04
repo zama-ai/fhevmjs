@@ -26,6 +26,7 @@ module.exports = {
     '!src/node.ts',
     '!src/web.ts',
   ],
+  setupFiles: ['./setupJest.cjs'],
   testRegex: '\\.test\\.tsx?$',
   coverageReporters: ['lcov', 'text-summary', 'json'],
   transformIgnorePatterns: ['/node_modules/'],

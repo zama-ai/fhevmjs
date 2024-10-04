@@ -1,32 +1,26 @@
-import {
-  FheUint160,
-  CompactFheUint160List,
-  TfheCompactPublicKey,
-  TfheClientKey,
-  CompactFheUint2048List,
-  FheUint2048,
-} from 'node-tfhe';
-import { createTfheKeypair } from '../tfhe';
+import { ProvenCompactCiphertextList } from 'node-tfhe';
 import { createEncryptedInput } from './encrypt';
-import { fetchJSONRPC } from '../ethCall';
-import { fromHexString } from '../utils';
+import { publicKey, publicParams } from '../test';
+import fetchMock from '@fetch-mock/core';
+
+fetchMock.post('https://test-gateway.net/zkp', {
+  response: {},
+  status: 'success',
+});
 
 describe('encrypt', () => {
-  let clientKey: TfheClientKey;
-  let publicKey: TfheCompactPublicKey;
-
-  beforeAll(async () => {
-    const keypair = createTfheKeypair();
-    clientKey = keypair.clientKey;
-    publicKey = keypair.publicKey;
-  });
-
   it('encrypt/decrypt', async () => {
-    const input = createEncryptedInput(publicKey)(
+    const input = createEncryptedInput(
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
-    input.addBool(BigInt(0));
+    input.addBool(false);
     input.add4(2);
     input.add8(BigInt(43));
     input.add16(BigInt(87));
@@ -34,114 +28,113 @@ describe('encrypt', () => {
     input.add64(BigInt(23393893233));
     input.add128(BigInt(233938932390));
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
-    const buffer = input.encrypt();
-    const compactList = CompactFheUint160List.deserialize(buffer.inputProof);
-    let encryptedList = compactList.expand();
-    expect(encryptedList.length).toBe(8);
-    encryptedList.forEach((v: FheUint160, i: number) => {
-      const decrypted = v.decrypt(clientKey);
-      switch (i) {
-        case 0:
-          expect(decrypted.toString()).toBe('0');
-          break;
-        case 1:
-          expect(decrypted.toString()).toBe('2');
-          break;
-        case 2:
-          expect(decrypted.toString()).toBe('43');
-          break;
-        case 3:
-          expect(decrypted.toString()).toBe('87');
-          break;
-        case 3:
-          expect(decrypted.toString()).toBe('2339389323');
-          break;
-        case 5:
-          expect(decrypted.toString()).toBe('23393893233');
-          break;
-        case 6:
-          expect(decrypted.toString()).toBe('233938932390');
-          break;
-        case 7:
-          expect(decrypted.toString()).toBe(
-            '947020569397242089359429103430823793539382463616',
-          );
-          break;
-      }
+    input.add256(BigInt('2339389323922393930'));
+    const buffer = await input.encrypt();
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
+      buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
+    );
+
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [0, 2, 4, 8, 9, 10, 11, 12, 13];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
     });
-    input.resetValues();
-    expect(input.getBits().length).toBe(0);
-    expect(input.getValues().length).toBe(0);
   });
 
   it('encrypt/decrypt one 0 value', async () => {
-    const input = createEncryptedInput(publicKey)(
+    const input = createEncryptedInput(
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
     input.add128(BigInt(0));
-    const buffer = input.encrypt();
-    const compactList = CompactFheUint160List.deserialize(buffer.inputProof);
-    let encryptedList = compactList.expand();
-    expect(encryptedList.length).toBe(1);
-    encryptedList.forEach((v: FheUint160, i: number) => {
-      const decrypted = v.decrypt(clientKey);
-      switch (i) {
-        case 0:
-          expect(decrypted.toString()).toBe('0');
-          break;
-      }
+    const buffer = await input.encrypt();
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
+      buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
+    );
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [11];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
     });
   });
 
   it('encrypt/decrypt one 2048 value', async () => {
-    const input = createEncryptedInput(publicKey)(
+    const input = createEncryptedInput(
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
-    const data = new Uint8Array(64);
+    const data = new Uint8Array(256);
     data.set([255], 63);
     input.addBytes256(data);
-    const buffer = input.encrypt();
-    const compactList = CompactFheUint2048List.deserialize(buffer.inputProof);
-    let encryptedList = compactList.expand();
-    expect(encryptedList.length).toBe(1);
-    encryptedList.forEach((v: FheUint2048, i: number) => {
-      const decrypted = v.decrypt(clientKey);
-      switch (i) {
-        case 0:
-          expect(decrypted.toString()).toBe(
-            '13355433680216258829653813963056604541043899547855704341091828781832225889331072183923741976689688961175617671240445089717606406707212403657580392564654080',
-          );
-          break;
-      }
+    const buffer = await input.encrypt();
+    const compactList = ProvenCompactCiphertextList.safe_deserialize(
+      buffer.inputProof,
+      BigInt(1024 * 1024 * 512),
+    );
+    const types = input.getBits().map((_, i) => compactList.get_kind_of(i));
+    const expectedTypes = [16];
+
+    types.forEach((val, i) => {
+      expect(val).toBe(expectedTypes[i]);
     });
   });
 
   it('throws errors', async () => {
     expect(() =>
-      createEncryptedInput()(
-        '0x8ba1f109551bd432803012645ac136ddd64dba72',
-        '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-      ),
-    ).toThrow(
-      'Your instance has been created without the public blockchain key.',
-    );
+      createEncryptedInput(
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
+        publicKey,
+        publicParams,
+      )('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80', '0'),
+    ).toThrow('User address is not a valid address.');
     expect(() =>
-      createEncryptedInput(publicKey)(
-        '0x8ba1f109551bd432803012645ac136ddd64dba',
-        '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-      ),
+      createEncryptedInput(
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
+        publicKey,
+        publicParams,
+      )('0x0', '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80'),
     ).toThrow('Contract address is not a valid address.');
 
     expect(() =>
-      createEncryptedInput(publicKey)(
+      createEncryptedInput(
+        '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+        1234,
+        'https://test-gateway.net/',
+        publicKey,
+        publicParams,
+      )(
         '0x8ba1f109551bd432803012645ac136ddd64dba72',
         '0xa5e1defb98EFe38EBb2D958CEe052410247F4c',
       ),
     ).toThrow('User address is not a valid address.');
 
-    const input = createEncryptedInput(publicKey)(
+    const input = createEncryptedInput(
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
@@ -151,7 +144,9 @@ describe('encrypt', () => {
     expect(() => input.addBool({} as any)).toThrow(
       'The value must be a boolean, a number or a bigint.',
     );
-    expect(() => input.addBool(29393)).toThrow('The value must be 1 or 0.');
+    expect(() => input.addBool(29393 as any)).toThrow(
+      'The value must be 1 or 0.',
+    );
     expect(() => input.add4(29393)).toThrow(
       'The value exceeds the limit for 4bits integer (15)',
     );
@@ -176,34 +171,22 @@ describe('encrypt', () => {
     expect(() => input.addAddress('0x00')).toThrow(
       'The value must be a valid address.',
     );
-
-    expect(input.getBits().length).toBe(0);
-    expect(input.getValues().length).toBe(0);
   });
 
   it('throws if total bits is above 2048', async () => {
-    const input2 = createEncryptedInput(publicKey)(
+    const input2 = createEncryptedInput(
+      '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
+      1234,
+      'https://test-gateway.net/',
+      publicKey,
+      publicParams,
+    )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
     );
-    input2.addBytes256(new Uint8Array(64));
-    input2.addBool(false);
-    expect(() => input2.encrypt()).toThrow(
-      'Too many bits in provided values. Maximum is 2048.',
-    );
-  });
-
-  it('throws if more than 12 values', async () => {
-    const input2 = createEncryptedInput(publicKey)(
-      '0x8ba1f109551bd432803012645ac136ddd64dba72',
-      '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-    );
-    for (let i = 0; i < 13; i++) {
-      input2.addBool(false);
-    }
-
-    expect(() => input2.encrypt()).toThrow(
-      "You can't pack more than 12 values.",
+    input2.addBytes256(new Uint8Array(256));
+    expect(() => input2.addBool(false)).toThrow(
+      'Packing more than 2048 bits in a single input ciphertext is unsupported',
     );
   });
 });

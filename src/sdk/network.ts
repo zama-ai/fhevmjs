@@ -1,125 +1,42 @@
+import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import type { Eip1193Provider } from 'ethers';
-import { decodeAbiBytes, fetchJSONRPC } from '../ethCall';
-import { toHexString } from '../utils';
+import { fromHexString } from '../utils';
 
-export const getPublicKeyCallParams = () => ({
-  to: '0x000000000000000000000000000000000000005d',
-  data: '0xd9d47bb001',
-});
-
-export const getChainIdFromEip1193 = async (ethereum: Eip1193Provider) => {
-  const payload = {
-    method: 'eth_chainId',
-    params: [],
+export type GatewayKeysItem = {
+  url: string;
+  signatures: string[];
+};
+export type GatewayKeys = {
+  keyId: string;
+  crsId: string;
+  publicKey: GatewayKeysItem;
+  bootstrapKey: GatewayKeysItem;
+  crs: {
+    [key: string]: GatewayKeysItem;
   };
-
-  let chainId;
-  try {
-    chainId = await ethereum.request(payload);
-  } catch (e) {
-    throw new Error('Impossible to fetch chain id (wrong network?)');
-  }
-  return Number(chainId);
 };
 
-export const getChainIdFromNetwork = async (url: string) => {
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'eth_chainId',
-    params: [],
-    id: 1,
-  };
-
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  };
-  let chainId;
+export const getKeysFromGateway = async (url: string) => {
   try {
-    chainId = await fetchJSONRPC(url, options);
-  } catch (e) {
-    throw new Error('Impossible to fetch chain id (wrong url?)');
+    const response = await fetch(`${url}keys`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data: GatewayKeys = await response.json();
+    if (data) {
+      const publicKey = await (await fetch(data.publicKey.url)).text();
+      const crs2048 = await (await fetch(data.crs['2048'].url)).text();
+      return {
+        publicKey: TfheCompactPublicKey.deserialize(fromHexString(publicKey)),
+        publicParams: {
+          2048: CompactPkePublicParams.deserialize(fromHexString(crs2048)),
+        },
+      };
+    } else {
+      throw new Error('No public key available');
+    }
+  } catch (error) {
+    console.log('error', error);
+    throw new Error('Impossible to fetch public key: wrong gateway url.');
   }
-  return Number(chainId);
-};
-
-export const getPublicKeyFromEip1193 = async (ethereum: Eip1193Provider) => {
-  const payload = {
-    method: 'eth_call',
-    params: [getPublicKeyCallParams(), 'latest'],
-  };
-
-  let publicKey;
-  try {
-    const rawPubKey = await ethereum.request(payload);
-    const decodedBytes = decodeAbiBytes(rawPubKey);
-    publicKey = `0x${toHexString(decodedBytes)}`;
-  } catch (e) {
-    throw new Error(
-      'Impossible to fetch public key from network (wrong network?)',
-    );
-  }
-  return publicKey;
-};
-
-// Define the function to perform the eth_call
-export const getPublicKeyFromNetwork = async (url: string) => {
-  // Create the JSON-RPC request payload
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'eth_call',
-    params: [getPublicKeyCallParams(), 'latest'],
-    id: 1,
-  };
-
-  // Set up the fetch request options
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  };
-  let publicKey;
-  try {
-    publicKey = await fetchJSONRPC(url, options);
-  } catch (e) {
-    throw new Error('Impossible to fetch public key from network (wrong url?)');
-  }
-
-  return publicKey;
-};
-
-// Define the function to perform the eth_call
-export const getPublicKeyFromCoprocessor = async (url: string) => {
-  // Create the JSON-RPC request payload
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'eth_getPublicFhevmKey',
-    params: [],
-    id: 1,
-  };
-
-  // Set up the fetch request options
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  };
-
-  let publicKey;
-  try {
-    publicKey = await fetchJSONRPC(url, options);
-  } catch (e) {
-    throw new Error(
-      'Impossible to fetch public key from coprocessor (wrong url?)',
-    );
-  }
-
-  return publicKey;
 };

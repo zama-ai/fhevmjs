@@ -1,28 +1,18 @@
 import { createRequire } from 'node:module';
 
+import json from '@rollup/plugin-json';
+import url from '@rollup/plugin-url';
 import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import copy from 'rollup-plugin-copy';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 
 const require = createRequire(import.meta.url);
 
 const nodePlugins = [
-  copy({
-    targets: [
-      {
-        src: './src/kms/node/*',
-        dest: 'lib/kms/node',
-      },
-      {
-        src: './src/kms/node/kms_lib_bg.wasm',
-        dest: 'lib/',
-      },
-    ],
-  }),
+  json(),
   wasm(),
   commonjs(),
   typescript({
@@ -31,19 +21,13 @@ const nodePlugins = [
 ];
 
 const webPlugins = [
-  copy({
-    targets: [
-      {
-        src: './src/kms/web/*',
-        dest: 'lib/kms/web',
-      },
-    ],
-  }),
+  json(),
+  url(),
   nodePolyfills(),
   replace({
     preventAssignment: true,
     'node-tfhe': 'tfhe',
-    'kms/node': 'kms/web',
+    'node-tkms': 'tkms',
   }),
   typescript({
     tsconfig: './tsconfig.rollup.json',
@@ -56,7 +40,7 @@ const webPlugins = [
   commonjs(),
   resolve({
     browser: true,
-    resolveOnly: ['tfhe'],
+    resolveOnly: ['tfhe', 'tkms'],
     extensions: ['.js', '.ts', '.wasm'],
   }),
 ];
@@ -66,6 +50,16 @@ export default [
     input: 'src/web.ts',
     output: {
       file: 'lib/web.js',
+      name: 'fhevm',
+      format: 'es',
+    },
+    plugins: [...webPlugins],
+  },
+  {
+    input:
+      './node_modules/tfhe/snippets/wasm-bindgen-rayon-3e04391371ad0a8e/src/workerHelpers.worker.js',
+    output: {
+      file: 'lib/workerHelpers.worker.js',
       name: 'fhevm',
       format: 'es',
     },
