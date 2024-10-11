@@ -8,8 +8,14 @@ import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
+import path from 'path';
+import fs from 'fs';
 
 const require = createRequire(import.meta.url);
+
+const wasmBindgenRayon = fs.readdirSync(
+  path.resolve('node_modules/tfhe/snippets'),
+)[0];
 
 const nodePlugins = [
   json(),
@@ -56,11 +62,10 @@ export default [
     plugins: [...webPlugins],
   },
   {
-    input:
-      './node_modules/tfhe/snippets/wasm-bindgen-rayon-3e04391371ad0a8e/src/workerHelpers.worker.js',
+    input: `./node_modules/tfhe/snippets/${wasmBindgenRayon}/src/workerHelpers.worker.js`,
     output: {
       file: 'lib/workerHelpers.worker.js',
-      name: 'fhevm',
+      name: 'worker',
       format: 'es',
     },
     plugins: [...webPlugins],
