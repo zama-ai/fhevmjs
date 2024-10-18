@@ -18,7 +18,7 @@ export type GatewayKeys = {
 
 export const getKeysFromGateway = async (url: string) => {
   try {
-    const response = await fetch(`${url}keys`);
+    const response = await fetch(`${url}keyurl`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
