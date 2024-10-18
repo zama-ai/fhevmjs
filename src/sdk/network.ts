@@ -2,13 +2,15 @@ import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { fromHexString } from '../utils';
 
 export type GatewayKeysItem = {
-  url: string;
+  data_id: string;
+  param_choice: number;
+  urls: string[];
   signatures: string[];
 };
 
 export type GatewayKey = {
   data_id: string;
-  param_choices: number;
+  param_choice: number;
   signatures: string[];
   urls: string[];
 };
@@ -16,8 +18,8 @@ export type GatewayKey = {
 export type GatewayKeys = {
   response: {
     fhe_key_info: {
-      fhe_public_key: GatewayKey[];
-      fhe_server_key: GatewayKey[];
+      fhe_public_key: GatewayKey;
+      fhe_server_key: GatewayKey;
     }[];
     verf_public_key: {
       key_id: string;
@@ -28,8 +30,8 @@ export type GatewayKeys = {
     crs: {
       [key: string]: GatewayKeysItem;
     };
-    status: string;
   };
+  status: string;
 };
 
 export const getKeysFromGateway = async (url: string) => {
@@ -40,9 +42,9 @@ export const getKeysFromGateway = async (url: string) => {
     }
     const data: GatewayKeys = await response.json();
     if (data) {
-      const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key[0].urls[0];
+      const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
       const publicKey = await (await fetch(pubKeyUrl)).text();
-      const crsUrl = data.response.crs['2048'].url;
+      const crsUrl = data.response.crs['2048'].urls[0];
       const crs2048 = await (await fetch(crsUrl)).text();
       return {
         publicKey: TfheCompactPublicKey.deserialize(fromHexString(publicKey)),
