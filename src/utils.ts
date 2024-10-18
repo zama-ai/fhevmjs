@@ -6,7 +6,12 @@ import {
   FheUint16,
   FheUint32,
   FheUint64,
+  FheUint128,
   FheUint160,
+  FheUint256,
+  FheUint512,
+  FheUint1024,
+  FheUint2048,
   TfheClientKey,
 } from 'node-tfhe';
 
@@ -91,6 +96,11 @@ export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
         fromHexString(ciphertext),
         SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
       ).decrypt(clientKey),
+    decrypt128: (ciphertext: string) =>
+      FheUint128.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
     decryptAddress: (ciphertext: string) => {
       let hex = FheUint160.safe_deserialize(
         fromHexString(ciphertext),
@@ -103,6 +113,26 @@ export const clientKeyDecryptor = (clientKeySer: Uint8Array) => {
       }
       return '0x' + hex;
     },
+    decrypt256: (ciphertext: string) =>
+      FheUint256.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
+    decryptEbytes64: (ciphertext: string) =>
+      FheUint512.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
+    decryptEbytes128: (ciphertext: string) =>
+      FheUint1024.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
+    decryptEbytes256: (ciphertext: string) =>
+      FheUint2048.safe_deserialize(
+        fromHexString(ciphertext),
+        SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+      ).decrypt(clientKey),
   };
 };
 
