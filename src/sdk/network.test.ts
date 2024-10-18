@@ -3,7 +3,7 @@ import { publicKey, publicParams } from '../test';
 import { bytesToHex } from '../utils';
 import fetchMock from '@fetch-mock/core';
 
-fetchMock.get('https://test-gateway.net/keys', {
+fetchMock.get('https://test-gateway.net/keyurl', {
   publicKey: { url: 'https://dummy-pk' },
   crs: { 2048: { url: 'https://dummy-2048' } },
 });
