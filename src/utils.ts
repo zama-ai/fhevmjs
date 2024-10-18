@@ -24,6 +24,11 @@ export const cleanURL = (url: string | undefined) => {
   return new URL(url).href;
 };
 
+export const numberToHex = (num: number) => {
+  let hex = num.toString(16);
+  return hex.length % 2 ? '0' + hex : hex;
+};
+
 export const fromHexString = (hexString: string): Uint8Array => {
   const arr = hexString.replace(/^(0x)/, '').match(/.{1,2}/g);
   if (!arr) return new Uint8Array();

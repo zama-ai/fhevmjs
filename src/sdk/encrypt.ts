@@ -10,11 +10,22 @@ import {
 import {
   bytesToBigInt,
   fromHexString,
+  numberToHex,
   SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+  toHexString,
 } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 
 type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
+
+export type GatewayEncryptResponse = {
+  response: {
+    coprocessor: boolean;
+    handles: string[];
+    kms_signatures: string[];
+    coproc_signature: string;
+  };
+};
 
 export type ZKInput = {
   addBool: (value: boolean) => ZKInput;
@@ -245,14 +256,14 @@ export const createEncryptedInput =
           ZkComputeLoad.Verify,
         );
 
-        const inputProof = encrypted.safe_serialize(
+        const ciphertext = encrypted.safe_serialize(
           SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
         );
 
         const payload = {
           client_address: contractAddress,
           caller_address: callerAddress,
-          ct_proof: inputProof,
+          ct_proof: ciphertext,
           max_num_bits: 2048,
         };
 
@@ -265,7 +276,7 @@ export const createEncryptedInput =
           body: JSON.stringify(payload),
         };
 
-        let json;
+        let json: GatewayEncryptResponse;
         try {
           const response = await fetch(`${gateway}zkp`, options);
           json = await response.json();
@@ -278,25 +289,38 @@ export const createEncryptedInput =
           handles = json.response.handles.map(fromHexString);
         }
 
-        // if no handles has been returned by the gateway, create them
-        if (!handles.length) {
-          const hash = new Keccak(256).update(Buffer.from(inputProof)).digest();
-          handles = bits.map((v, i) => {
-            const dataWithIndex = new Uint8Array(hash.length + 1);
-            dataWithIndex.set(hash, 0);
-            dataWithIndex.set([i], hash.length);
-            const finalHash = new Keccak(256)
-              .update(Buffer.from(dataWithIndex))
-              .digest();
-            const dataInput = new Uint8Array(32);
-            dataInput.set(finalHash, 0);
-            dataInput.set([i, ENCRYPTION_TYPES[v], 0], 29);
-            return dataInput;
-          });
+        const hash = new Keccak(256).update(Buffer.from(ciphertext)).digest();
+
+        const kmsSignatures = json.response.kms_signatures;
+        const coproSignature = json.response.coproc_signature;
+
+        // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
+        let inputProof = '0x' + numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
+        // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
+        const numSigners = kmsSignatures.length;
+        inputProof += numberToHex(numSigners);
+        if (json.response.coprocessor) {
+          // coprocessor
+          inputProof += hash.toString('hex');
+
+          const listHandlesStr = handles.map((i) => toHexString(i));
+          listHandlesStr.map((handle) => (inputProof += handle));
+          inputProof += coproSignature.slice(2);
+
+          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+        } else {
+          // native
+          const listHandlesStr = handles.map((i) => toHexString(i));
+          listHandlesStr.map((handle) => (inputProof += handle));
+
+          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+
+          inputProof += toHexString(ciphertext);
         }
+
         return {
           handles,
-          inputProof,
+          inputProof: fromHexString(inputProof),
         };
       },
     };
