@@ -29,7 +29,7 @@ export const reencryptRequest =
     if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
     if (!aclAddress) throw new Error('You must provide the ACL address.');
     const provider = new ethers.JsonRpcProvider(networkUrl);
-    const acl = new ethers.Contract(contractAddress, aclABI, provider);
+    const acl = new ethers.Contract(aclAddress, aclABI, provider);
     const userAllowed = await acl.persistAllowed(handle, userAddress);
     const contractAllowed = await acl.persistAllowed(handle, contractAddress);
     const isAllowed = userAllowed && contractAllowed;
