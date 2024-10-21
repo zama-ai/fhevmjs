@@ -11,7 +11,7 @@ import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
-import { isAddress } from 'ethers';
+import { isAddress, ethers } from 'ethers';
 
 export type FhevmInstance = {
   createEncryptedInput: (
@@ -82,7 +82,9 @@ export const createInstance = async (
       kmsSigners,
       chainId,
       kmsContractAddress,
+      aclContractAddress,
       cleanURL(config.gatewayUrl),
+      provider,
     ),
     getPublicKey: () => publicKey || null,
     getPublicParams: () => pkePublicParams || null,
