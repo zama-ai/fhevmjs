@@ -3,6 +3,8 @@
 !lib/**/*
 !web.d.ts
 !web.js
+!node.d.ts
+!node.js
 !package.json
 !README.md
 !LICENSE

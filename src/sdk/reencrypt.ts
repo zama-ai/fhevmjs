@@ -10,9 +10,12 @@ import {
   process_reencryption_resp_from_json,
   u8vec_to_cryptobox_sk,
 } from '../kms/node/kms_lib.js';
+import { ethers } from 'ethers';
+
+import aclArtifact from './ACL.json';
 
 export const reencryptRequest =
-  (gatewayUrl?: string) =>
+  (gatewayUrl?: string, networkUrl?: string, aclAddress?: string) =>
   async (
     handle: bigint,
     privateKey: string,
@@ -22,6 +25,20 @@ export const reencryptRequest =
     userAddress: string,
   ) => {
     if (!gatewayUrl) throw new Error('You must provide a reencryption URL.');
+    if (!aclAddress) throw new Error('You must provide the ACL address.');
+    const provider = new ethers.JsonRpcProvider(networkUrl);
+    const acl = new ethers.Contract(contractAddress, aclArtifact.abi, provider);
+    const userAllowed = await acl.persistAllowed(handle, userAddress);
+    const contractAllowed = await acl.persistAllowed(handle, contractAddress);
+    const isAllowed = userAllowed && contractAllowed;
+    if (!isAllowed) {
+      throw new Error('User is not authorized to reencrypt this handle!');
+    }
+    if (userAddress === contractAddress) {
+      throw new Error(
+        'userAddress should not be equal to contractAddress when requesting reencryption!',
+      );
+    }
 
     const payload = {
       signature: signature.replace(/^(0x)/, ''),

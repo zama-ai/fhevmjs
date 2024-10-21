@@ -24,6 +24,7 @@ type FhevmInstanceConfig = {
   gatewayUrl?: string;
   networkUrl?: string;
   coprocessorUrl?: string;
+  aclAddress?: string;
 };
 
 export type FhevmInstance = {
@@ -51,7 +52,8 @@ export type FhevmInstance = {
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {
-  let { publicKey, networkUrl, gatewayUrl, coprocessorUrl } = config;
+  let { publicKey, networkUrl, gatewayUrl, coprocessorUrl, aclAddress } =
+    config;
 
   if (gatewayUrl) {
     gatewayUrl = new URL(gatewayUrl).href;
@@ -110,7 +112,7 @@ export const createInstance = async (
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(gatewayUrl),
+    reencrypt: reencryptRequest(gatewayUrl, networkUrl, aclAddress),
     getPublicKey: () => publicKey || null,
   };
 };
