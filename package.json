@@ -1,6 +1,6 @@
 {
   "name": "fhevmjs",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.js",
   "types": "lib/node/node.d.ts",
@@ -58,6 +58,7 @@
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-typescript": "^11.1.1",

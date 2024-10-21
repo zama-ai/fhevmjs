@@ -7,6 +7,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
+import json from '@rollup/plugin-json';
 
 const require = createRequire(import.meta.url);
 
@@ -69,7 +70,7 @@ export default [
       name: 'fhevm',
       format: 'es',
     },
-    plugins: [...webPlugins],
+    plugins: [...webPlugins, json()],
   },
   {
     input: 'src/node.ts',
