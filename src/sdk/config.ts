@@ -81,11 +81,11 @@ export const getPublicParams = async (config: FhevmInstanceConfig) => {
   }
 };
 
-export const getKMSSignatures = async (
+export const getKMSSigners = async (
   provider: Provider,
   config: FhevmInstanceConfig,
 ): Promise<string[]> => {
   const kmsContract = new Contract(config.kmsContractAddress, abi, provider);
-  const signatures: string[] = await kmsContract.getSigners();
-  return signatures;
+  const signers: string[] = await kmsContract.getSigners();
+  return signers;
 };

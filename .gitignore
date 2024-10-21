@@ -131,3 +131,4 @@ dist
 
 bundle/
 lib/
+.DS_Store
