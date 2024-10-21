@@ -19,12 +19,12 @@ describe('network', () => {
 
   it('get chainId', async () => {
     const chainId = await getChainIdFromNetwork('https://devnet.zama.ai');
-    expect(chainId).toBe(8009);
+    expect(chainId).toBe(9000);
   });
 
   it('get network key', async () => {
     const pk = await getPublicKeyFromNetwork('https://devnet.zama.ai');
-    expect(pk!.length).toBe(33106);
+    expect(pk!.length).toBe(33138);
   });
 
   it('get public key params', async () => {
