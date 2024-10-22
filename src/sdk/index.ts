@@ -1,7 +1,7 @@
 import {
   FhevmInstanceConfig,
   getChainId,
-  getKMSSignatures,
+  getKMSSigners,
   getProvider,
   getPublicParams,
   getTfheCompactPublicKey,
@@ -11,7 +11,7 @@ import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
-import { isAddress } from 'ethers';
+import { isAddress, ethers } from 'ethers';
 
 export type FhevmInstance = {
   createEncryptedInput: (
@@ -66,7 +66,7 @@ export const createInstance = async (
 
   const pkePublicParams: PublicParams = await getPublicParams(config);
 
-  const kmsSignatures = await getKMSSignatures(provider, config);
+  const kmsSigners = await getKMSSigners(provider, config);
 
   return {
     createEncryptedInput: createEncryptedInput(
@@ -79,10 +79,12 @@ export const createInstance = async (
     generateKeypair,
     createEIP712: createEIP712(chainId),
     reencrypt: reencryptRequest(
-      kmsSignatures,
+      kmsSigners,
       chainId,
       kmsContractAddress,
+      aclContractAddress,
       cleanURL(config.gatewayUrl),
+      provider,
     ),
     getPublicKey: () => publicKey || null,
     getPublicParams: () => pkePublicParams || null,
