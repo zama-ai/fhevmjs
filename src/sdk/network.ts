@@ -42,18 +42,20 @@ export const getKeysFromGateway = async (url: string) => {
     const data: GatewayKeys = await response.json();
     if (data) {
       const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
-      const publicKey = await await fetch(pubKeyUrl);
+      console.log('pubKeyUrl', pubKeyUrl);
+      const publicKeyResponse = await fetch(pubKeyUrl);
+      const publicKey = await publicKeyResponse.arrayBuffer();
       const crsUrl = data.response.crs['2048'].urls[0];
-      const crs2048 = await await fetch(crsUrl);
+      const crs2048 = await (await fetch(crsUrl)).arrayBuffer();
       return {
         publicKey: TfheCompactPublicKey.safe_deserialize(
-          publicKey,
-          1024 * 1024 * 16,
+          new Uint8Array(publicKey),
+          BigInt(1024) * BigInt(1024) * BigInt(16),
         ),
         publicParams: {
           2048: CompactPkePublicParams.safe_deserialize(
-            crs2048,
-            1024 * 1024 * 512,
+            new Uint8Array(crs2048),
+            BigInt(1024) * BigInt(1024) * BigInt(512),
           ),
         },
       };
