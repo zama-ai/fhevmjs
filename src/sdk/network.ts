@@ -1,5 +1,4 @@
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
-import { fromHexString } from '../utils';
 
 export type GatewayKeysItem = {
   data_id: string;
@@ -43,13 +42,21 @@ export const getKeysFromGateway = async (url: string) => {
     const data: GatewayKeys = await response.json();
     if (data) {
       const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
-      const publicKey = await (await fetch(pubKeyUrl)).text();
+      console.log('pubKeyUrl', pubKeyUrl);
+      const publicKeyResponse = await fetch(pubKeyUrl);
+      const publicKey = await publicKeyResponse.arrayBuffer();
       const crsUrl = data.response.crs['2048'].urls[0];
-      const crs2048 = await (await fetch(crsUrl)).text();
+      const crs2048 = await (await fetch(crsUrl)).arrayBuffer();
       return {
-        publicKey: TfheCompactPublicKey.deserialize(fromHexString(publicKey)),
+        publicKey: TfheCompactPublicKey.safe_deserialize(
+          new Uint8Array(publicKey),
+          BigInt(1024) * BigInt(1024) * BigInt(16),
+        ),
         publicParams: {
-          2048: CompactPkePublicParams.deserialize(fromHexString(crs2048)),
+          2048: CompactPkePublicParams.safe_deserialize(
+            new Uint8Array(crs2048),
+            BigInt(1024) * BigInt(1024) * BigInt(512),
+          ),
         },
       };
     } else {
