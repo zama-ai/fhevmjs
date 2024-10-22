@@ -42,8 +42,7 @@ export type ZKInput = {
   addAddress: (value: string) => ZKInput;
   getBits: () => number[];
   encrypt: () => Promise<{
-    handles: Uint8Array[];
-    inputProof: Uint8Array;
+    prehandle: Uint8Array;
   }>;
 };
 
@@ -260,67 +259,13 @@ export const createEncryptedInput =
           SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
         );
 
-        const payload = {
-          client_address: contractAddress,
-          caller_address: callerAddress,
-          ct_proof: ciphertext,
-          max_num_bits: 2048,
-        };
-
-        // TODO Send payload
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        };
-
-        let json: GatewayEncryptResponse;
-        try {
-          const response = await fetch(`${gateway}zkp`, options);
-          json = await response.json();
-        } catch (e) {
-          console.log(`${gateway}zkp`);
-          throw new Error("Gateway didn't response correctly");
-        }
-        let handles: Uint8Array[] = [];
-        if (json.response.handles && json.response.handles.length > 0) {
-          handles = json.response.handles.map(fromHexString);
-        }
-
-        const hash = new Keccak(256).update(Buffer.from(ciphertext)).digest();
-
-        const kmsSignatures = json.response.kms_signatures;
-        const coproSignature = json.response.coproc_signature;
-
-        // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        let inputProof = '0x' + numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
-        const numSigners = kmsSignatures.length;
-        inputProof += numberToHex(numSigners);
-        if (json.response.coprocessor) {
-          // coprocessor
-          inputProof += hash.toString('hex');
-
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
-          inputProof += coproSignature.slice(2);
-
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
-        } else {
-          // native
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
-
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
-
-          inputProof += toHexString(ciphertext);
-        }
+        const prehandle = new Keccak(256)
+          .update(Buffer.from(ciphertext))
+          .digest();
 
         return {
-          handles,
-          inputProof: fromHexString(inputProof),
+          // This fork of fhevmjs only supports one prehandle
+          prehandle,
         };
       },
     };
