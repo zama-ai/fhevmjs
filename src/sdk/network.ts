@@ -46,9 +46,15 @@ export const getKeysFromGateway = async (url: string) => {
       const crsUrl = data.response.crs['2048'].urls[0];
       const crs2048 = await await fetch(crsUrl);
       return {
-        publicKey: TfheCompactPublicKey.deserialize(publicKey),
+        publicKey: TfheCompactPublicKey.safe_deserialize(
+          publicKey,
+          1024 * 1024 * 16,
+        ),
         publicParams: {
-          2048: CompactPkePublicParams.deserialize(crs2048),
+          2048: CompactPkePublicParams.safe_deserialize(
+            crs2048,
+            1024 * 1024 * 512,
+          ),
         },
       };
     } else {
