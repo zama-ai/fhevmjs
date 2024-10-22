@@ -43,6 +43,7 @@ export type ZKInput = {
   getBits: () => number[];
   encrypt: () => Promise<{
     prehandle: Uint8Array;
+    ciphertext: Uint8Array;
   }>;
 };
 
@@ -264,8 +265,9 @@ export const createEncryptedInput =
           .digest();
 
         return {
-          // This fork of fhevmjs only supports one prehandle
+          // This fork of fhevmjs only supports one prehandle and ciphertext at a time.
           prehandle,
+          ciphertext,
         };
       },
     };
