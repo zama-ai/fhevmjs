@@ -1,7 +1,6 @@
 import {
   FhevmInstanceConfig,
   getChainId,
-  getKMSSignatures,
   getProvider,
   getPublicParams,
   getTfheCompactPublicKey,
@@ -66,8 +65,6 @@ export const createInstance = async (
 
   const pkePublicParams: PublicParams = await getPublicParams(config);
 
-  const kmsSignatures = await getKMSSignatures(provider, config);
-
   return {
     createEncryptedInput: createEncryptedInput(
       aclContractAddress,
@@ -79,7 +76,7 @@ export const createInstance = async (
     generateKeypair,
     createEIP712: createEIP712(chainId),
     reencrypt: reencryptRequest(
-      kmsSignatures,
+      [],
       chainId,
       kmsContractAddress,
       cleanURL(config.gatewayUrl),
