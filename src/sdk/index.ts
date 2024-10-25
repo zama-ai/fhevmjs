@@ -37,6 +37,9 @@ export type FhevmInstance = {
 
 export { generateKeypair, createEIP712 } from './keypair';
 
+export * from './config';
+export * from './encrypt';
+
 export const createInstance = async (
   config: FhevmInstanceConfig,
 ): Promise<FhevmInstance> => {

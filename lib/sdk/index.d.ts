@@ -13,4 +13,6 @@ export type FhevmInstance = {
     getPublicParams: () => PublicParams;
 };
 export { generateKeypair, createEIP712 } from './keypair';
+export * from './config';
+export * from './encrypt';
 export declare const createInstance: (config: FhevmInstanceConfig) => Promise<FhevmInstance>;
