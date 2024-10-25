@@ -1,0 +1,1 @@
+export declare const reencryptRequest: (kmsSignatures: string[], chainId: number, kmsContractAddress: string, gatewayUrl: string) => (handle: bigint, privateKey: string, publicKey: string, signature: string, contractAddress: string, userAddress: string) => Promise<bigint>;

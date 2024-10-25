@@ -1,0 +1,30 @@
+export declare const SERIALIZED_SIZE_LIMIT_CIPHERTEXT: bigint;
+export declare const SERIALIZED_SIZE_LIMIT_PK: bigint;
+export declare const SERIALIZED_SIZE_LIMIT_CRS: bigint;
+export declare const cleanURL: (url: string | undefined) => string;
+export declare const numberToHex: (num: number) => string;
+export declare const fromHexString: (hexString: string) => Uint8Array;
+export declare const toHexString: (bytes: Uint8Array) => string;
+export declare const bigIntToBytes64: (value: bigint) => Uint8Array;
+export declare const bigIntToBytes128: (value: bigint) => Uint8Array;
+export declare const bigIntToBytes256: (value: bigint) => Uint8Array;
+export declare const bytesToHex: (byteArray: Uint8Array) => string;
+export declare const bytesToBigInt: (byteArray: Uint8Array) => bigint;
+export declare const clientKeyDecryptor: (clientKeySer: Uint8Array) => {
+    decryptBool: (ciphertext: string) => boolean;
+    decrypt4: (ciphertext: string) => number;
+    decrypt8: (ciphertext: string) => number;
+    decrypt16: (ciphertext: string) => number;
+    decrypt32: (ciphertext: string) => number;
+    decrypt64: (ciphertext: string) => bigint;
+    decrypt128: (ciphertext: string) => any;
+    decryptAddress: (ciphertext: string) => string;
+    decrypt256: (ciphertext: string) => any;
+    decryptEbytes64: (ciphertext: string) => any;
+    decryptEbytes128: (ciphertext: string) => any;
+    decryptEbytes256: (ciphertext: string) => any;
+};
+export declare const getCiphertextCallParams: (handle: bigint) => {
+    to: string;
+    data: string;
+};
