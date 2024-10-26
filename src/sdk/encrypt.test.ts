@@ -34,7 +34,7 @@ describe('encrypt', () => {
     input.add128(BigInt(233938932390));
     input.addAddress('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80');
     input.add256(BigInt('2339389323922393930'));
-    const { inputProof, handles } = await input.encrypt();
+    const {  inputProof, handles } = await input.encrypt();
     expect(inputProof).toBeDefined();
     expect(handles.length).toBe(2);
     // const compactList = ProvenCompactCiphertextList.safe_deserialize(

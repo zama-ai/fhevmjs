@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`handle computeHandle 1`] = `"ffee65c6bb6d2d5b9c2b2ab35e38fc0f33ef69ea18e6cb5ab1c7be5835020000"`;
+
+exports[`handle computePrehandle 1`] = `"c6ed4d73466a23d605b316d6d5cf05bf71e77ff7eb1760af4d00e77b67020000"`;
+
+exports[`index computeHandle 1`] = `"ffee65c6bb6d2d5b9c2b2ab35e38fc0f33ef69ea18e6cb5ab1c7be5835020000"`;
+
+exports[`index computePrehandle 1`] = `"c6ed4d73466a23d605b316d6d5cf05bf71e77ff7eb1760af4d00e77b67020000"`;

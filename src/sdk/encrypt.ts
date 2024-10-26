@@ -1,20 +1,19 @@
 import { isAddress } from 'ethers';
 import { Keccak } from 'sha3';
 import {
-  TfheCompactPublicKey,
   CompactCiphertextList,
   CompactPkePublicParams,
+  TfheCompactPublicKey,
   ZkComputeLoad,
 } from 'node-tfhe';
 
 import {
   bytesToBigInt,
   fromHexString,
-  numberToHex,
   SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
-  toHexString,
 } from '../utils';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
+import { computePrehandle, HANDLE_VERSION, mustGetHandleType } from './handle';
 
 type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 
@@ -42,7 +41,7 @@ export type ZKInput = {
   addAddress: (value: string) => ZKInput;
   getBits: () => number[];
   encrypt: () => Promise<{
-    prehandle: Uint8Array;
+    prehandles: Uint8Array[];
     ciphertext: Uint8Array;
   }>;
 };
@@ -260,13 +259,31 @@ export const createEncryptedInput =
           SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
         );
 
-        const prehandle = new Keccak(256)
+        const payload = {
+          client_address: contractAddress,
+          caller_address: callerAddress,
+          ct_proof: ciphertext,
+          max_num_bits: 2048,
+        };
+
+        const ciphertextHash = new Keccak(256)
           .update(Buffer.from(ciphertext))
           .digest();
 
+        // These prehandles have the expected layout expected by verifyCiphertext
+        // including type and version metadata
+        const prehandles: Uint8Array[] = [];
+        for (let i = 0; i < encrypted.len(); i++) {
+          prehandles[i] = computePrehandle({
+            ciphertextHash,
+            handleType: mustGetHandleType(encrypted.get_kind_of(i)),
+            handleVersion: HANDLE_VERSION,
+            indexHandle: i,
+          });
+        }
+
         return {
-          // This fork of fhevmjs only supports one prehandle and ciphertext at a time.
-          prehandle,
+          prehandles,
           ciphertext,
         };
       },

@@ -39,6 +39,7 @@ export { generateKeypair, createEIP712 } from './keypair';
 
 export * from './config';
 export * from './encrypt';
+export * from './handle';
 
 export const createInstance = async (
   config: FhevmInstanceConfig,

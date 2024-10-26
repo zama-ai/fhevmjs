@@ -58,4 +58,5 @@ describe('index', () => {
       }),
     ).rejects.toThrow('publicKey must be a string');
   });
+
 });

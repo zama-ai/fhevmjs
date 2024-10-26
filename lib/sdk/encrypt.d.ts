@@ -1,4 +1,4 @@
-import { TfheCompactPublicKey, CompactPkePublicParams } from 'node-tfhe';
+import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { ENCRYPTION_TYPES } from './encryptionTypes';
 type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 export type GatewayEncryptResponse = {
@@ -24,7 +24,7 @@ export type ZKInput = {
     addAddress: (value: string) => ZKInput;
     getBits: () => number[];
     encrypt: () => Promise<{
-        prehandle: Uint8Array;
+        prehandles: Uint8Array[];
         ciphertext: Uint8Array;
     }>;
 };
