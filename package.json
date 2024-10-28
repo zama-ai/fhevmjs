@@ -1,6 +1,6 @@
 {
   "name": "fhevmjs",
-  "version": "0.6.0-4",
+  "version": "0.6.0-5",
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.js",
   "types": "lib/node/node.d.ts",
@@ -50,10 +50,10 @@
     "bigint-buffer": "^1.1.5",
     "commander": "^11.0.0",
     "fetch-mock": "^11.1.3",
-    "node-tfhe": "^0.8.6",
+    "node-tfhe": "^0.9.0",
     "node-tkms": "^0.9.0-rc11",
     "sha3": "^2.1.4",
-    "tfhe": "^0.8.3",
+    "tfhe": "^0.9.0",
     "tkms": "^0.9.0-rc11",
     "url": "^0.11.3",
     "web3-validator": "^2.0.6"
