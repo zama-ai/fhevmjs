@@ -20,11 +20,12 @@ type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 
 export type GatewayEncryptResponse = {
   response: {
-    coprocessor: boolean;
+    proof_of_storage: string;
     handles: string[];
     kms_signatures: string[];
     coproc_signature: string;
   };
+  status: string;
 };
 
 export type ZKInput = {
@@ -78,253 +79,253 @@ export const createEncryptedInput =
     tfheCompactPublicKey: TfheCompactPublicKey,
     publicParams: PublicParams,
   ) =>
-  (contractAddress: string, callerAddress: string): ZKInput => {
-    if (!isAddress(contractAddress)) {
-      throw new Error('Contract address is not a valid address.');
-    }
-
-    if (!isAddress(callerAddress)) {
-      throw new Error('User address is not a valid address.');
-    }
-    const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
-    const bits: EncryptionTypes[] = [];
-    const builder = CompactCiphertextList.builder(publicKey);
-    const checkLimit = (added: number) => {
-      if (bits.reduce((acc, val) => acc + Math.max(2, val), 0) + added > 2048) {
-        throw Error(
-          'Packing more than 2048 bits in a single input ciphertext is unsupported',
-        );
+    (contractAddress: string, callerAddress: string): ZKInput => {
+      if (!isAddress(contractAddress)) {
+        throw new Error('Contract address is not a valid address.');
       }
-      if (bits.length + 1 > 256)
-        throw Error(
-          'Packing more than 256 variables in a single input ciphertext is unsupported',
-        );
-    };
-    return {
-      addBool(value: boolean | number | bigint) {
-        if (value == null) throw new Error('Missing value');
-        if (
-          typeof value !== 'boolean' &&
-          typeof value !== 'number' &&
-          typeof value !== 'bigint'
-        )
-          throw new Error('The value must be a boolean, a number or a bigint.');
-        if (
-          (typeof value !== 'bigint' || typeof value !== 'number') &&
-          Number(value) > 1
-        )
-          throw new Error('The value must be 1 or 0.');
-        checkEncryptedValue(Number(value), 1);
-        checkLimit(2);
-        builder.push_boolean(!!value);
-        bits.push(1); // ebool takes 2 encrypted bits
-        return this;
-      },
-      add4(value: number | bigint) {
-        checkEncryptedValue(value, 4);
-        checkLimit(4);
-        builder.push_u4(Number(value));
-        bits.push(4);
-        return this;
-      },
-      add8(value: number | bigint) {
-        checkEncryptedValue(value, 8);
-        checkLimit(8);
-        builder.push_u8(Number(value));
-        bits.push(8);
-        return this;
-      },
-      add16(value: number | bigint) {
-        checkEncryptedValue(value, 16);
-        checkLimit(16);
-        builder.push_u16(Number(value));
-        bits.push(16);
-        return this;
-      },
-      add32(value: number | bigint) {
-        checkEncryptedValue(value, 32);
-        checkLimit(32);
-        builder.push_u32(Number(value));
-        bits.push(32);
-        return this;
-      },
-      add64(value: number | bigint) {
-        checkEncryptedValue(value, 64);
-        checkLimit(64);
-        builder.push_u64(BigInt(value));
-        bits.push(64);
-        return this;
-      },
-      add128(value: number | bigint) {
-        checkEncryptedValue(value, 128);
-        checkLimit(128);
-        builder.push_u128(BigInt(value));
-        bits.push(128);
-        return this;
-      },
-      addAddress(value: string) {
-        if (!isAddress(value)) {
-          throw new Error('The value must be a valid address.');
-        }
-        checkLimit(160);
-        builder.push_u160(BigInt(value));
-        bits.push(160);
-        return this;
-      },
-      add256(value: number | bigint) {
-        checkEncryptedValue(value, 256);
-        checkLimit(256);
-        builder.push_u256(BigInt(value));
-        bits.push(256);
-        return this;
-      },
-      addBytes64(value: Uint8Array) {
-        if (value.length !== 64)
-          throw Error(
-            'Uncorrect length of input Uint8Array, should be 64 for an ebytes64',
-          );
-        const bigIntValue = bytesToBigInt(value);
-        checkEncryptedValue(bigIntValue, 512);
-        checkLimit(512);
-        builder.push_u512(bigIntValue);
-        bits.push(512);
-        return this;
-      },
-      addBytes128(value: Uint8Array) {
-        if (value.length !== 128)
-          throw Error(
-            'Uncorrect length of input Uint8Array, should be 128 for an ebytes128',
-          );
-        const bigIntValue = bytesToBigInt(value);
-        checkEncryptedValue(bigIntValue, 1024);
-        checkLimit(1024);
-        builder.push_u1024(bigIntValue);
-        bits.push(1024);
-        return this;
-      },
-      addBytes256(value: Uint8Array) {
-        if (value.length !== 256)
-          throw Error(
-            'Uncorrect length of input Uint8Array, should be 256 for an ebytes256',
-          );
-        const bigIntValue = bytesToBigInt(value);
-        checkEncryptedValue(bigIntValue, 2048);
-        checkLimit(2048);
-        builder.push_u2048(bigIntValue);
-        bits.push(2048);
-        return this;
-      },
-      getBits() {
-        return bits;
-      },
-      async encrypt() {
-        const getKeys = <T extends {}>(obj: T) =>
-          Object.keys(obj) as Array<keyof T>;
 
-        const totalBits = bits.reduce((total, v) => total + v, 0);
-        const now = Date.now();
-        // const ppTypes = getKeys(publicParams);
-        const ppTypes = getKeys(publicParams);
-        const closestPP: EncryptionTypes | undefined = ppTypes.find(
-          (k) => Number(k) >= totalBits,
-        );
-        if (!closestPP) {
-          throw new Error(
-            `Too many bits in provided values. Maximum is ${
-              ppTypes[ppTypes.length - 1]
-            }.`,
+      if (!isAddress(callerAddress)) {
+        throw new Error('User address is not a valid address.');
+      }
+      const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
+      const bits: EncryptionTypes[] = [];
+      const builder = CompactCiphertextList.builder(publicKey);
+      const checkLimit = (added: number) => {
+        if (bits.reduce((acc, val) => acc + Math.max(2, val), 0) + added > 2048) {
+          throw Error(
+            'Packing more than 2048 bits in a single input ciphertext is unsupported',
           );
         }
-        const pp = publicParams[closestPP]!;
-        const buffContract = fromHexString(contractAddress);
-        const buffUser = fromHexString(callerAddress);
-        const buffAcl = fromHexString(aclContractAddress);
-        const buffChainId = fromHexString(chainId.toString(16));
-        const auxData = new Uint8Array(
-          buffContract.length +
+        if (bits.length + 1 > 256)
+          throw Error(
+            'Packing more than 256 variables in a single input ciphertext is unsupported',
+          );
+      };
+      return {
+        addBool(value: boolean | number | bigint) {
+          if (value == null) throw new Error('Missing value');
+          if (
+            typeof value !== 'boolean' &&
+            typeof value !== 'number' &&
+            typeof value !== 'bigint'
+          )
+            throw new Error('The value must be a boolean, a number or a bigint.');
+          if (
+            (typeof value !== 'bigint' || typeof value !== 'number') &&
+            Number(value) > 1
+          )
+            throw new Error('The value must be 1 or 0.');
+          checkEncryptedValue(Number(value), 1);
+          checkLimit(2);
+          builder.push_boolean(!!value);
+          bits.push(1); // ebool takes 2 encrypted bits
+          return this;
+        },
+        add4(value: number | bigint) {
+          checkEncryptedValue(value, 4);
+          checkLimit(4);
+          builder.push_u4(Number(value));
+          bits.push(4);
+          return this;
+        },
+        add8(value: number | bigint) {
+          checkEncryptedValue(value, 8);
+          checkLimit(8);
+          builder.push_u8(Number(value));
+          bits.push(8);
+          return this;
+        },
+        add16(value: number | bigint) {
+          checkEncryptedValue(value, 16);
+          checkLimit(16);
+          builder.push_u16(Number(value));
+          bits.push(16);
+          return this;
+        },
+        add32(value: number | bigint) {
+          checkEncryptedValue(value, 32);
+          checkLimit(32);
+          builder.push_u32(Number(value));
+          bits.push(32);
+          return this;
+        },
+        add64(value: number | bigint) {
+          checkEncryptedValue(value, 64);
+          checkLimit(64);
+          builder.push_u64(BigInt(value));
+          bits.push(64);
+          return this;
+        },
+        add128(value: number | bigint) {
+          checkEncryptedValue(value, 128);
+          checkLimit(128);
+          builder.push_u128(BigInt(value));
+          bits.push(128);
+          return this;
+        },
+        addAddress(value: string) {
+          if (!isAddress(value)) {
+            throw new Error('The value must be a valid address.');
+          }
+          checkLimit(160);
+          builder.push_u160(BigInt(value));
+          bits.push(160);
+          return this;
+        },
+        add256(value: number | bigint) {
+          checkEncryptedValue(value, 256);
+          checkLimit(256);
+          builder.push_u256(BigInt(value));
+          bits.push(256);
+          return this;
+        },
+        addBytes64(value: Uint8Array) {
+          if (value.length !== 64)
+            throw Error(
+              'Uncorrect length of input Uint8Array, should be 64 for an ebytes64',
+            );
+          const bigIntValue = bytesToBigInt(value);
+          checkEncryptedValue(bigIntValue, 512);
+          checkLimit(512);
+          builder.push_u512(bigIntValue);
+          bits.push(512);
+          return this;
+        },
+        addBytes128(value: Uint8Array) {
+          if (value.length !== 128)
+            throw Error(
+              'Uncorrect length of input Uint8Array, should be 128 for an ebytes128',
+            );
+          const bigIntValue = bytesToBigInt(value);
+          checkEncryptedValue(bigIntValue, 1024);
+          checkLimit(1024);
+          builder.push_u1024(bigIntValue);
+          bits.push(1024);
+          return this;
+        },
+        addBytes256(value: Uint8Array) {
+          if (value.length !== 256)
+            throw Error(
+              'Uncorrect length of input Uint8Array, should be 256 for an ebytes256',
+            );
+          const bigIntValue = bytesToBigInt(value);
+          checkEncryptedValue(bigIntValue, 2048);
+          checkLimit(2048);
+          builder.push_u2048(bigIntValue);
+          bits.push(2048);
+          return this;
+        },
+        getBits() {
+          return bits;
+        },
+        async encrypt() {
+          const getKeys = <T extends {}>(obj: T) =>
+            Object.keys(obj) as Array<keyof T>;
+
+          const totalBits = bits.reduce((total, v) => total + v, 0);
+          const now = Date.now();
+          // const ppTypes = getKeys(publicParams);
+          const ppTypes = getKeys(publicParams);
+          const closestPP: EncryptionTypes | undefined = ppTypes.find(
+            (k) => Number(k) >= totalBits,
+          );
+          if (!closestPP) {
+            throw new Error(
+              `Too many bits in provided values. Maximum is ${ppTypes[ppTypes.length - 1]
+              }.`,
+            );
+          }
+          const pp = publicParams[closestPP]!;
+          const buffContract = fromHexString(contractAddress);
+          const buffUser = fromHexString(callerAddress);
+          const buffAcl = fromHexString(aclContractAddress);
+          const buffChainId = fromHexString(chainId.toString(16));
+          const auxData = new Uint8Array(
+            buffContract.length +
             buffUser.length +
             buffAcl.length +
-            buffChainId.length,
-        );
-        auxData.set(buffContract, 0);
-        auxData.set(buffUser, 20);
-        auxData.set(buffAcl, 40);
-        auxData.set(buffChainId, 60);
-        const encrypted = builder.build_with_proof_packed(
-          pp,
-          auxData,
-          ZkComputeLoad.Verify,
-        );
+            32 // buffChainId.length,
+          );
+          auxData.set(buffContract, 0);
+          auxData.set(buffUser, 20);
+          auxData.set(buffAcl, 40);
+          auxData.set(buffChainId, auxData.length - buffChainId.length);
+          const encrypted = builder.build_with_proof_packed(
+            pp,
+            auxData,
+            ZkComputeLoad.Proof,
+          );
 
-        const ciphertext = encrypted.safe_serialize(
-          SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
-        );
+          const ciphertext = Buffer.from(encrypted.safe_serialize(
+            SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
+          ));
 
-        const payload = {
-          client_address: contractAddress,
-          caller_address: callerAddress,
-          ct_proof: ciphertext,
-          max_num_bits: 2048,
-        };
+          // TODO get keyID
+          const keyID = '408d8cbaa51dece7f782fe04ba0b1c1d017b1088';
+          const crsID = 'd8d94eb3a23d22d3eb6b5e7b694e8afcd571d906';
+          const payload = {
+            contract_address: contractAddress,
+            caller_address: callerAddress,
+            ct_proof: ciphertext.toString('hex'),
+            key_id: keyID,
+            crs_id: crsID,
+          };
 
-        // TODO Send payload
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        };
+          const options = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          };
 
-        let json: GatewayEncryptResponse;
-        try {
-          const response = await fetch(`${gateway}zkp`, options);
-          json = await response.json();
-        } catch (e) {
-          console.log(`${gateway}zkp`);
-          throw new Error("Gateway didn't response correctly");
-        }
-        let handles: Uint8Array[] = [];
-        if (json.response.handles && json.response.handles.length > 0) {
-          handles = json.response.handles.map(fromHexString);
-        }
+          let json: GatewayEncryptResponse;
+          try {
+            const response = await fetch(`${gateway}verify_proven_ct`, options);
+            json = await response.json();
+          } catch (e) {
+            console.log('verify_proven_ct failed with error', e);
+            throw new Error("Gateway didn't response correctly");
+          }
+          let handles: Uint8Array[] = [];
+          if (json.response.handles && json.response.handles.length > 0) {
+            handles = json.response.handles.map(fromHexString);
+          }
 
-        const hash = new Keccak(256).update(Buffer.from(ciphertext)).digest();
+          const kmsSignatures = json.response.kms_signatures;
 
-        const kmsSignatures = json.response.kms_signatures;
-        const coproSignature = json.response.coproc_signature;
+          // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
+          let inputProof = '0x' + numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
+          // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
+          const numSigners = kmsSignatures.length;
+          inputProof += numberToHex(numSigners);
+          if (json.response.proof_of_storage) {
+            // coprocessor
+            const hash = new Keccak(256).update(Buffer.from(ciphertext)).digest();
+            inputProof += hash.toString('hex');
 
-        // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        let inputProof = '0x' + numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
-        const numSigners = kmsSignatures.length;
-        inputProof += numberToHex(numSigners);
-        if (json.response.coprocessor) {
-          // coprocessor
-          inputProof += hash.toString('hex');
+            const listHandlesStr = handles.map((i) => toHexString(i));
+            listHandlesStr.map((handle) => (inputProof += handle));
+            inputProof += json.response.proof_of_storage.slice(2);
 
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
-          inputProof += coproSignature.slice(2);
+            kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+          } else {
+            // native
+            const listHandlesStr = handles.map((i) => toHexString(i));
+            listHandlesStr.map((handle) => (inputProof += handle));
 
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
-        } else {
-          // native
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
+            kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
 
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+            inputProof += toHexString(ciphertext);
+          }
 
-          inputProof += toHexString(ciphertext);
-        }
-
-        return {
-          handles,
-          inputProof: fromHexString(inputProof),
-        };
-      },
+          return {
+            handles,
+            inputProof: fromHexString(inputProof),
+          };
+        },
+      };
     };
-  };
 
 const convertToInputProof = (data: {
   handlesList: string[];

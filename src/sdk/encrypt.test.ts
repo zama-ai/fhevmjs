@@ -5,7 +5,7 @@ import fetchMock from '@fetch-mock/core';
 
 fetchMock.post('https://test-gateway.net/zkp', {
   response: {
-    coprocessor: true,
+    coprocessor: 'COPROCESSOR',
     kms_signatures: ['0x32'],
     coproc_signature: '0x54',
     handles: ['0x2323', '0x2234'],
