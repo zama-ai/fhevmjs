@@ -68,7 +68,7 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
 };
 
 export type PublicParams<T = CompactPkePublicParams> = {
-  [key in EncryptionTypes]?: T;
+  [key in EncryptionTypes]?: {publicParams: T, publicParamsId: string};
 };
 
 export const createEncryptedInput =
@@ -77,6 +77,7 @@ export const createEncryptedInput =
     chainId: number,
     gateway: string,
     tfheCompactPublicKey: TfheCompactPublicKey,
+    publicKeyId: string,
     publicParams: PublicParams,
   ) =>
     (contractAddress: string, callerAddress: string): ZKInput => {
@@ -235,7 +236,8 @@ export const createEncryptedInput =
               }.`,
             );
           }
-          const pp = publicParams[closestPP]!;
+          const pp = publicParams[closestPP]!.publicParams;
+          const ppId = publicParams[closestPP]!.publicParamsId;
           const buffContract = fromHexString(contractAddress);
           const buffUser = fromHexString(callerAddress);
           const buffAcl = fromHexString(aclContractAddress);
@@ -260,15 +262,12 @@ export const createEncryptedInput =
             SERIALIZED_SIZE_LIMIT_CIPHERTEXT,
           ));
 
-          // TODO get keyID
-          const keyID = '408d8cbaa51dece7f782fe04ba0b1c1d017b1088';
-          const crsID = 'd8d94eb3a23d22d3eb6b5e7b694e8afcd571d906';
           const payload = {
             contract_address: contractAddress,
             caller_address: callerAddress,
             ct_proof: ciphertext.toString('hex'),
-            key_id: keyID,
-            crs_id: crsID,
+            key_id: publicKeyId,
+            crs_id: ppId,
           };
 
           const options = {

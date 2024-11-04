@@ -1,4 +1,5 @@
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
+import { SERIALIZED_SIZE_LIMIT_PK, SERIALIZED_SIZE_LIMIT_CRS } from '../utils';
 
 export type GatewayKeysItem = {
   data_id: string;
@@ -33,7 +34,11 @@ export type GatewayKeys = {
   status: string;
 };
 
+const keyurlCache: { [key: string]: any } = {};
 export const getKeysFromGateway = async (url: string) => {
+  if (keyurlCache[url]) {
+    return keyurlCache[url];
+  }
   try {
     const response = await fetch(`${url}keyurl`);
     if (!response.ok) {
@@ -42,23 +47,32 @@ export const getKeysFromGateway = async (url: string) => {
     const data: GatewayKeys = await response.json();
     if (data) {
       const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
+      const publicKeyId = data.response.fhe_key_info[0].fhe_public_key.data_id;
       console.log('pubKeyUrl', pubKeyUrl);
       const publicKeyResponse = await fetch(pubKeyUrl);
       const publicKey = await publicKeyResponse.arrayBuffer();
-      const crsUrl = data.response.crs['2048'].urls[0];
-      const crs2048 = await (await fetch(crsUrl)).arrayBuffer();
-      return {
+      const publicParamsUrl = data.response.crs['2048'].urls[0];
+      const publicParamsId = data.response.crs['2048'].data_id;
+      const publicParams2048 = await (await fetch(publicParamsUrl)).arrayBuffer();
+
+      const result = {
         publicKey: TfheCompactPublicKey.safe_deserialize(
           new Uint8Array(publicKey),
-          BigInt(1024) * BigInt(1024) * BigInt(16),
+          SERIALIZED_SIZE_LIMIT_PK,
         ),
+        publicKeyId,
         publicParams: {
-          2048: CompactPkePublicParams.safe_deserialize(
-            new Uint8Array(crs2048),
-            BigInt(1024) * BigInt(1024) * BigInt(512),
-          ),
-        },
+          2048: {
+            publicParams: CompactPkePublicParams.safe_deserialize(
+              new Uint8Array(publicParams2048),
+              SERIALIZED_SIZE_LIMIT_CRS,
+            ),
+            publicParamsId,
+          }
+        }
       };
+      keyurlCache[url] = result;
+      return result;
     } else {
       throw new Error('No public key available');
     }
