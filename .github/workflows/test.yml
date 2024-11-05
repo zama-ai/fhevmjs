@@ -20,4 +20,4 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: ArtiomTr/jest-coverage-report-action@v2
+      # - uses: ArtiomTr/jest-coverage-report-action@v2
