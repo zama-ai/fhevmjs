@@ -1,6 +1,10 @@
 import { GatewayKeys, getKeysFromGateway } from './network';
 import { publicKey, publicParams } from '../test';
-import { bytesToHex, SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
+import {
+  bytesToHex,
+  SERIALIZED_SIZE_LIMIT_CRS,
+  SERIALIZED_SIZE_LIMIT_PK,
+} from '../utils';
 import fetchMock from '@fetch-mock/core';
 
 const payload: GatewayKeys = {
@@ -95,9 +99,11 @@ fetchMock.get(
 );
 
 describe('network', () => {
-  it.skip('getInputsFromGateway', async () => {
+  it('getInputsFromGateway', async () => {
     const material = await getKeysFromGateway('https://test-gateway.net/');
 
-    expect(material.publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK)).toStrictEqual(publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
+    expect(
+      material.publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+    ).toStrictEqual(publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
   });
 });

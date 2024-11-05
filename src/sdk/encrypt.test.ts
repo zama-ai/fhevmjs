@@ -14,7 +14,7 @@ fetchMock.post('https://test-gateway.net/verify_proven_ct', {
 });
 
 describe('encrypt', () => {
-  it.only('encrypt/decrypt', async () => {
+  it('encrypt/decrypt', async () => {
     const input = createEncryptedInput(
       '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
       1234,
