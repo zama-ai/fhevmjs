@@ -4,21 +4,16 @@ import {
   TfheCompactPublicKey,
 } from 'node-tfhe';
 import fs from 'fs';
+import { SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
 
 const privKey = fs.readFileSync(`${__dirname}/keys/privateKey.bin`);
 const pubKey = fs.readFileSync(`${__dirname}/keys/publicKey.bin`);
-const params128 = fs.readFileSync(`${__dirname}/keys/crs128.bin`);
-const params256 = fs.readFileSync(`${__dirname}/keys/crs256.bin`);
-const params512 = fs.readFileSync(`${__dirname}/keys/crs512.bin`);
-const params1024 = fs.readFileSync(`${__dirname}/keys/crs1024.bin`);
 const params2048 = fs.readFileSync(`${__dirname}/keys/crs2048.bin`);
 
-export const privateKey = TfheClientKey.deserialize(privKey);
-export const publicKey = TfheCompactPublicKey.deserialize(pubKey);
+export const publicKeyId = '408d8cbaa51dece7f782fe04ba0b1c1d017b1088';
+const publicParamsId = 'd8d94eb3a23d22d3eb6b5e7b694e8afcd571d906';
+export const privateKey = TfheClientKey.safe_deserialize(privKey, SERIALIZED_SIZE_LIMIT_PK);
+export const publicKey = TfheCompactPublicKey.safe_deserialize(pubKey, SERIALIZED_SIZE_LIMIT_PK);
 export const publicParams = {
-  128: CompactPkePublicParams.deserialize(params128),
-  256: CompactPkePublicParams.deserialize(params256),
-  512: CompactPkePublicParams.deserialize(params512),
-  1024: CompactPkePublicParams.deserialize(params1024),
-  2048: CompactPkePublicParams.deserialize(params2048),
+  2048: { publicParams: CompactPkePublicParams.safe_deserialize(params2048, SERIALIZED_SIZE_LIMIT_CRS), publicParamsId }
 };

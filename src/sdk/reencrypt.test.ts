@@ -2,7 +2,7 @@ import { reencryptRequest } from './reencrypt';
 import fetchMock from '@fetch-mock/core';
 import { ethers } from 'ethers';
 
-fetchMock.mockGlobal();
+// fetchMock.mockGlobal();
 
 fetchMock.post('https://test-gateway.net/reencrypt', {
   status: 'success',

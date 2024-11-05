@@ -7,7 +7,7 @@ import {
 } from 'ethers';
 import { PublicParams } from './encrypt';
 import { getKeysFromGateway } from './network';
-import { fromHexString, cleanURL } from '../utils';
+import { fromHexString, cleanURL, SERIALIZED_SIZE_LIMIT_PK, SERIALIZED_SIZE_LIMIT_CRS } from '../utils';
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { abi } from '../abi/kmsVerifier.json';
 
@@ -16,6 +16,7 @@ export type FhevmInstanceConfig = {
   aclContractAddress: string;
   chainId?: number;
   publicKey?: string;
+  publicKeyId?: string;
   gatewayUrl?: string;
   network?: Eip1193Provider;
   networkUrl?: string;
@@ -50,16 +51,16 @@ export const getChainId = async (
 export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
   if (config.gatewayUrl && !config.publicKey) {
     const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl));
-    return inputs.publicKey;
-  } else if (config.publicKey) {
+    return { publicKey: inputs.publicKey, publicKeyId: inputs.publicKeyId };
+  } else if (config.publicKey && config.publicKeyId) {
     const buff = fromHexString(config.publicKey);
     try {
-      return TfheCompactPublicKey.deserialize(buff);
+      return { publicKey: TfheCompactPublicKey.safe_deserialize(buff, SERIALIZED_SIZE_LIMIT_PK), publicKeyId: config.publicKeyId };
     } catch (e) {
       throw new Error('Invalid public key (deserialization failed)');
     }
   } else {
-    throw new Error('You must provide a public key.');
+    throw new Error('You must provide a public key with its public key ID.');
   }
 };
 
@@ -68,16 +69,19 @@ export const getPublicParams = async (config: FhevmInstanceConfig) => {
     const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl));
     return inputs.publicParams;
   } else if (config.publicParams && config.publicParams['2048']) {
-    const buff = fromHexString(config.publicParams['2048']);
+    const buff = fromHexString(config.publicParams['2048'].publicParams);
     try {
       return {
-        '2048': CompactPkePublicParams.deserialize(buff),
+        2048: { 
+          publicParams: CompactPkePublicParams.safe_deserialize(buff, SERIALIZED_SIZE_LIMIT_CRS),
+          publicParamsId: config.publicParams['2048'].publicParamsId
+        },
       };
     } catch (e) {
       throw new Error('Invalid public key (deserialization failed)');
     }
   } else {
-    throw new Error('You must provide a valid CRS.');
+    throw new Error('You must provide a valid CRS with its CRS ID.');
   }
 };
 

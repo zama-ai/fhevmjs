@@ -1,6 +1,9 @@
 import { GatewayKeys, getKeysFromGateway } from './network';
 import { publicKey, publicParams } from '../test';
-import { bytesToHex } from '../utils';
+import {
+  SERIALIZED_SIZE_LIMIT_CRS,
+  SERIALIZED_SIZE_LIMIT_PK,
+} from '../utils';
 import fetchMock from '@fetch-mock/core';
 
 const payload: GatewayKeys = {
@@ -86,18 +89,20 @@ fetchMock.get('https://test-gateway.net/keyurl', payload);
 
 fetchMock.get(
   'https://s3.amazonaws.com/bucket-name-1/PUB-p1/PublicKey/408d8cbaa51dece7f782fe04ba0b1c1d017b1088',
-  bytesToHex(publicKey.serialize()),
+  publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
 );
+
 fetchMock.get(
   'https://s3.amazonaws.com/bucket-name-1/PUB-p1/CRS/d8d94eb3a23d22d3eb6b5e7b694e8afcd571d906',
-  bytesToHex(publicParams[2048].serialize(false)),
+  publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
 );
 
 describe('network', () => {
-  // TODO: fix this test by returning valid safe serialized keys
-  it.skip('getInputsFromGateway', async () => {
+  it('getInputsFromGateway', async () => {
     const material = await getKeysFromGateway('https://test-gateway.net/');
 
-    expect(material.publicKey.serialize()).toStrictEqual(publicKey.serialize());
+    expect(
+      material.publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+    ).toStrictEqual(publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
   });
 });

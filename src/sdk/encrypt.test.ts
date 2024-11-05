@@ -1,25 +1,26 @@
 import { ProvenCompactCiphertextList } from 'node-tfhe';
 import { createEncryptedInput } from './encrypt';
-import { publicKey, publicParams } from '../test';
+import { publicKey, publicKeyId, publicParams } from '../test';
 import fetchMock from '@fetch-mock/core';
 
-fetchMock.post('https://test-gateway.net/zkp', {
+fetchMock.post('https://test-gateway.net/verify_proven_ct', {
   response: {
-    coprocessor: true,
-    kms_signatures: ['0x32'],
-    coproc_signature: '0x54',
-    handles: ['0x2323', '0x2234'],
+    proof_of_storage: 'deadbeef',
+    handles: ['2323beef', '2234beef'],
+    kms_signatures: ['dead3232'],
+    coproc_signature: '1122beef',
   },
   status: 'success',
 });
 
 describe('encrypt', () => {
-  it.only('encrypt/decrypt', async () => {
+  it('encrypt/decrypt', async () => {
     const input = createEncryptedInput(
       '0x325ea1b59F28e9e1C51d3B5b47b7D3965CC5D8C8',
       1234,
       'https://test-gateway.net/',
       publicKey,
+      publicKeyId,
       publicParams,
     )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
@@ -48,7 +49,7 @@ describe('encrypt', () => {
     // types.forEach((val, i) => {
     //   expect(val).toBe(expectedTypes[i]);
     // });
-  });
+  }, 60000);
 
   it('encrypt/decrypt one 0 value', async () => {
     const input = createEncryptedInput(
@@ -56,6 +57,7 @@ describe('encrypt', () => {
       1234,
       'https://test-gateway.net/',
       publicKey,
+      publicKeyId,
       publicParams,
     )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
@@ -83,6 +85,7 @@ describe('encrypt', () => {
       1234,
       'https://test-gateway.net/',
       publicKey,
+      publicKeyId,
       publicParams,
     )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
@@ -113,6 +116,7 @@ describe('encrypt', () => {
         1234,
         'https://test-gateway.net/',
         publicKey,
+        publicKeyId,
         publicParams,
       )('0xa5e1defb98EFe38EBb2D958CEe052410247F4c80', '0'),
     ).toThrow('User address is not a valid address.');
@@ -122,6 +126,7 @@ describe('encrypt', () => {
         1234,
         'https://test-gateway.net/',
         publicKey,
+        publicKeyId,
         publicParams,
       )('0x0', '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80'),
     ).toThrow('Contract address is not a valid address.');
@@ -132,6 +137,7 @@ describe('encrypt', () => {
         1234,
         'https://test-gateway.net/',
         publicKey,
+        publicKeyId,
         publicParams,
       )(
         '0x8ba1f109551bd432803012645ac136ddd64dba72',
@@ -144,6 +150,7 @@ describe('encrypt', () => {
       1234,
       'https://test-gateway.net/',
       publicKey,
+      publicKeyId,
       publicParams,
     )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
@@ -190,6 +197,7 @@ describe('encrypt', () => {
       1234,
       'https://test-gateway.net/',
       publicKey,
+      publicKeyId,
       publicParams,
     )(
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
