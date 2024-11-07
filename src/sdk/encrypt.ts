@@ -286,6 +286,8 @@ export const createEncryptedInput =
             console.log('verify_proven_ct failed with error', e);
             throw new Error("Gateway didn't response correctly");
           }
+          
+          // Note that the hex strings returned by the gateway do have have the 0x prefix
           let handles: Uint8Array[] = [];
           if (json.response.handles && json.response.handles.length > 0) {
             handles = json.response.handles.map(fromHexString);
@@ -294,7 +296,7 @@ export const createEncryptedInput =
           const kmsSignatures = json.response.kms_signatures;
 
           // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-          let inputProof = '0x' + numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
+          let inputProof = numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
           // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
           const numSigners = kmsSignatures.length;
           inputProof += numberToHex(numSigners);
@@ -305,15 +307,15 @@ export const createEncryptedInput =
 
             const listHandlesStr = handles.map((i) => toHexString(i));
             listHandlesStr.map((handle) => (inputProof += handle));
-            inputProof += json.response.proof_of_storage.slice(2);
+            inputProof += json.response.proof_of_storage;
 
-            kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+            kmsSignatures.map((sigKMS) => (inputProof += sigKMS));
           } else {
             // native
             const listHandlesStr = handles.map((i) => toHexString(i));
             listHandlesStr.map((handle) => (inputProof += handle));
 
-            kmsSignatures.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+            kmsSignatures.map((sigKMS) => (inputProof += sigKMS));
 
             inputProof += toHexString(ciphertext);
           }
