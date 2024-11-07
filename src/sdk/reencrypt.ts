@@ -40,9 +40,9 @@ export const reencryptRequest =
         'userAddress should not be equal to contractAddress when requesting reencryption!',
       );
     }
-    const payload = {
+    const payloadForRequest = {
       signature: signature.replace(/^(0x)/, ''),
-      user_address: userAddress.replace(/^(0x)/, ''),
+      client_address: userAddress,
       enc_key: publicKey.replace(/^(0x)/, ''),
       ciphertext_handle: handle.toString(16),
       eip712_verifying_contract: contractAddress,
@@ -52,7 +52,7 @@ export const reencryptRequest =
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payloadForRequest),
     };
     let pubKey;
     let privKey;
@@ -74,16 +74,25 @@ export const reencryptRequest =
     const client = new_client(kmsSignatures, userAddress, 'default');
 
     try {
+      const buffer = new ArrayBuffer(32);
+      const view = new DataView(buffer);
+      view.setUint32(28, chainId, false);
+      const chainIdArrayBE = new Uint8Array(buffer);
       const eip712Domain = {
         name: 'Authorization token',
         version: '1',
-        chain_id: chainId,
-        verifying_contract: kmsContractAddress,
-        salt: [],
+        chain_id: chainIdArrayBE,
+        verifying_contract: contractAddress,
+        salt: null,
       };
+      // Duplicate payloadForRequest and replace ciphertext_handle with ciphertext_digest.
+      const { ciphertext_handle, ...p } = payloadForRequest;
+      // TODO check all ciphertext digests are all the same
+      const payloadForVerification = { ...p, ciphertext_digest: json.response[0].ciphertext_digest };
+
       const decryption = process_reencryption_resp_from_js(
         client,
-        payload,
+        payloadForVerification,
         eip712Domain,
         json.response,
         pubKey,
