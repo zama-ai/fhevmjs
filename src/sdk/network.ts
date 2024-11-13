@@ -48,7 +48,6 @@ export const getKeysFromGateway = async (url: string) => {
     if (data) {
       const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
       const publicKeyId = data.response.fhe_key_info[0].fhe_public_key.data_id;
-      console.log('pubKeyUrl', pubKeyUrl);
       const publicKeyResponse = await fetch(pubKeyUrl);
       const publicKey = await publicKeyResponse.arrayBuffer();
       const publicParamsUrl = data.response.crs['2048'].urls[0];
