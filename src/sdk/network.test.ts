@@ -99,7 +99,7 @@ fetchMock.get(
 
 describe('network', () => {
   it('getInputsFromGateway', async () => {
-    const material = await getKeysFromGateway('https://test-gateway.net/');
+    const material = await getKeysFromGateway('https://test-gateway.net/', undefined);
 
     expect(
       material.publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
