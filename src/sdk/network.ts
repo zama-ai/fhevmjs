@@ -35,7 +35,7 @@ export type GatewayKeys = {
 };
 
 const keyurlCache: { [key: string]: any } = {};
-export const getKeysFromGateway = async (url: string, publicKeyId: string | undefined) => {
+export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
   if (keyurlCache[url]) {
     return keyurlCache[url];
   }
@@ -66,9 +66,6 @@ export const getKeysFromGateway = async (url: string, publicKeyId: string | unde
         // TODO: Get a given party's public key url instead of the first one
         pubKeyUrl = keyInfo.fhe_public_key.urls[0];
       }
-
-      console.log('publicKeyId', publicKeyId);
-      console.log('pubKeyUrl', pubKeyUrl);
 
       const publicKeyResponse = await fetch(pubKeyUrl);
       const publicKey = await publicKeyResponse.arrayBuffer();
