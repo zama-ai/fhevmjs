@@ -71,6 +71,10 @@ export const reencryptRequest =
       throw new Error("Gateway didn't response correctly");
     }
 
+    if (json.status === 'failure') {
+      throw new Error("The reencryption didn't succeed");
+    }
+
     const client = new_client(kmsSignatures, userAddress, 'default');
 
     try {
@@ -88,7 +92,10 @@ export const reencryptRequest =
       // Duplicate payloadForRequest and replace ciphertext_handle with ciphertext_digest.
       const { ciphertext_handle, ...p } = payloadForRequest;
       // TODO check all ciphertext digests are all the same
-      const payloadForVerification = { ...p, ciphertext_digest: json.response[0].ciphertext_digest };
+      const payloadForVerification = {
+        ...p,
+        ciphertext_digest: json.response[0].ciphertext_digest,
+      };
 
       const decryption = process_reencryption_resp_from_js(
         client,
