@@ -40,7 +40,6 @@ export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
     return keyurlCache[url];
   }
   try {
-    console.log('fetching keys from', url);
     const response = await fetch(`${url}keyurl`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
