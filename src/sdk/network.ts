@@ -35,7 +35,7 @@ export type GatewayKeys = {
 };
 
 const keyurlCache: { [key: string]: any } = {};
-export const getKeysFromGateway = async (url: string) => {
+export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
   if (keyurlCache[url]) {
     return keyurlCache[url];
   }
@@ -46,8 +46,26 @@ export const getKeysFromGateway = async (url: string) => {
     }
     const data: GatewayKeys = await response.json();
     if (data) {
-      const pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
-      const publicKeyId = data.response.fhe_key_info[0].fhe_public_key.data_id;
+      let pubKeyUrl: string;
+
+      // If no publicKeyId is provided, use the first one
+      // Warning: if there are multiple keys available, the first one will most likely never be the
+      // same between several calls (fetching the infos is non-deterministic)
+      if (!publicKeyId) {
+        pubKeyUrl = data.response.fhe_key_info[0].fhe_public_key.urls[0];
+        publicKeyId = data.response.fhe_key_info[0].fhe_public_key.data_id;
+      } else {
+        // If a publicKeyId is provided, get the corresponding info
+        const keyInfo = data.response.fhe_key_info.find(info => info.fhe_public_key.data_id === publicKeyId);
+
+        if (!keyInfo) {
+          throw new Error(`Could not find FHE key info with data_id ${publicKeyId}`);
+        }
+
+        // TODO: Get a given party's public key url instead of the first one
+        pubKeyUrl = keyInfo.fhe_public_key.urls[0];
+      }
+
       const publicKeyResponse = await fetch(pubKeyUrl);
       const publicKey = await publicKeyResponse.arrayBuffer();
       const publicParamsUrl = data.response.crs['2048'].urls[0];

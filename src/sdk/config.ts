@@ -50,7 +50,7 @@ export const getChainId = async (
 
 export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
   if (config.gatewayUrl && !config.publicKey) {
-    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl));
+    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl), config.publicKeyId);
     return { publicKey: inputs.publicKey, publicKeyId: inputs.publicKeyId };
   } else if (config.publicKey && config.publicKeyId) {
     const buff = fromHexString(config.publicKey);
@@ -66,7 +66,7 @@ export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
 
 export const getPublicParams = async (config: FhevmInstanceConfig) => {
   if (config.gatewayUrl && !config.publicParams) {
-    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl));
+    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl), config.publicKeyId);
     return inputs.publicParams;
   } else if (config.publicParams && config.publicParams['2048']) {
     const buff = fromHexString(config.publicParams['2048'].publicParams);
