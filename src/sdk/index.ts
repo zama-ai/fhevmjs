@@ -7,7 +7,11 @@ import {
   getPublicParams,
   getTfheCompactPublicKey,
 } from './config';
-import { cleanURL } from '../utils';
+import {
+  cleanURL,
+  SERIALIZED_SIZE_LIMIT_CRS,
+  SERIALIZED_SIZE_LIMIT_PK,
+} from '../utils';
 import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
@@ -32,8 +36,11 @@ export type FhevmInstance = {
     contractAddress: string,
     userAddress: string,
   ) => Promise<bigint>;
-  getPublicKey: () => string | null;
-  getPublicParams: () => PublicParams;
+  getPublicKey: () => { publicKeyId: string; publicKey: Uint8Array } | null;
+  getPublicParams: (bits: keyof PublicParams) => {
+    publicParams: Uint8Array;
+    publicParamsId: string;
+  } | null;
 };
 
 export { generateKeypair, createEIP712 } from './keypair';
@@ -51,8 +58,8 @@ export const createInstance = async (
     throw new Error('ACL contract address is not valid or empty');
   }
 
-  if (publicKey && typeof publicKey !== 'string')
-    throw new Error('publicKey must be a string');
+  if (publicKey && !(publicKey instanceof Uint8Array))
+    throw new Error('publicKey must be a Uint8Array');
 
   const provider = getProvider(config);
 
@@ -87,7 +94,25 @@ export const createInstance = async (
       cleanURL(config.gatewayUrl),
       provider,
     ),
-    getPublicKey: () => publicKey || null,
-    getPublicParams: () => publicParamsData || null,
+    getPublicKey: () =>
+      publicKeyData.publicKey
+        ? {
+            publicKey: publicKeyData.publicKey.safe_serialize(
+              SERIALIZED_SIZE_LIMIT_PK,
+            ),
+            publicKeyId: publicKeyData.publicKeyId,
+          }
+        : null,
+    getPublicParams: (bits: keyof PublicParams) => {
+      if (publicParamsData[bits]) {
+        return {
+          publicParams: publicParamsData[bits]!.publicParams.safe_serialize(
+            SERIALIZED_SIZE_LIMIT_CRS,
+          ),
+          publicParamsId: publicParamsData[bits]!.publicParamsId,
+        };
+      }
+      return null;
+    },
   };
 };

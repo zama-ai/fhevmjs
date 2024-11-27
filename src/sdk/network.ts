@@ -35,7 +35,10 @@ export type GatewayKeys = {
 };
 
 const keyurlCache: { [key: string]: any } = {};
-export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
+export const getKeysFromGateway = async (
+  url: string,
+  publicKeyId?: string | null,
+) => {
   if (keyurlCache[url]) {
     return keyurlCache[url];
   }

@@ -18,12 +18,12 @@ jest.mock('ethers', () => ({
 
 describe('index', () => {
   it('creates an instance', async () => {
-    const serializedPublicKey = bytesToHex(
-      publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+    const serializedPublicKey = publicKey.safe_serialize(
+      SERIALIZED_SIZE_LIMIT_PK,
     );
-    const serializedPublicParams = bytesToHex(
-      publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
-    );
+    const serializedPublicParams =
+      publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS);
+
     const publicParamsId = publicParams[2048].publicParamsId;
     const instance = await createInstance({
       aclContractAddress: '0x4c102C7cA99d3079fEFF08114d3bad888b9794d9',
@@ -44,10 +44,9 @@ describe('index', () => {
   });
 
   it('fails to create an instance', async () => {
-    const serializedPublicKey = bytesToHex(publicKey.serialize());
-    const serializedPublicParams = bytesToHex(
-      publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
-    );
+    const serializedPublicKey = publicKey.serialize();
+    const serializedPublicParams =
+      publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS);
     const publicParamsId = publicParams[2048].publicParamsId;
     await expect(
       createInstance({

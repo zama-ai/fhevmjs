@@ -20,12 +20,12 @@ export type FhevmInstanceConfig = {
   kmsContractAddress: string;
   aclContractAddress: string;
   chainId?: number;
-  publicKey?: string;
-  publicKeyId?: string;
+  publicKey?: Uint8Array | null;
+  publicKeyId?: string | null;
   gatewayUrl?: string;
   network?: Eip1193Provider;
   networkUrl?: string;
-  publicParams?: PublicParams<string>;
+  publicParams?: PublicParams<Uint8Array> | null;
 };
 
 export const getProvider = (config: FhevmInstanceConfig) => {
@@ -53,7 +53,9 @@ export const getChainId = async (
   }
 };
 
-export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
+export const getTfheCompactPublicKey = async (
+  config: FhevmInstanceConfig,
+): Promise<{ publicKey: TfheCompactPublicKey; publicKeyId: string }> => {
   if (config.gatewayUrl && !config.publicKey) {
     const inputs = await getKeysFromGateway(
       cleanURL(config.gatewayUrl),
@@ -61,7 +63,7 @@ export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
     );
     return { publicKey: inputs.publicKey, publicKeyId: inputs.publicKeyId };
   } else if (config.publicKey && config.publicKeyId) {
-    const buff = fromHexString(config.publicKey);
+    const buff = config.publicKey;
     try {
       return {
         publicKey: TfheCompactPublicKey.safe_deserialize(
@@ -78,7 +80,9 @@ export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
   }
 };
 
-export const getPublicParams = async (config: FhevmInstanceConfig) => {
+export const getPublicParams = async (
+  config: FhevmInstanceConfig,
+): Promise<PublicParams> => {
   if (config.gatewayUrl && !config.publicParams) {
     const inputs = await getKeysFromGateway(
       cleanURL(config.gatewayUrl),
@@ -86,7 +90,7 @@ export const getPublicParams = async (config: FhevmInstanceConfig) => {
     );
     return inputs.publicParams;
   } else if (config.publicParams && config.publicParams['2048']) {
-    const buff = fromHexString(config.publicParams['2048'].publicParams);
+    const buff = config.publicParams['2048'].publicParams;
     try {
       return {
         2048: {
