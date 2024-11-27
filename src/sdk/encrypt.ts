@@ -1,5 +1,5 @@
 import { isAddress } from 'ethers';
-import { Keccak } from 'sha3';
+import createKeccakHash from 'keccak';
 import {
   TfheCompactPublicKey,
   CompactCiphertextList,
@@ -300,7 +300,9 @@ export const createEncryptedInput =
         inputProof += numberToHex(numSigners);
         if (json.response.proof_of_storage) {
           // coprocessor
-          const hash = new Keccak(256).update(Buffer.from(ciphertext)).digest();
+          const hash = createKeccakHash('keccak256')
+            .update(Buffer.from(ciphertext))
+            .digest();
           inputProof += hash.toString('hex');
 
           const listHandlesStr = handles.map((i) => toHexString(i));
