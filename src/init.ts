@@ -6,6 +6,7 @@ import initTFHE, {
 
 import initKMS, { InitInput as KMSInput } from 'tkms';
 import wasmKMS from 'tkms/kms_lib_bg.wasm';
+import { threads } from 'wasm-feature-detect';
 
 let initialized = false;
 
@@ -18,6 +19,15 @@ export const initFhevm = async ({
   kmsParams?: KMSInput;
   thread?: number;
 } = {}) => {
+  let supportsThreads = await threads();
+  if (thread && !supportsThreads) {
+    console.warn(
+      'This browser does not support threads. Verify that your server returns correct headers:\n',
+      "'Cross-Origin-Opener-Policy': 'same-origin'\n",
+      "'Cross-Origin-Embedder-Policy': 'require-corp'",
+    );
+    thread = undefined;
+  }
   if (!initialized) {
     await initTFHE();
     await initKMS({
