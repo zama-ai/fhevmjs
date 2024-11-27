@@ -33,7 +33,8 @@
     "build:bundle": "webpack --mode=production --config config/webpack.config.cjs",
     "test": "jest --colors --passWithNoTests --coverage",
     "test:watch": "jest --colors --passWithNoTests --watch",
-    "prettier": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\""
+    "prettier": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
+    "prettier:check": "prettier --check \"**/*.{js,json,md,sol,ts,yml}\""
   },
   "repository": {
     "type": "git",
