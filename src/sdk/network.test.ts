@@ -1,9 +1,6 @@
 import { GatewayKeys, getKeysFromGateway } from './network';
 import { publicKey, publicParams } from '../test';
-import {
-  SERIALIZED_SIZE_LIMIT_CRS,
-  SERIALIZED_SIZE_LIMIT_PK,
-} from '../utils';
+import { SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
 import fetchMock from '@fetch-mock/core';
 
 const payload: GatewayKeys = {

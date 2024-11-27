@@ -30,8 +30,14 @@ const createTfheKeypair = () => {
     .build();
   let clientKey = TfheClientKey.generate(config);
   let publicKey = TfheCompactPublicKey.new(clientKey);
-  fs.writeFileSync('src/test/keys/publicKey.bin', publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
-  fs.writeFileSync('src/test/keys/privateKey.bin', clientKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
+  fs.writeFileSync(
+    'src/test/keys/publicKey.bin',
+    publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+  );
+  fs.writeFileSync(
+    'src/test/keys/privateKey.bin',
+    clientKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+  );
   const crs0 = CompactPkeCrs.from_config(config, 4 * 32);
   fs.writeFileSync(
     'src/test/keys/crs128.bin',
