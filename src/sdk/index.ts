@@ -1,3 +1,4 @@
+import { isAddress } from 'ethers';
 import {
   FhevmInstanceConfig,
   getChainId,
@@ -11,7 +12,6 @@ import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
 import { reencryptRequest } from './reencrypt';
-import { isAddress } from 'ethers';
 
 export type FhevmInstance = {
   createEncryptedInput: (

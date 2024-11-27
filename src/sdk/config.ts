@@ -7,7 +7,12 @@ import {
 } from 'ethers';
 import { PublicParams } from './encrypt';
 import { getKeysFromGateway } from './network';
-import { fromHexString, cleanURL, SERIALIZED_SIZE_LIMIT_PK, SERIALIZED_SIZE_LIMIT_CRS } from '../utils';
+import {
+  fromHexString,
+  cleanURL,
+  SERIALIZED_SIZE_LIMIT_PK,
+  SERIALIZED_SIZE_LIMIT_CRS,
+} from '../utils';
 import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
 import { abi } from '../abi/kmsVerifier.json';
 
@@ -50,12 +55,21 @@ export const getChainId = async (
 
 export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
   if (config.gatewayUrl && !config.publicKey) {
-    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl), config.publicKeyId);
+    const inputs = await getKeysFromGateway(
+      cleanURL(config.gatewayUrl),
+      config.publicKeyId,
+    );
     return { publicKey: inputs.publicKey, publicKeyId: inputs.publicKeyId };
   } else if (config.publicKey && config.publicKeyId) {
     const buff = fromHexString(config.publicKey);
     try {
-      return { publicKey: TfheCompactPublicKey.safe_deserialize(buff, SERIALIZED_SIZE_LIMIT_PK), publicKeyId: config.publicKeyId };
+      return {
+        publicKey: TfheCompactPublicKey.safe_deserialize(
+          buff,
+          SERIALIZED_SIZE_LIMIT_PK,
+        ),
+        publicKeyId: config.publicKeyId,
+      };
     } catch (e) {
       throw new Error('Invalid public key (deserialization failed)');
     }
@@ -66,15 +80,21 @@ export const getTfheCompactPublicKey = async (config: FhevmInstanceConfig) => {
 
 export const getPublicParams = async (config: FhevmInstanceConfig) => {
   if (config.gatewayUrl && !config.publicParams) {
-    const inputs = await getKeysFromGateway(cleanURL(config.gatewayUrl), config.publicKeyId);
+    const inputs = await getKeysFromGateway(
+      cleanURL(config.gatewayUrl),
+      config.publicKeyId,
+    );
     return inputs.publicParams;
   } else if (config.publicParams && config.publicParams['2048']) {
     const buff = fromHexString(config.publicParams['2048'].publicParams);
     try {
       return {
-        2048: { 
-          publicParams: CompactPkePublicParams.safe_deserialize(buff, SERIALIZED_SIZE_LIMIT_CRS),
-          publicParamsId: config.publicParams['2048'].publicParamsId
+        2048: {
+          publicParams: CompactPkePublicParams.safe_deserialize(
+            buff,
+            SERIALIZED_SIZE_LIMIT_CRS,
+          ),
+          publicParamsId: config.publicParams['2048'].publicParamsId,
         },
       };
     } catch (e) {
