@@ -29,7 +29,7 @@ export const initFhevm = async ({
     thread = undefined;
   }
   if (!initialized) {
-    await initTFHE();
+    await initTFHE({ module_or_path: tfheParams });
     await initKMS({
       module_or_path:
         kmsParams ||
