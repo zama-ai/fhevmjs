@@ -40,7 +40,11 @@ describe('index', () => {
     expect(instance.createEIP712).toBeDefined();
     expect(instance.generateKeypair).toBeDefined();
     expect(instance.createEncryptedInput).toBeDefined();
-    expect(instance.getPublicKey()).toBe(serializedPublicKey);
+    expect(instance.getPublicKey()).toStrictEqual({
+      publicKey: serializedPublicKey,
+      publicKeyId,
+    });
+    expect(instance.getPublicParams(2048)?.publicParamsId).toBe(publicParamsId);
   });
 
   it('fails to create an instance', async () => {
@@ -70,6 +74,6 @@ describe('index', () => {
         publicKey: 43 as any,
         publicKeyId,
       }),
-    ).rejects.toThrow('publicKey must be a string');
+    ).rejects.toThrow('publicKey must be a Uint8Array');
   });
 });
