@@ -1,4 +1,4 @@
-import { isAddress } from 'web3-validator';
+import { isAddress } from 'ethers';
 import { toHexString } from '../utils';
 import {
   cryptobox_keygen,
