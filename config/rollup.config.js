@@ -1,5 +1,6 @@
-import { createRequire } from 'node:module';
+import OMT from '@surma/rollup-plugin-off-main-thread';
 
+import copy from 'rollup-plugin-copy';
 import json from '@rollup/plugin-json';
 import url from '@rollup/plugin-url';
 import { wasm } from '@rollup/plugin-wasm';
@@ -10,8 +11,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import path from 'path';
 import fs from 'fs';
-
-const require = createRequire(import.meta.url);
 
 const wasmBindgenRayon = fs.readdirSync(
   path.resolve('node_modules/tfhe/snippets'),
@@ -59,16 +58,21 @@ export default [
       name: 'fhevm',
       format: 'es',
     },
-    plugins: [...webPlugins],
+    plugins: [
+      ...webPlugins,
+      copy({
+        targets: [{ src: 'node_modules/tfhe/tfhe_bg.wasm', dest: 'lib/' }],
+      }),
+    ],
   },
   {
     input: `./node_modules/tfhe/snippets/${wasmBindgenRayon}/src/workerHelpers.worker.js`,
     output: {
       file: 'lib/workerHelpers.worker.js',
       name: 'worker',
-      format: 'es',
+      format: 'esm',
     },
-    plugins: [...webPlugins],
+    plugins: [OMT()],
   },
   {
     input: 'src/node.ts',

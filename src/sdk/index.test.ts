@@ -1,6 +1,10 @@
 import { createInstance } from './index';
 import { publicKey, publicKeyId, publicParams } from '../test';
-import { bytesToHex, SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
+import {
+  bytesToHex,
+  SERIALIZED_SIZE_LIMIT_CRS,
+  SERIALIZED_SIZE_LIMIT_PK,
+} from '../utils';
 
 jest.mock('ethers', () => ({
   JsonRpcProvider: () => ({
@@ -14,7 +18,9 @@ jest.mock('ethers', () => ({
 
 describe('index', () => {
   it('creates an instance', async () => {
-    const serializedPublicKey = bytesToHex(publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK));
+    const serializedPublicKey = bytesToHex(
+      publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
+    );
     const serializedPublicParams = bytesToHex(
       publicParams[2048].publicParams.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
     );
@@ -25,7 +31,9 @@ describe('index', () => {
       chainId: 1234,
       publicKey: serializedPublicKey,
       publicKeyId,
-      publicParams: { 2048: { publicParams: serializedPublicParams, publicParamsId, } },
+      publicParams: {
+        2048: { publicParams: serializedPublicParams, publicParamsId },
+      },
       networkUrl: 'https://network.com/',
     });
     expect(instance.reencrypt).toBeDefined();
@@ -48,7 +56,9 @@ describe('index', () => {
         chainId: BigInt(1234) as any,
         publicKey: serializedPublicKey,
         publicKeyId,
-        publicParams: { 2048: { publicParams: serializedPublicParams, publicParamsId, } },
+        publicParams: {
+          2048: { publicParams: serializedPublicParams, publicParamsId },
+        },
         networkUrl: 'https://',
       }),
     ).rejects.toThrow('chainId must be a number');

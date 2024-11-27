@@ -56,10 +56,14 @@ export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
         publicKeyId = data.response.fhe_key_info[0].fhe_public_key.data_id;
       } else {
         // If a publicKeyId is provided, get the corresponding info
-        const keyInfo = data.response.fhe_key_info.find(info => info.fhe_public_key.data_id === publicKeyId);
+        const keyInfo = data.response.fhe_key_info.find(
+          (info) => info.fhe_public_key.data_id === publicKeyId,
+        );
 
         if (!keyInfo) {
-          throw new Error(`Could not find FHE key info with data_id ${publicKeyId}`);
+          throw new Error(
+            `Could not find FHE key info with data_id ${publicKeyId}`,
+          );
         }
 
         // TODO: Get a given party's public key url instead of the first one
@@ -70,7 +74,9 @@ export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
       const publicKey = await publicKeyResponse.arrayBuffer();
       const publicParamsUrl = data.response.crs['2048'].urls[0];
       const publicParamsId = data.response.crs['2048'].data_id;
-      const publicParams2048 = await (await fetch(publicParamsUrl)).arrayBuffer();
+      const publicParams2048 = await (
+        await fetch(publicParamsUrl)
+      ).arrayBuffer();
 
       const result = {
         publicKey: TfheCompactPublicKey.safe_deserialize(
@@ -85,8 +91,8 @@ export const getKeysFromGateway = async (url: string, publicKeyId?: string) => {
               SERIALIZED_SIZE_LIMIT_CRS,
             ),
             publicParamsId,
-          }
-        }
+          },
+        },
       };
       keyurlCache[url] = result;
       return result;

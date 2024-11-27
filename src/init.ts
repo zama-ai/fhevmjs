@@ -1,25 +1,48 @@
-import initTFHE, { InitInput as TFHEInput } from 'tfhe';
-import wasmTFHE from 'tfhe/tfhe_bg.wasm';
+import initTFHE, {
+  init_panic_hook,
+  initThreadPool,
+  InitInput as TFHEInput,
+} from 'tfhe';
 
 import initKMS, { InitInput as KMSInput } from 'tkms';
 import wasmKMS from 'tkms/kms_lib_bg.wasm';
+import { threads } from 'wasm-feature-detect';
 
 let initialized = false;
 
 export const initFhevm = async ({
   tfheParams,
   kmsParams,
+  thread,
 }: {
   tfheParams?: TFHEInput;
   kmsParams?: KMSInput;
+  thread?: number;
 } = {}) => {
-  if (!initialized) {
-    await initTFHE(tfheParams || wasmTFHE());
-    await initKMS(
-      kmsParams ||
-        (wasmKMS as unknown as () => Promise<WebAssembly.Instance>)(),
+  let supportsThreads = await threads();
+  if (thread && !supportsThreads) {
+    console.warn(
+      'This browser does not support threads. Verify that your server returns correct headers:\n',
+      "'Cross-Origin-Opener-Policy': 'same-origin'\n",
+      "'Cross-Origin-Embedder-Policy': 'require-corp'",
     );
+    thread = undefined;
+  }
+  if (!initialized) {
+    await initTFHE({ module_or_path: tfheParams });
+    await initKMS({
+      module_or_path:
+        kmsParams ||
+        (wasmKMS as unknown as () => Promise<WebAssembly.Instance>)(),
+    });
+    if (thread) {
+      console.log('init thread');
+      init_panic_hook();
+      await initThreadPool(thread);
+      console.log('done thread');
+    }
     initialized = true;
   }
+  console.log('return thread');
   return true;
 };
