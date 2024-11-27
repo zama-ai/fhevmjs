@@ -36,13 +36,10 @@ export const initFhevm = async ({
         (wasmKMS as unknown as () => Promise<WebAssembly.Instance>)(),
     });
     if (thread) {
-      console.log('init thread');
       init_panic_hook();
       await initThreadPool(thread);
-      console.log('done thread');
     }
     initialized = true;
   }
-  console.log('return thread');
   return true;
 };
