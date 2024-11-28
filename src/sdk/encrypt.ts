@@ -281,8 +281,7 @@ export const createEncryptedInput =
           const response = await fetch(`${gateway}verify_proven_ct`, options);
           json = await response.json();
         } catch (e) {
-          console.log('verify_proven_ct failed with error', e);
-          throw new Error("Gateway didn't response correctly");
+          throw new Error("Gateway didn't response correctly", { cause: e });
         }
 
         // Note that the hex strings returned by the gateway do have have the 0x prefix

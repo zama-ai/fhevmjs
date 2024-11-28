@@ -60,7 +60,7 @@ export const reencryptRequest =
       pubKey = u8vec_to_cryptobox_pk(fromHexString(publicKey));
       privKey = u8vec_to_cryptobox_sk(fromHexString(privateKey));
     } catch (e) {
-      throw new Error('Invalid public or private key');
+      throw new Error('Invalid public or private key', { cause: e });
     }
 
     let json;
@@ -68,11 +68,11 @@ export const reencryptRequest =
       const response = await fetch(`${gatewayUrl}reencrypt`, options);
       json = await response.json();
     } catch (e) {
-      throw new Error("Gateway didn't response correctly");
+      throw new Error("Gateway didn't response correctly", { cause: e });
     }
 
     if (json.status === 'failure') {
-      throw new Error("The reencryption didn't succeed");
+      throw new Error("The reencryption didn't succeed", { cause: json });
     }
 
     const client = new_client(kmsSignatures, userAddress, 'default');
@@ -109,6 +109,6 @@ export const reencryptRequest =
 
       return bytesToBigInt(decryption);
     } catch (e) {
-      throw new Error('An error occured during decryption');
+      throw new Error('An error occured during decryption', { cause: e });
     }
   };

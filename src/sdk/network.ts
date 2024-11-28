@@ -102,8 +102,9 @@ export const getKeysFromGateway = async (
     } else {
       throw new Error('No public key available');
     }
-  } catch (error) {
-    console.log('error', error);
-    throw new Error('Impossible to fetch public key: wrong gateway url.');
+  } catch (e) {
+    throw new Error('Impossible to fetch public key: wrong gateway url.', {
+      cause: e,
+    });
   }
 };
