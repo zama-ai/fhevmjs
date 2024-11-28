@@ -73,7 +73,9 @@ export const getTfheCompactPublicKey = async (
         publicKeyId: config.publicKeyId,
       };
     } catch (e) {
-      throw new Error('Invalid public key (deserialization failed)');
+      throw new Error('Invalid public key (deserialization failed)', {
+        cause: e,
+      });
     }
   } else {
     throw new Error('You must provide a public key with its public key ID.');
@@ -102,7 +104,9 @@ export const getPublicParams = async (
         },
       };
     } catch (e) {
-      throw new Error('Invalid public key (deserialization failed)');
+      throw new Error('Invalid public key (deserialization failed)', {
+        cause: e,
+      });
     }
   } else {
     throw new Error('You must provide a valid CRS with its CRS ID.');

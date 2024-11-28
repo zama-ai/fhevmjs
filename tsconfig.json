@@ -5,7 +5,7 @@
     "outDir": "bundle",
     "declaration": false,
     "target": "es5",
-    "lib": ["DOM", "WebWorker"],
+    "lib": ["es2022", "DOM", "WebWorker"],
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
