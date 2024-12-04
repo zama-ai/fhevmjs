@@ -63,16 +63,32 @@ export const reencryptRequest =
       throw new Error('Invalid public or private key', { cause: e });
     }
 
+    let response;
     let json;
     try {
-      const response = await fetch(`${gatewayUrl}reencrypt`, options);
+      response = await fetch(`${gatewayUrl}reencrypt`, options);
+      if (!response.ok) {
+        throw new Error(
+          `Reencrypt failed: gateway respond with HTTP code ${response.status}`,
+        );
+      }
+    } catch (e) {
+      throw new Error("Reencrypt failed: Gateway didn't respond", { cause: e });
+    }
+
+    try {
       json = await response.json();
     } catch (e) {
-      throw new Error("Gateway didn't response correctly", { cause: e });
+      throw new Error("Reencrypt failed: Gateway didn't return a JSON", {
+        cause: e,
+      });
     }
 
     if (json.status === 'failure') {
-      throw new Error("The reencryption didn't succeed", { cause: json });
+      throw new Error(
+        "Reencrypt failed: the reencryption didn't succeed for an unknown reason",
+        { cause: json },
+      );
     }
 
     const client = new_client(kmsSignatures, userAddress, 'default');
