@@ -42,6 +42,12 @@ export type ZKInput = {
   addBytes256: (value: Uint8Array) => ZKInput;
   addAddress: (value: string) => ZKInput;
   getBits: () => number[];
+  _getClosestPP: () => EncryptionTypes;
+  _prove: () => Promise<Buffer>;
+  _verify: (ciphertext: Buffer) => Promise<{
+    handles: Uint8Array[];
+    inputProof: Uint8Array;
+  }>;
   encrypt: () => Promise<{
     handles: Uint8Array[];
     inputProof: Uint8Array;
@@ -219,13 +225,11 @@ export const createEncryptedInput =
       getBits() {
         return bits;
       },
-      async encrypt() {
+      _getClosestPP() {
         const getKeys = <T extends {}>(obj: T) =>
           Object.keys(obj) as Array<keyof T>;
 
         const totalBits = bits.reduce((total, v) => total + v, 0);
-        const now = Date.now();
-        // const ppTypes = getKeys(publicParams);
         const ppTypes = getKeys(publicParams);
         const closestPP: EncryptionTypes | undefined = ppTypes.find(
           (k) => Number(k) >= totalBits,
@@ -237,8 +241,11 @@ export const createEncryptedInput =
             }.`,
           );
         }
+        return closestPP;
+      },
+      async _prove() {
+        const closestPP = this._getClosestPP();
         const pp = publicParams[closestPP]!.publicParams;
-        const ppId = publicParams[closestPP]!.publicParamsId;
         const buffContract = fromHexString(contractAddress);
         const buffUser = fromHexString(callerAddress);
         const buffAcl = fromHexString(aclContractAddress);
@@ -259,7 +266,11 @@ export const createEncryptedInput =
         const ciphertext = Buffer.from(
           encrypted.safe_serialize(SERIALIZED_SIZE_LIMIT_CIPHERTEXT),
         );
-
+        return ciphertext;
+      },
+      async _verify(ciphertext: Buffer) {
+        const closestPP = this._getClosestPP();
+        const ppId = publicParams[closestPP]!.publicParamsId;
         const payload = {
           contract_address: contractAddress,
           caller_address: callerAddress,
@@ -323,6 +334,10 @@ export const createEncryptedInput =
           handles,
           inputProof: fromHexString(inputProof),
         };
+      },
+      async encrypt() {
+        const ciphertext = await this._prove();
+        return this._verify(ciphertext);
       },
     };
   };
