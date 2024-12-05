@@ -1,4 +1,4 @@
-import { isAddress } from 'ethers';
+import { getAddress, isAddress } from 'ethers';
 import createKeccakHash from 'keccak';
 import {
   TfheCompactPublicKey,
@@ -272,8 +272,8 @@ export const createEncryptedInput =
         const closestPP = this._getClosestPP();
         const ppId = publicParams[closestPP]!.publicParamsId;
         const payload = {
-          contract_address: contractAddress,
-          caller_address: callerAddress,
+          contract_address: getAddress(contractAddress),
+          caller_address: getAddress(callerAddress),
           ct_proof: ciphertext.toString('hex'),
           key_id: publicKeyId,
           crs_id: ppId,
