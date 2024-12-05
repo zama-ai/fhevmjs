@@ -5,7 +5,7 @@ import {
   process_reencryption_resp_from_js,
   u8vec_to_cryptobox_sk,
 } from 'node-tkms';
-import { ethers } from 'ethers';
+import { ethers, getAddress } from 'ethers';
 
 const aclABI = [
   'function persistAllowed(uint256 handle, address account) view returns (bool)',
@@ -42,10 +42,10 @@ export const reencryptRequest =
     }
     const payloadForRequest = {
       signature: signature.replace(/^(0x)/, ''),
-      client_address: userAddress,
+      client_address: getAddress(userAddress),
       enc_key: publicKey.replace(/^(0x)/, ''),
       ciphertext_handle: handle.toString(16).padStart(64, '0'),
-      eip712_verifying_contract: contractAddress,
+      eip712_verifying_contract: getAddress(contractAddress),
     };
     const options = {
       method: 'POST',
