@@ -336,8 +336,20 @@ export const createEncryptedInput =
         };
       },
       async encrypt() {
+        let start = Date.now();
         const ciphertext = await this._prove();
-        return this._verify(ciphertext);
+        console.log(
+          `Encrypting and proving in ${
+            Math.round((Date.now() - start) / 100) / 10
+          }s`,
+        );
+
+        start = Date.now();
+        const verification = await this._verify(ciphertext);
+        console.log(
+          `Verifying in ${Math.round((Date.now() - start) / 100) / 10}s`,
+        );
+        return verification;
       },
     };
   };
