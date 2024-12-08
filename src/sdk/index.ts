@@ -26,7 +26,7 @@ export type FhevmInstance = {
   createEIP712: (
     publicKey: string,
     contractAddress: string,
-    userAddress?: string,
+    delegatedAccount?: string,
   ) => EIP712;
   reencrypt: (
     handle: bigint,
