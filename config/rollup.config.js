@@ -38,10 +38,6 @@ const webPlugins = [
     tsconfig: './tsconfig.rollup.json',
     exclude: 'node_modules/**',
   }),
-  wasm({
-    targetEnv: 'browser',
-    maxFileSize: 10000000,
-  }),
   commonjs(),
   resolve({
     browser: true,
@@ -61,7 +57,10 @@ export default [
     plugins: [
       ...webPlugins,
       copy({
-        targets: [{ src: 'node_modules/tfhe/tfhe_bg.wasm', dest: 'lib/' }],
+        targets: [
+          { src: 'node_modules/tfhe/tfhe_bg.wasm', dest: 'lib/' },
+          { src: 'node_modules/tkms/kms_lib_bg.wasm', dest: 'lib/' },
+        ],
       }),
     ],
   },

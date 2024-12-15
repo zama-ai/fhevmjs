@@ -30,7 +30,7 @@
     "generateKeys": "./generateKeys.js",
     "build": "npm run build:lib && npm run build:bundle",
     "build:lib": "rollup -c config/rollup.config.js",
-    "build:bundle": "webpack --mode=production --config config/webpack.config.cjs",
+    "build:bundle": "vite build --config config/vite.config.js",
     "test": "jest --colors --passWithNoTests --coverage",
     "test:watch": "jest --colors --passWithNoTests --watch",
     "prettier": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
@@ -88,8 +88,8 @@
     "tsc-alias": "^1.8.6",
     "tslib": "^2.5.3",
     "typescript": "^5.7.2",
-    "webpack": "^5.82.1",
-    "webpack-cli": "^5.1.1",
-    "webpack-merge": "^5.9.0"
+    "vite": "^5.4.11",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "vite-plugin-static-copy": "^2.2.0"
   }
 }
