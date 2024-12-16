@@ -18,6 +18,10 @@
       "import": "./lib/web.js",
       "require": "./lib/web.js"
     },
+    "./bundle": {
+      "import": "./bundle.js",
+      "require": "./bundle.js"
+    },
     "./node": {
       "require": "./lib/node.cjs"
     }

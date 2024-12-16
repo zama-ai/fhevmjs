@@ -1,17 +1,12 @@
-const {
-  clientKeyDecryptor,
-  createEIP712,
-  createInstance,
-  generateKeypair,
-  getCiphertextCallParams,
-  initFhevm,
-} = window.fhevmjs;
+const waitForFunction =
+  (functionName) =>
+  async (...params) => {
+    if (window && window.fhevmjs) {
+      return window.fhevmjs[functionName](...params);
+    }
+  };
 
-export {
-  clientKeyDecryptor,
-  createEIP712,
-  createInstance,
-  generateKeypair,
-  getCiphertextCallParams,
-  initFhevm,
-};
+const initFhevm = waitForFunction('initFhevm');
+const createInstance = waitForFunction('createInstance');
+
+export { initFhevm, createInstance };
