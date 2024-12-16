@@ -3,7 +3,6 @@ import OMT from '@surma/rollup-plugin-off-main-thread';
 import copy from 'rollup-plugin-copy';
 import json from '@rollup/plugin-json';
 import url from '@rollup/plugin-url';
-import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
@@ -18,7 +17,6 @@ const wasmBindgenRayon = fs.readdirSync(
 
 const nodePlugins = [
   json(),
-  wasm(),
   commonjs(),
   typescript({
     tsconfig: './tsconfig.rollup.json',
