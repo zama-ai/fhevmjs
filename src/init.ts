@@ -5,7 +5,7 @@ import initTFHE, {
 } from 'tfhe';
 
 import initKMS, { InitInput as KMSInput } from 'tkms';
-import wasmKMS from 'tkms/kms_lib_bg.wasm';
+// import wasmKMS from 'tkms/kms_lib_bg.wasm';
 import { threads } from 'wasm-feature-detect';
 
 let initialized = false;
@@ -19,8 +19,9 @@ export const initFhevm = async ({
   kmsParams?: KMSInput;
   thread?: number;
 } = {}) => {
+  if (thread == null) thread = navigator.hardwareConcurrency;
   let supportsThreads = await threads();
-  if (thread && !supportsThreads) {
+  if (!supportsThreads) {
     console.warn(
       'This browser does not support threads. Verify that your server returns correct headers:\n',
       "'Cross-Origin-Opener-Policy': 'same-origin'\n",
@@ -31,9 +32,7 @@ export const initFhevm = async ({
   if (!initialized) {
     await initTFHE({ module_or_path: tfheParams });
     await initKMS({
-      module_or_path:
-        kmsParams ||
-        (wasmKMS as unknown as () => Promise<WebAssembly.Instance>)(),
+      module_or_path: kmsParams,
     });
     if (thread) {
       init_panic_hook();

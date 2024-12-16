@@ -3,7 +3,6 @@ import OMT from '@surma/rollup-plugin-off-main-thread';
 import copy from 'rollup-plugin-copy';
 import json from '@rollup/plugin-json';
 import url from '@rollup/plugin-url';
-import { wasm } from '@rollup/plugin-wasm';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
@@ -18,7 +17,6 @@ const wasmBindgenRayon = fs.readdirSync(
 
 const nodePlugins = [
   json(),
-  wasm(),
   commonjs(),
   typescript({
     tsconfig: './tsconfig.rollup.json',
@@ -37,10 +35,6 @@ const webPlugins = [
   typescript({
     tsconfig: './tsconfig.rollup.json',
     exclude: 'node_modules/**',
-  }),
-  wasm({
-    targetEnv: 'browser',
-    maxFileSize: 10000000,
   }),
   commonjs(),
   resolve({
@@ -61,7 +55,10 @@ export default [
     plugins: [
       ...webPlugins,
       copy({
-        targets: [{ src: 'node_modules/tfhe/tfhe_bg.wasm', dest: 'lib/' }],
+        targets: [
+          { src: 'node_modules/tfhe/tfhe_bg.wasm', dest: 'lib/' },
+          { src: 'node_modules/tkms/kms_lib_bg.wasm', dest: 'lib/' },
+        ],
       }),
     ],
   },
