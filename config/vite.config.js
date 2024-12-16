@@ -3,7 +3,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { ignoreURL, changeLoadingWorker } from './vite.replace';
 
-const basePath = 'https://dtabdkf62u742.cloudfront.net/fhevmjs/0.6.2/';
+const basePath = process.env.BASE_PATH || '/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
