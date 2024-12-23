@@ -56,7 +56,7 @@
     "ethers": "^6.13.4",
     "fetch-mock": "^11.1.3",
     "keccak": "^3.0.4",
-    "node-tfhe": "^0.9.1",
+    "node-tfhe": "^0.10.0",
     "node-tkms": "^0.9.0",
     "tfhe": "^0.9.1",
     "tkms": "^0.9.0",
