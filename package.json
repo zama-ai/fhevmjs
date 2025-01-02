@@ -57,9 +57,9 @@
     "fetch-mock": "^11.1.3",
     "keccak": "^3.0.4",
     "node-tfhe": "^0.10.0",
-    "node-tkms": "^0.9.0",
+    "node-tkms": "0.10.0-rc1",
     "tfhe": "^0.9.1",
-    "tkms": "^0.9.0",
+    "tkms": "0.10.0-rc1",
     "wasm-feature-detect": "^1.8.0"
   },
   "devDependencies": {
