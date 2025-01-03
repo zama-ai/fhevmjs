@@ -28,6 +28,17 @@ export type FhevmInstance = {
     contractAddress: string,
     delegatedAccount?: string,
   ) => EIP712;
+  decrypt: (
+    handle: bigint,
+    privateKey: string,
+    publicKey: string,
+    signature: string,
+    contractAddress: string,
+    userAddress: string,
+  ) => Promise<bigint>;
+  /**
+   * @deprecated This method is replaced by decrypt, using same parameters
+   */
   reencrypt: (
     handle: bigint,
     privateKey: string,
@@ -74,6 +85,14 @@ export const createInstance = async (
   const publicParamsData = await getPublicParams(config);
 
   const kmsSigners = await getKMSSigners(provider, config);
+  const decrypt = reencryptRequest(
+    kmsSigners,
+    chainId,
+    kmsContractAddress,
+    aclContractAddress,
+    cleanURL(config.gatewayUrl),
+    provider,
+  );
 
   return {
     createEncryptedInput: createEncryptedInput(
@@ -86,14 +105,13 @@ export const createInstance = async (
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    reencrypt: reencryptRequest(
-      kmsSigners,
-      chainId,
-      kmsContractAddress,
-      aclContractAddress,
-      cleanURL(config.gatewayUrl),
-      provider,
-    ),
+    decrypt,
+    reencrypt(...params) {
+      console.warn(
+        "Warning: 'reencrypt' is deprecated and will be removed in future versions. Please use 'decrypt' instead, which accepts the same parameters.",
+      );
+      return decrypt(...params);
+    },
     getPublicKey: () =>
       publicKeyData.publicKey
         ? {
