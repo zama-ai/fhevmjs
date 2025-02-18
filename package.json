@@ -56,10 +56,10 @@
     "ethers": "^6.13.4",
     "fetch-mock": "^11.1.3",
     "keccak": "^3.0.4",
-    "node-tfhe": "^0.10.0",
-    "node-tkms": "0.10.0-rc1",
-    "tfhe": "^0.9.1",
-    "tkms": "0.10.0-rc1",
+    "node-tfhe": "^1.0.0",
+    "node-tkms": "0.11.0-rc3",
+    "tfhe": "^1.0.0",
+    "tkms": "0.11.0-rc3",
     "wasm-feature-detect": "^1.8.0"
   },
   "devDependencies": {
