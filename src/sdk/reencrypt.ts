@@ -127,7 +127,7 @@ export const reencryptRequest =
         true,
       );
 
-      return bytesToBigInt(decryption);
+      return bytesToBigInt(decryption[0].bytes);
     } catch (e) {
       throw new Error('An error occured during decryption', { cause: e });
     }
