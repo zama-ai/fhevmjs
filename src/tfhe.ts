@@ -12,10 +12,10 @@ import { toHexString } from './utils';
 
 export const createTfheKeypair = () => {
   const block_params = new ShortintParameters(
-    ShortintParametersName.PARAM_MESSAGE_2_CARRY_2_COMPACT_PK_PBS_KS,
+    ShortintParametersName.PARAM_MESSAGE_2_CARRY_2_KS_PBS_TUNIFORM_2M128,
   );
   const casting_params = new ShortintCompactPublicKeyEncryptionParameters(
-    ShortintCompactPublicKeyEncryptionParametersName.SHORTINT_PARAM_PKE_MESSAGE_2_CARRY_2_KS_PBS_TUNIFORM_2M64,
+    ShortintCompactPublicKeyEncryptionParametersName.V1_0_PARAM_PKE_MESSAGE_2_CARRY_2_KS_PBS_TUNIFORM_2M128,
   );
   const config = TfheConfigBuilder.default()
     .use_custom_parameters(block_params)
