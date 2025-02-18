@@ -19,10 +19,10 @@ export const SERIALIZED_SIZE_LIMIT_CRS = BigInt(1024 * 1024 * 512);
 
 const createTfheKeypair = () => {
   const block_params = new ShortintParameters(
-    ShortintParametersName.PARAM_MESSAGE_2_CARRY_2_COMPACT_PK_PBS_KS,
+    ShortintParametersName.V1_0_PARAM_MESSAGE_2_CARRY_2_COMPACT_PK_PBS_KS_GAUSSIAN_2M128,
   );
   const casting_params = new ShortintCompactPublicKeyEncryptionParameters(
-    ShortintCompactPublicKeyEncryptionParametersName.SHORTINT_PARAM_PKE_MESSAGE_2_CARRY_2_KS_PBS_TUNIFORM_2M64,
+    ShortintCompactPublicKeyEncryptionParametersName.PARAM_PKE_MESSAGE_2_CARRY_2_KS_PBS_TUNIFORM_2M128,
   );
   const config = TfheConfigBuilder.default()
     .use_custom_parameters(block_params)
@@ -41,27 +41,27 @@ const createTfheKeypair = () => {
   const crs0 = CompactPkeCrs.from_config(config, 4 * 32);
   fs.writeFileSync(
     'src/test/keys/crs128.bin',
-    crs0.public_params().safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
+    crs0.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
   );
   const crs1 = CompactPkeCrs.from_config(config, 4 * 64);
   fs.writeFileSync(
     'src/test/keys/crs256.bin',
-    crs1.public_params().safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
+    crs1.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
   );
   const crs2 = CompactPkeCrs.from_config(config, 4 * 128);
   fs.writeFileSync(
     'src/test/keys/crs512.bin',
-    crs2.public_params().safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
+    crs2.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
   );
   const crs3 = CompactPkeCrs.from_config(config, 4 * 256);
   fs.writeFileSync(
     'src/test/keys/crs1024.bin',
-    crs3.public_params().safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
+    crs3.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
   );
   const crs4 = CompactPkeCrs.from_config(config, 4 * 512);
   fs.writeFileSync(
     'src/test/keys/crs2048.bin',
-    crs4.public_params().safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
+    crs4.safe_serialize(SERIALIZED_SIZE_LIMIT_CRS),
   );
 };
 
