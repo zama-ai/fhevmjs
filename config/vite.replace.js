@@ -5,18 +5,18 @@ export const changeLoadingWorker = (basePath) => ({
     // Only apply transformations to .js files (or other specific conditions)
     if (id.endsWith('.js')) {
       const searchValue =
-        /const worker = new Worker\(\s*new URL\(['"]\.?\/?workerHelpers\.worker\.js['"],\s*import\.meta\.url\),\s*\{\s*type:\s*'module',?\s*\},?\s*\);/;
+        /const worker = new Worker\(\s*new URL\(['"]\.?\/?workerHelpers.js['"],\s*import\.meta\.url\),\s*\{\s*type:\s*'module',?\s*\},?\s*\);/;
 
       const replacement = `let worker;
         try {
           worker = new Worker(
-            new URL('./workerHelpers.worker.js', import.meta.url),
+            new URL('./workerHelpers.js', import.meta.url),
             {
               type: 'module'
             }
           );
         } catch (e) {
-          const r = await fetch('${basePath}workerHelpers.worker.js');
+          const r = await fetch('${basePath}workerHelpers.js');
           const blob = await r.blob();
           const blobUrl = URL.createObjectURL(blob);
           worker = new Worker(blobUrl);
