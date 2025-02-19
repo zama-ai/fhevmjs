@@ -35,7 +35,7 @@ export default defineConfig({
   ],
   worker: {
     format: 'iife',
-    plugins: [ignoreURL(basePath)],
+    plugins: () => [ignoreURL(basePath)],
     rollupOptions: {
       output: {
         entryFileNames: '[name].js',

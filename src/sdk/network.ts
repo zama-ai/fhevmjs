@@ -1,4 +1,4 @@
-import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
+import { CompactPkeCrs, TfheCompactPublicKey } from 'node-tfhe';
 import { SERIALIZED_SIZE_LIMIT_PK, SERIALIZED_SIZE_LIMIT_CRS } from '../utils';
 
 export type GatewayKeysItem = {
@@ -89,7 +89,7 @@ export const getKeysFromGateway = async (
         publicKeyId,
         publicParams: {
           2048: {
-            publicParams: CompactPkePublicParams.safe_deserialize(
+            publicParams: CompactPkeCrs.safe_deserialize(
               new Uint8Array(publicParams2048),
               SERIALIZED_SIZE_LIMIT_CRS,
             ),
