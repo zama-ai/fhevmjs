@@ -1,6 +1,6 @@
 {
   "name": "fhevmjs",
-  "version": "0.7.0-1",
+  "version": "0.7.0-3",
   "description": "fhEVM SDK for blockchain using TFHE",
   "main": "lib/node.js",
   "types": "lib/node/node.d.ts",
