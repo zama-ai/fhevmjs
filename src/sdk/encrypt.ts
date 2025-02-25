@@ -269,6 +269,7 @@ export const createEncryptedInput =
         return ciphertext;
       },
       async _verify(ciphertext: Buffer) {
+        // https://github.com/zama-ai/fhevm-relayer/blob/978b08f62de060a9b50d2c6cc19fd71b5fb8d873/src/input_http_listener.rs#L13C1-L22C1
         const payload = {
           contractAddress: getAddress(contractAddress),
           userAddress: getAddress(userAddress),
