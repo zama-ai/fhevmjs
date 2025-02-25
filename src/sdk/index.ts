@@ -90,7 +90,7 @@ export const createInstance = async (
     chainId,
     kmsContractAddress,
     aclContractAddress,
-    cleanURL(config.gatewayUrl),
+    cleanURL(config.relayerUrl),
     provider,
   );
 
@@ -98,9 +98,8 @@ export const createInstance = async (
     createEncryptedInput: createEncryptedInput(
       aclContractAddress,
       chainId,
-      cleanURL(config.gatewayUrl),
+      cleanURL(config.relayerUrl),
       publicKeyData.publicKey,
-      publicKeyData.publicKeyId,
       publicParamsData,
     ),
     generateKeypair,

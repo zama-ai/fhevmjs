@@ -22,7 +22,7 @@ export type FhevmInstanceConfig = {
   chainId?: number;
   publicKey?: Uint8Array | null;
   publicKeyId?: string | null;
-  gatewayUrl?: string;
+  relayerUrl?: string;
   network?: Eip1193Provider;
   networkUrl?: string;
   publicParams?: PublicParams<Uint8Array> | null;
@@ -56,9 +56,9 @@ export const getChainId = async (
 export const getTfheCompactPublicKey = async (
   config: FhevmInstanceConfig,
 ): Promise<{ publicKey: TfheCompactPublicKey; publicKeyId: string }> => {
-  if (config.gatewayUrl && !config.publicKey) {
+  if (config.relayerUrl && !config.publicKey) {
     const inputs = await getKeysFromGateway(
-      cleanURL(config.gatewayUrl),
+      cleanURL(config.relayerUrl),
       config.publicKeyId,
     );
     return { publicKey: inputs.publicKey, publicKeyId: inputs.publicKeyId };
@@ -85,9 +85,9 @@ export const getTfheCompactPublicKey = async (
 export const getPublicParams = async (
   config: FhevmInstanceConfig,
 ): Promise<PublicParams> => {
-  if (config.gatewayUrl && !config.publicParams) {
+  if (config.relayerUrl && !config.publicParams) {
     const inputs = await getKeysFromGateway(
-      cleanURL(config.gatewayUrl),
+      cleanURL(config.relayerUrl),
       config.publicKeyId,
     );
     return inputs.publicParams;
