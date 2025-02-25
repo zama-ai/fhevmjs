@@ -13,7 +13,7 @@ import {
   SERIALIZED_SIZE_LIMIT_PK,
   SERIALIZED_SIZE_LIMIT_CRS,
 } from '../utils';
-import { CompactPkePublicParams, TfheCompactPublicKey } from 'node-tfhe';
+import { CompactPkeCrs, TfheCompactPublicKey } from 'node-tfhe';
 import { abi } from '../abi/kmsVerifier.json';
 
 export type FhevmInstanceConfig = {
@@ -96,7 +96,7 @@ export const getPublicParams = async (
     try {
       return {
         2048: {
-          publicParams: CompactPkePublicParams.safe_deserialize(
+          publicParams: CompactPkeCrs.safe_deserialize(
             buff,
             SERIALIZED_SIZE_LIMIT_CRS,
           ),

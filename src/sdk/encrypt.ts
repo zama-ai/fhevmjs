@@ -3,7 +3,7 @@ import createKeccakHash from 'keccak';
 import {
   TfheCompactPublicKey,
   CompactCiphertextList,
-  CompactPkePublicParams,
+  CompactPkeCrs,
   ZkComputeLoad,
 } from 'node-tfhe';
 
@@ -73,7 +73,7 @@ const checkEncryptedValue = (value: number | bigint, bits: number) => {
   }
 };
 
-export type PublicParams<T = CompactPkePublicParams> = {
+export type PublicParams<T = CompactPkeCrs> = {
   [key in EncryptionTypes]?: { publicParams: T; publicParamsId: string };
 };
 

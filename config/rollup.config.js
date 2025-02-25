@@ -63,9 +63,10 @@ export default [
     ],
   },
   {
-    input: `./node_modules/tfhe/snippets/${wasmBindgenRayon}/src/workerHelpers.worker.js`,
+    input: `./node_modules/tfhe/snippets/${wasmBindgenRayon}/src/workerHelpers.js`,
     output: {
-      file: 'lib/workerHelpers.worker.js',
+      file: 'lib/workerHelpers.js',
+      inlineDynamicImports: true,
       name: 'worker',
       format: 'esm',
     },

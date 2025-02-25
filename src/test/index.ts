@@ -1,8 +1,4 @@
-import {
-  CompactPkePublicParams,
-  TfheClientKey,
-  TfheCompactPublicKey,
-} from 'node-tfhe';
+import { CompactPkeCrs, TfheClientKey, TfheCompactPublicKey } from 'node-tfhe';
 import fs from 'fs';
 import { SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
 
@@ -22,7 +18,7 @@ export const publicKey = TfheCompactPublicKey.safe_deserialize(
 );
 export const publicParams = {
   2048: {
-    publicParams: CompactPkePublicParams.safe_deserialize(
+    publicParams: CompactPkeCrs.safe_deserialize(
       params2048,
       SERIALIZED_SIZE_LIMIT_CRS,
     ),
