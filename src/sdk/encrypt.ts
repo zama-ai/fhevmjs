@@ -18,12 +18,11 @@ import { ENCRYPTION_TYPES } from './encryptionTypes';
 
 type EncryptionTypes = keyof typeof ENCRYPTION_TYPES;
 
-export type GatewayEncryptResponse = {
+// defined in fhevm-relayer/src/input_http_listener.rs
+export type HttpzRelayerInputProofResponse = {
   response: {
-    proof_of_storage: string;
     handles: string[];
-    kms_signatures: string[];
-    coproc_signature: string;
+    signatures: string[];
   };
   status: string;
 };
@@ -81,17 +80,16 @@ export const createEncryptedInput =
   (
     aclContractAddress: string,
     chainId: number,
-    gateway: string,
+    relayer_url: string,
     tfheCompactPublicKey: TfheCompactPublicKey,
-    publicKeyId: string,
     publicParams: PublicParams,
   ) =>
-  (contractAddress: string, callerAddress: string): ZKInput => {
+  (contractAddress: string, userAddress: string): ZKInput => {
     if (!isAddress(contractAddress)) {
       throw new Error('Contract address is not a valid address.');
     }
 
-    if (!isAddress(callerAddress)) {
+    if (!isAddress(userAddress)) {
       throw new Error('User address is not a valid address.');
     }
     const publicKey: TfheCompactPublicKey = tfheCompactPublicKey;
@@ -108,6 +106,8 @@ export const createEncryptedInput =
           'Packing more than 256 variables in a single input ciphertext is unsupported',
         );
     };
+    relayer_url =
+      relayer_url.slice(-1) == '/' ? relayer_url.slice(0, -1) : relayer_url;
     return {
       addBool(value: boolean | number | bigint) {
         if (value == null) throw new Error('Missing value');
@@ -247,7 +247,7 @@ export const createEncryptedInput =
         const closestPP = this._getClosestPP();
         const pp = publicParams[closestPP]!.publicParams;
         const buffContract = fromHexString(contractAddress);
-        const buffUser = fromHexString(callerAddress);
+        const buffUser = fromHexString(userAddress);
         const buffAcl = fromHexString(aclContractAddress);
         const buffChainId = fromHexString(chainId.toString(16));
         const auxData = new Uint8Array(
@@ -269,16 +269,12 @@ export const createEncryptedInput =
         return ciphertext;
       },
       async _verify(ciphertext: Buffer) {
-        const closestPP = this._getClosestPP();
-        const ppId = publicParams[closestPP]!.publicParamsId;
         const payload = {
-          contract_address: getAddress(contractAddress),
-          caller_address: getAddress(callerAddress),
-          ct_proof: ciphertext.toString('hex'),
-          key_id: publicKeyId,
-          crs_id: ppId,
+          contractAddress: getAddress(contractAddress),
+          userAddress: getAddress(userAddress),
+          ciphertextWithZkpok: ciphertext.toString('hex'),
+          contractChainId: chainId.toString(16),
         };
-
         const options = {
           method: 'POST',
           headers: {
@@ -286,13 +282,29 @@ export const createEncryptedInput =
           },
           body: JSON.stringify(payload),
         };
-
-        let json: GatewayEncryptResponse;
+        const url = `${relayer_url}/input-proof`;
+        let json: HttpzRelayerInputProofResponse;
         try {
-          const response = await fetch(`${gateway}verify_proven_ct`, options);
-          json = await response.json();
+          const response = await fetch(url, options);
+          if (!response.ok) {
+            throw new Error(
+              `Httpz-relayer didn't response correctly. Bad status ${
+                response.statusText
+              }. Content: ${await response.text()}`,
+            );
+          }
+          try {
+            json = await response.json();
+          } catch (e) {
+            throw new Error(
+              "Httpz-relayer didn't response correctly. Bad JSON.",
+              { cause: e },
+            );
+          }
         } catch (e) {
-          throw new Error("Gateway didn't response correctly", { cause: e });
+          throw new Error("Httpz-relayer didn't response correctly.", {
+            cause: e,
+          });
         }
 
         // Note that the hex strings returned by the gateway do have have the 0x prefix
@@ -301,34 +313,22 @@ export const createEncryptedInput =
           handles = json.response.handles.map(fromHexString);
         }
 
-        const kmsSignatures = json.response.kms_signatures;
+        const signatures = json.response.signatures;
 
-        // inputProof is len(list_handles) + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        let inputProof = numberToHex(handles.length); // for coprocessor : numHandles + numSignersKMS + hashCT + list_handles + signatureCopro + signatureKMSSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSignersKMS)
-        // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
-        const numSigners = kmsSignatures.length;
+        // inputProof is len(list_handles) + numSigners + hashCT + list_handles + signatureCopro + signatureSigners (1+1+32+NUM_HANDLES*32+65+65*numSigners)
+        let inputProof = numberToHex(handles.length); // for coprocessor : numHandles + numSigners + hashCT + list_handles + signatureCopro + signatureSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSigners)
+        const numSigners = signatures.length;
         inputProof += numberToHex(numSigners);
-        if (json.response.proof_of_storage) {
-          // coprocessor
-          const hash = createKeccakHash('keccak256')
-            .update(Buffer.from(ciphertext))
-            .digest();
-          inputProof += hash.toString('hex');
+        // coprocessor
+        const hash = createKeccakHash('keccak256')
+          .update(Buffer.from(ciphertext))
+          .digest();
+        inputProof += hash.toString('hex');
 
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
-          inputProof += json.response.proof_of_storage;
+        const listHandlesStr = handles.map((i) => toHexString(i));
+        listHandlesStr.map((handle) => (inputProof += handle));
 
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS));
-        } else {
-          // native
-          const listHandlesStr = handles.map((i) => toHexString(i));
-          listHandlesStr.map((handle) => (inputProof += handle));
-
-          kmsSignatures.map((sigKMS) => (inputProof += sigKMS));
-
-          inputProof += toHexString(ciphertext);
-        }
+        signatures.map((signature) => (inputProof += signature));
 
         return {
           handles,
