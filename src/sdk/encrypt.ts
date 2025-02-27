@@ -274,7 +274,7 @@ export const createEncryptedInput =
           contractAddress: getAddress(contractAddress),
           userAddress: getAddress(userAddress),
           ciphertextWithZkpok: ciphertext.toString('hex'),
-          contractChainId: chainId.toString(16),
+          contractChainId: '0x' + chainId.toString(16),
         };
         const options = {
           method: 'POST',
