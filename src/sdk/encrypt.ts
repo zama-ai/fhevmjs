@@ -316,15 +316,10 @@ export const createEncryptedInput =
 
         const signatures = json.response.signatures;
 
-        // inputProof is len(list_handles) + numSigners + hashCT + list_handles + signatureCopro + signatureSigners (1+1+32+NUM_HANDLES*32+65+65*numSigners)
-        let inputProof = numberToHex(handles.length); // for coprocessor : numHandles + numSigners + hashCT + list_handles + signatureCopro + signatureSigners (total len : 1+1+32+NUM_HANDLES*32+65+65*numSigners)
+        // inputProof is len(list_handles) + numCoprocessorSigners + list_handles + signatureCoprocessorSigners (1+1+NUM_HANDLES*32+65*numSigners)
+        let inputProof = numberToHex(handles.length);
         const numSigners = signatures.length;
         inputProof += numberToHex(numSigners);
-        // coprocessor
-        const hash = createKeccakHash('keccak256')
-          .update(Buffer.from(ciphertext))
-          .digest();
-        inputProof += hash.toString('hex');
 
         const listHandlesStr = handles.map((i) => toHexString(i));
         listHandlesStr.map((handle) => (inputProof += handle));
