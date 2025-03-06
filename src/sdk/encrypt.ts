@@ -361,7 +361,13 @@ export const createEncryptedInput =
         };
       },
       _handles() {
-        return compute_handles(this._prove(), bits, currentCiphertextVersion());
+        return compute_handles(
+          this._prove(),
+          bits,
+          aclContractAddress,
+          chainId,
+          currentCiphertextVersion(),
+        );
       },
       async encrypt() {
         let start = Date.now();
