@@ -323,9 +323,7 @@ export const createEncryptedInput =
 
         const listHandlesStr = handles.map((i) => toHexString(i));
         listHandlesStr.map((handle) => (inputProof += handle));
-
-        signatures.map((signature) => (inputProof += signature));
-
+        signatures.map((signature) => (inputProof += signature.slice(2)));
         return {
           handles,
           inputProof: fromHexString(inputProof),
@@ -349,17 +347,3 @@ export const createEncryptedInput =
       },
     };
   };
-
-const convertToInputProof = (data: {
-  handlesList: string[];
-  signature: string;
-}) => {
-  const { handlesList, signature } = data;
-  const lengthByte = handlesList.length.toString(16).padStart(2, '0');
-  const handlesString = handlesList
-    .map((handle: string) => handle.slice(2))
-    .join('');
-  const signatureString = signature.slice(2);
-  const inputProof = `0x${lengthByte}${handlesString}${signatureString}`;
-  return inputProof;
-};
