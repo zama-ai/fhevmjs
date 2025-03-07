@@ -6,7 +6,7 @@ import {
   Provider,
 } from 'ethers';
 import { PublicParams } from './encrypt';
-import { getKeysFromGateway } from './network';
+import { getKeysFromRelayer } from './network';
 import {
   fromHexString,
   cleanURL,
@@ -57,7 +57,7 @@ export const getTfheCompactPublicKey = async (
   config: FhevmInstanceConfig,
 ): Promise<{ publicKey: TfheCompactPublicKey; publicKeyId: string }> => {
   if (config.relayerUrl && !config.publicKey) {
-    const inputs = await getKeysFromGateway(
+    const inputs = await getKeysFromRelayer(
       cleanURL(config.relayerUrl),
       config.publicKeyId,
     );
@@ -86,7 +86,7 @@ export const getPublicParams = async (
   config: FhevmInstanceConfig,
 ): Promise<PublicParams> => {
   if (config.relayerUrl && !config.publicParams) {
-    const inputs = await getKeysFromGateway(
+    const inputs = await getKeysFromRelayer(
       cleanURL(config.relayerUrl),
       config.publicKeyId,
     );

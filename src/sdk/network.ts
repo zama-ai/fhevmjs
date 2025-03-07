@@ -1,25 +1,25 @@
 import { CompactPkeCrs, TfheCompactPublicKey } from 'node-tfhe';
 import { SERIALIZED_SIZE_LIMIT_PK, SERIALIZED_SIZE_LIMIT_CRS } from '../utils';
 
-export type GatewayKeysItem = {
+export type RelayerKeysItem = {
   data_id: string;
   param_choice: number;
   urls: string[];
   signatures: string[];
 };
 
-export type GatewayKey = {
+export type RelayerKey = {
   data_id: string;
   param_choice: number;
   signatures: string[];
   urls: string[];
 };
 
-export type GatewayKeys = {
+export type RelayerKeys = {
   response: {
     fhe_key_info: {
-      fhe_public_key: GatewayKey;
-      fhe_server_key: GatewayKey;
+      fhe_public_key: RelayerKey;
+      fhe_server_key: RelayerKey;
     }[];
     verf_public_key: {
       key_id: string;
@@ -28,14 +28,14 @@ export type GatewayKeys = {
       verf_public_key_url: string;
     }[];
     crs: {
-      [key: string]: GatewayKeysItem;
+      [key: string]: RelayerKeysItem;
     };
   };
   status: string;
 };
 
 const keyurlCache: { [key: string]: any } = {};
-export const getKeysFromGateway = async (
+export const getKeysFromRelayer = async (
   url: string,
   publicKeyId?: string | null,
 ) => {
@@ -47,7 +47,7 @@ export const getKeysFromGateway = async (
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data: GatewayKeys = await response.json();
+    const data: RelayerKeys = await response.json();
     if (data) {
       let pubKeyUrl: string;
 
@@ -103,7 +103,7 @@ export const getKeysFromGateway = async (
       throw new Error('No public key available');
     }
   } catch (e) {
-    throw new Error('Impossible to fetch public key: wrong gateway url.', {
+    throw new Error('Impossible to fetch public key: wrong relayer url.', {
       cause: e,
     });
   }

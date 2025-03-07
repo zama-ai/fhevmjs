@@ -29,7 +29,7 @@ Fill in the relevant environment details where the issue was observed:
 - **Network Configuration**:
   - **Chain ID**: [e.g., `9000`]
   - **RPC URL**: [e.g., `https://devnet.zama.ai`]
-  - **Gateway URL**: [e.g., `https://gateway.devnet.zama.ai`]
+  - **Relayer URL**: [e.g., `https://relayer.devnet.zama.ai`]
 
 ### **Steps Taken to Debug**
 

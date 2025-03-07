@@ -1,9 +1,9 @@
-import { GatewayKeys, getKeysFromGateway } from './network';
+import { RelayerKeys, getKeysFromRelayer } from './network';
 import { publicKey, publicParams } from '../test';
 import { SERIALIZED_SIZE_LIMIT_CRS, SERIALIZED_SIZE_LIMIT_PK } from '../utils';
 import fetchMock from '@fetch-mock/core';
 
-const payload: GatewayKeys = {
+const payload: RelayerKeys = {
   response: {
     crs: {
       '2048': {
@@ -82,7 +82,7 @@ const payload: GatewayKeys = {
   status: 'success',
 };
 
-fetchMock.get('https://test-gateway.net/keyurl', payload);
+fetchMock.get('https://test-relayer.net/keyurl', payload);
 
 fetchMock.get(
   'https://s3.amazonaws.com/bucket-name-1/PUB-p1/PublicKey/408d8cbaa51dece7f782fe04ba0b1c1d017b1088',
@@ -95,8 +95,8 @@ fetchMock.get(
 );
 
 describe('network', () => {
-  it('getInputsFromGateway', async () => {
-    const material = await getKeysFromGateway('https://test-gateway.net/');
+  it('getInputsFromRelayer', async () => {
+    const material = await getKeysFromRelayer('https://test-relayer.net/');
 
     expect(
       material.publicKey.safe_serialize(SERIALIZED_SIZE_LIMIT_PK),
