@@ -11,13 +11,13 @@ const aclABI = [
   'function persistAllowed(uint256 handle, address account) view returns (bool)',
 ];
 
-export const reencryptRequest =
+export const userDecryptRequest =
   (
     kmsSignatures: string[],
     chainId: number,
     kmsContractAddress: string,
     aclContractAddress: string,
-    gatewayUrl: string,
+    relayerUrl: string,
     provider: ethers.JsonRpcProvider | ethers.BrowserProvider,
   ) =>
   async (
@@ -70,20 +70,20 @@ export const reencryptRequest =
     let response;
     let json;
     try {
-      response = await fetch(`${gatewayUrl}reencrypt`, options);
+      response = await fetch(`${relayerUrl}reencrypt`, options);
       if (!response.ok) {
         throw new Error(
-          `Reencrypt failed: gateway respond with HTTP code ${response.status}`,
+          `Reencrypt failed: relayer respond with HTTP code ${response.status}`,
         );
       }
     } catch (e) {
-      throw new Error("Reencrypt failed: Gateway didn't respond", { cause: e });
+      throw new Error("Reencrypt failed: Relayer didn't respond", { cause: e });
     }
 
     try {
       json = await response.json();
     } catch (e) {
-      throw new Error("Reencrypt failed: Gateway didn't return a JSON", {
+      throw new Error("Reencrypt failed: Relayer didn't return a JSON", {
         cause: e,
       });
     }

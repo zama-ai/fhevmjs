@@ -1,10 +1,10 @@
-import { reencryptRequest } from './reencrypt';
+import { userDecryptRequest } from './userDecrypt';
 import fetchMock from '@fetch-mock/core';
 import { ethers } from 'ethers';
 
 // fetchMock.mockGlobal();
 
-fetchMock.post('https://test-gateway.net/reencrypt', {
+fetchMock.post('https://test-relayer.net/reencrypt', {
   status: 'success',
   response: {},
 });
@@ -18,12 +18,12 @@ const userKeypair = {
 
 describe('reencrypt', () => {
   it('get reencryption for handle', async () => {
-    const reencrypt = reencryptRequest(
+    const reencrypt = userDecryptRequest(
       [],
       9000,
       '0x8ba1f109551bd432803012645ac136ddd64dba72',
       '0xa5e1defb98EFe38EBb2D958CEe052410247F4c80',
-      'https://test-gateway.net/',
+      'https://test-relayer.net/',
       new ethers.JsonRpcProvider('https://devnet.zama.ai'),
     );
     // const result = await reencrypt(

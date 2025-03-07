@@ -15,7 +15,8 @@ import {
 import { PublicParams, ZKInput } from './encrypt';
 import { createEncryptedInput } from './encrypt';
 import { generateKeypair, createEIP712, EIP712 } from './keypair';
-import { reencryptRequest } from './reencrypt';
+import { userDecryptRequest } from './userDecrypt';
+import { publicDecryptRequest } from './publicDecrypt';
 
 export type FhevmInstance = {
   createEncryptedInput: (
@@ -28,7 +29,8 @@ export type FhevmInstance = {
     contractAddress: string,
     delegatedAccount?: string,
   ) => EIP712;
-  decrypt: (
+  publicDecrypt: (handle: bigint) => Promise<bigint>;
+  userDecrypt: (
     handle: bigint,
     privateKey: string,
     publicKey: string,
@@ -37,7 +39,7 @@ export type FhevmInstance = {
     userAddress: string,
   ) => Promise<bigint>;
   /**
-   * @deprecated This method is replaced by decrypt, using same parameters
+   * @deprecated This method is replaced by userDecrypt, using same parameters
    */
   reencrypt: (
     handle: bigint,
@@ -85,7 +87,16 @@ export const createInstance = async (
   const publicParamsData = await getPublicParams(config);
 
   const kmsSigners = await getKMSSigners(provider, config);
-  const decrypt = reencryptRequest(
+  const userDecrypt = userDecryptRequest(
+    kmsSigners,
+    chainId,
+    kmsContractAddress,
+    aclContractAddress,
+    cleanURL(config.relayerUrl),
+    provider,
+  );
+
+  const publicDecrypt = publicDecryptRequest(
     kmsSigners,
     chainId,
     kmsContractAddress,
@@ -104,12 +115,13 @@ export const createInstance = async (
     ),
     generateKeypair,
     createEIP712: createEIP712(chainId),
-    decrypt,
+    publicDecrypt,
+    userDecrypt,
     reencrypt(...params) {
       console.warn(
-        "Warning: 'reencrypt' is deprecated and will be removed in future versions. Please use 'decrypt' instead, which accepts the same parameters.",
+        "Warning: 'reencrypt' is deprecated and will be removed in future versions. Please use 'userDecrypt' instead, which accepts the same parameters.",
       );
-      return decrypt(...params);
+      return userDecrypt(...params);
     },
     getPublicKey: () =>
       publicKeyData.publicKey

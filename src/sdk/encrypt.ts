@@ -308,7 +308,7 @@ export const createEncryptedInput =
           });
         }
 
-        // Note that the hex strings returned by the gateway do have have the 0x prefix
+        // Note that the hex strings returned by the relayer do have have the 0x prefix
         let handles: Uint8Array[] = [];
         if (json.response.handles && json.response.handles.length > 0) {
           handles = json.response.handles.map(fromHexString);
